@@ -28,10 +28,14 @@ var controller = {
     
     // Application Constructor
     initialize: function () {
-      //faster button clicks
-      window.addEventListener('load', function() {
-        FastClick.attach(document.body);
-      }, false);
+      
+      if(controller.checkCordova() != undefined) {
+        //faster button clicks
+        window.addEventListener('load', function() {
+          FastClick.attach(document.body);
+        }, false);
+        
+      }
       
       //center the loading message
       $.fn.center = function () {
@@ -69,9 +73,9 @@ var controller = {
       if (!localStorage.appurl) {
         //localStorage.appurl = "http://localhost/dt11";
         //localStorage.appurl = "http://192.168.38.113/dt11";
-        //localStorage.appurl = "http://192.168.38.114/dt11";
-        //localStorage.appurl = "http://jenkinsge.mountbatten.net/devtracmanual";
-        localStorage.appurl = "http://demo.devtrac.org";
+        //localStorage.appurl = "http://192.168.38.114/dt13";
+        localStorage.appurl = "http://jenkinsge.mountbatten.net/devtracmanual";
+        //localStorage.appurl = "http://demo.devtrac.org";
         //localStorage.appurl = "http://10.0.2.2/dt11";
         //localStorage.appurl = "http://jenkinsge.mountbatten.net/devtraccloud";
         
@@ -198,7 +202,7 @@ var controller = {
           
           devtracnodes.getSitereporttypes(db).then(function () {
             //save report types in a file
-            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, saveTypes, failsaveTypes);
+            //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, saveTypes, failsaveTypes);
             
             controller.loadingMsg("Site Report Types Saved", 0);
             $('.blockUI.blockMsg').center();  
@@ -457,7 +461,7 @@ var controller = {
           // Select the relevant option, de-select any others
           el.val('manual').selectmenu('refresh');
           
-        }else if(url.indexOf("dt11") != -1) {
+        }else if(url.indexOf("dt13") != -1) {
           // Select the relevant option, de-select any others
           el.val('local').selectmenu('refresh');
           
@@ -488,7 +492,7 @@ var controller = {
           // Select the relevant option, de-select any others
           el.val('manual').selectmenu('refresh');
           
-        }else if(url.indexOf("dt11") != -1) {
+        }else if(url.indexOf("dt13") != -1) {
           // Select the relevant option, de-select any others
           el.val('local').selectmenu('refresh');
           
@@ -875,7 +879,7 @@ var controller = {
             case "local":
               devtrac.indexedDB.open(function (db) {
                 devtrac.indexedDB.clearDatabase(db, 0, function() {
-                  localStorage.appurl = "http://192.168.38.114/dt11";
+                  localStorage.appurl = "http://192.168.38.114/dt13";
                   controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
                   $('.blockUI.blockMsg').center();
                 });
@@ -987,7 +991,7 @@ var controller = {
             case "local":
               
               controller.clearDBdialog().then(function() {
-                var url = "http://192.168.38.114/dt11";
+                var url = "http://192.168.38.114/dt13";
                 controller.loadingMsg("Saved Url "+url, 2000);
                 $('.blockUI.blockMsg').center();
                 controller.updateDB(url).then(function(){
@@ -1964,7 +1968,7 @@ var controller = {
     //handle site visit click
     onSitevisitClick: function (anchor) {
       //read report types from a file
-      window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, readTypes, failreadTypes);
+      //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, readTypes, failreadTypes);
       
       var state = false;
       var anchor_id = $(anchor).attr('id');
@@ -2256,8 +2260,23 @@ var controller = {
       tinyMCE.triggerSave();
       
       var summarytextarea = $("#actionitem_followuptask").val();
-      var summaryvalue = summarytextarea.substring(summarytextarea.lastIndexOf("<body>")+6, summarytextarea.lastIndexOf("</body>")).trim();
+      var prt = summarytextarea.substring(summarytextarea.lastIndexOf("<body>")+6, summarytextarea.lastIndexOf("</body>")).trim();
       var reportType = localStorage.reportType;
+      var part1;
+      var summaryvalue;
+      
+      //<p>&nbsp;</p>
+      
+      if(prt.indexOf("<p>&nbsp;</p>") != -1) {
+        summaryvalue =  prt.replace(/<p>&nbsp;<\/p>/g,'');
+        console.log("summary val is unclean "+summaryvalue);
+        
+      }else{
+        console.log("summary val is clean "+prt);
+        summaryvalue = prt;
+      }
+
+      console.log("saved follow up task "+summaryvalue);
       
       if ($("#form_add_actionitems").valid() && summaryvalue.length > 0) {
         //save added action items
