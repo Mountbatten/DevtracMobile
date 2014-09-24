@@ -45,7 +45,7 @@ var devtracnodes = {
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           console.log('error '+errorThrown);
           console.log('response error '+XMLHttpRequest.responseText);
-          d.reject(errorThrown);
+          d.reject(errorThrown+" "+XMLHttpRequest.responseText);
         },
         success: function (data) {         
           updates['submit'] = 1;
@@ -144,21 +144,20 @@ var devtracnodes = {
     },
     
     //upload action items
-    uploadActionItems: function(actionitems, sitevisits){
-      
-      var d = $.Deferred();
+    uploadActionItems: function(actionitems, sitevisits, callback){
+      console.log("Inside upload action items "+actionitems.length+" left");
       var nodestring = {};
       var jsonstring;
       
-      for(var x = 0; x < actionitems.length; x++) {
+      if(actionitems.length > 0) {
         
-        if(actionitems[x]['submit'] == 0 && actionitems[x]['user-added'] == true) {
-          delete actionitems[x]['submit'];
-          localStorage.currentanid = actionitems[x]['nid'];
+        if(actionitems[0]['submit'] == 0 && actionitems[0]['user-added'] == true) {
+          delete actionitems[0]['submit'];
+          localStorage.currentanid = actionitems[0]['nid'];
           
-          devtracnodes.getActionItemString(actionitems[x], sitevisits).then(function(jsonstring, anid) {
+          devtracnodes.getActionItemString(actionitems[0], "", function(jsonstring, anid) {
             console.log("Action item string is "+jsonstring);
-            devtracnodes.postNode(jsonstring, x, actionitems.length, anid).then(function(updates, status, anid) {
+            devtracnodes.postNode(jsonstring, 0, actionitems.length, anid).then(function(updates, status, anid) {
               console.log("actionitem post success "+anid);
               updates['fresh_nid'] = updates['nid'];
               devtrac.indexedDB.open(function (db) {
@@ -167,35 +166,45 @@ var devtracnodes = {
                   var count_container = $("#actionitem_count").html().split(" ");
                   var updated_count = parseInt(count_container[0]) - 1;
                   $("#actionitem_count").html(updated_count);
-                  
+              
+                  actionitems.splice(0,1);
+                  devtracnodes.uploadActionItems(actionitems, sitevisits, callback);
                 });           
               });
               
               devtracnodes.postComments(updates).then(function() {
-                d.resolve();
+                
                 
               }).fail(function(){
-                d.resolve();
+                
                 
               });
+              
+              
               
             }).fail(function(e) {
               console.log("actionitem post error "+e);
               if(e == "Unauthorized: CSRF validation failed" || e == "Unauthorized") {
                 auth.getToken().then(function(token) {
                   localStorage.usertoken = token;
-                  devtracnodes.uploadActionItems(actionitems);
+                  devtracnodes.uploadActionItems(actionitems, sitevisits, callback);
                 });  
               }else
               {
-                d.reject(e);
+                
+                controller.loadingMsg(e, 2000);
+                $('.blockUI.blockMsg').center();
+                
+                
               }
             });   
           });
         }
+      }else{
+        callback();
+        
       }
       
-      return d;
     },
     
     getLocations: function() {
@@ -351,7 +360,7 @@ var devtracnodes = {
     
     checkActionitems: function() {
       var d = $.Deferred();
-      var actionitems = [];
+      var aitems = [];
       var items = 0;
       
       devtrac.indexedDB.open(function (db) {
@@ -360,14 +369,14 @@ var devtracnodes = {
           for(var actionitem in actionitems) {
             
             if(actionitems[actionitem]['submit'] == 0 && actionitems[actionitem]['user-added'] == true) {              
-              actionitems.push(actionitems[actionitem]);
+              aitems.push(actionitems[actionitem]);
               items = items + 1;
             }
             
           }
           
-          if(actionitems.length > 0) {
-            d.resolve(actionitems, items);  
+          if(aitems.length > 0) {
+            d.resolve(aitems, items);  
           }else{
             d.reject(items);
           }
@@ -533,7 +542,7 @@ var devtracnodes = {
     //create node
     postImageFile: function(images, index, nid) {
       var d = $.Deferred();
-
+      
       var parsedImage = images['base64s'][index].substring(images['base64s'][index].indexOf(",")+1);
       
       
@@ -872,9 +881,11 @@ var devtracnodes = {
       var actionitems = false;
       
       if(parseInt($("#actionitem_count").html()) > 0) {
+        console.log("Inside sync action items");
+        
         //upload action items and comments
         devtracnodes.checkActionitems().then(function(actionitems, db) {
-          devtracnodes.uploadActionItems(actionitems, sitevisits).then(function(){
+          devtracnodes.uploadActionItems(actionitems, sitevisits, function(){
             actionitems = true;
             
             controller.loadingMsg("Finished Syncing Action Items ...", 0);
@@ -884,15 +895,8 @@ var devtracnodes = {
               
             }
             
-          }).fail(function(e){
-            controller.loadingMsg("Action Items "+e, 0);
-            $('.blockUI.blockMsg').center();
-            actionitems = true;
-            if(ftritems == true && actionitems == true){
-              devtracnodes.syncFieldtrips(actionitems);
-              
-            }
           });
+          
         }).fail(function(){
           actionitems = true;
           if(ftritems == true && actionitems == true){
@@ -1394,121 +1398,131 @@ var devtracnodes = {
     },
     
     //return action item string
-    getActionItemString: function(aObj, ftritems) {
-      var d = $.Deferred();
-      var flags = [];
+    getActionItemString: function(aObj, nodestring, callback) {
       
-      var nodestring = '';
-      for(var a in aObj) {
-        if(typeof aObj[a] == 'object') {
-          switch(a) {
-            case 'field_actionitem_severity': 
+      if(aObj.hasOwnProperty('field_actionitem_severity')){
+        nodestring = nodestring + 'node[field_actionitem_severity][und][value]='+aObj['field_actionitem_severity']['und'][0]['value']+'&';
+        delete aObj['field_actionitem_severity'];
+        
+        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        
+      }else if(aObj.hasOwnProperty('field_actionitem_resp_place')) {
+        if(aObj['has_location'] == true) {
+          var pid = aObj['field_actionitem_resp_place']['und'][0]['target_id'];
+          
+          devtrac.indexedDB.open(function (db) {
+            devtrac.indexedDB.getPlace(db, pid, function(place) {
               
-              nodestring = nodestring + 'node['+a+'][und][value]='+aObj[a]['und'][0]['value']+'&';
-              break;
-            case 'field_actionitem_resp_place':
-
-              if(aObj['has_location'] == true) {
-                var pid = aObj[a]['und'][0]['target_id'];
-                console.log("place id is "+pid);
-                
-                devtrac.indexedDB.open(function (db) {
-                devtrac.indexedDB.getPlace(db, pid, function(place) {
-                  
-                  if(place['fresh_nid'] == undefined){
-                    nodestring = nodestring + 'node[field_actionitem_resp_place][und][0][target_id]='+place['title']+"("+place['nid']+")"+'&';  
-                  }
-                  else{
-                    nodestring = nodestring + 'node[field_actionitem_resp_place][und][0][target_id]='+place['title']+"("+place['fresh_nid']+")"+'&';
-                  }
-                  flags.push("place");
-                  
-                  if(flags.length == 3) {
-                    var nodestringlen = nodestring.length;
-                    var newnodestring = nodestring.substring(0, nodestringlen - 1);
-                    d.resolve(newnodestring, aObj['nid']);  
-                  }
-                  
-                });
-                
-                }); 
-              }else {
-                flags.push("NoPlace");
+              if(place['fresh_nid'] == undefined){
+                nodestring = nodestring + 'node[field_actionitem_resp_place][und][0][target_id]='+place['title']+"("+place['nid']+")"+'&';  
               }
-              
-              break;
-            case 'field_actionitem_ftreportitem':
-              
-              var sid = aObj[a]['und'][0]['target_id'];
-              
-              devtrac.indexedDB.open(function (db) {
-              devtrac.indexedDB.getSitevisit(db, sid).then(function(sitevisit) {
-                if(sitevisit['fresh_nid'] == undefined){
-                  nodestring = nodestring + 'node[field_actionitem_ftreportitem][und][0][target_id]='+sitevisit['title']+"("+sitevisit['nid']+")"+'&';  
-                }
-                else{
-                  nodestring = nodestring + 'node[field_actionitem_ftreportitem][und][0][target_id]='+sitevisit['title']+"("+sitevisit['fresh_nid']+")"+'&';
-                }
-                flags.push("ftritem");
-                
-                if(flags.length == 3) {
-                  var nodestringlen = nodestring.length;
-                  var newnodestring = nodestring.substring(0, nodestringlen - 1);
-                  d.resolve(newnodestring, aObj['nid']);  
-                }
-              });
-              
-              });
-              
-              break;
-            case 'field_actionitem_followuptask':
-              flags.push("followup");
-              nodestring = nodestring + 'node['+a+'][und][0][value]='+aObj[a]['und'][0]['value']+'&';
-              break;
-            case 'taxonomy_vocabulary_6':
-              //nodestring = nodestring + 'node['+a+'][und][tid]='+aObj[a]['und'][0]['tid']+'&';
-              break;
-            case 'taxonomy_vocabulary_8':
-              nodestring = nodestring + 'node['+a+'][und][tid]='+aObj[a]['und'][0]['tid']+'&';
-              break;
-            case 'field_actionitem_due_date':
-              var duedate = null;
-              if(aObj['user-added']) {
-                var dateparts = aObj[a]['und'][0]['value']['date'].split('/');
-                duedate = dateparts[2]+'/'+dateparts[1]+'/'+dateparts[0];
-              }else{
-                var sitedate = aObj[a]['und'][0]['value'];
-                var sitedatestring = JSON.stringify(sitedate);
-                var sitedateonly = sitedatestring.substring(1, sitedatestring.indexOf('T'));
-                var sitedatearray = sitedateonly.split("-");
-                
-                duedate =  sitedatearray[2] + "/" + sitedatearray[1] + "/" + sitedatearray[0];
-                
+              else{
+                nodestring = nodestring + 'node[field_actionitem_resp_place][und][0][target_id]='+place['title']+"("+place['fresh_nid']+")"+'&';
               }
+              delete aObj['field_actionitem_resp_place'];
               
-              nodestring = nodestring + 'node['+a+'][und][0][value][date]='+duedate+'&';
-              break;
-            case 'field_actionitem_status':
-              nodestring = nodestring + 'node['+a+'][und][value]='+aObj[a]['und'][0]['value']+'&';
-              break;
-            case 'field_actionitem_responsible':
-              nodestring = nodestring + 'node['+a+'][und][0][target_id]='+aObj[a]['und'][0]['target_id']+'&';
-              break;
-            default :
-              break
-          }
+              devtracnodes.getActionItemString(aObj, nodestring, callback);
+            });
+            
+          }); 
+        }else{
+          delete aObj['field_actionitem_resp_place'];
+          devtracnodes.getActionItemString(aObj, nodestring, callback);
         }
-        else 
-        {
-          if(a != 'user-added' && a != 'nid' && a != 'fresh_nid' && a != 'has_location') {
-            nodestring = nodestring + 'node['+a+']='+aObj[a]+"&";  
-          }
+        
+        
+      }else if(aObj.hasOwnProperty('field_actionitem_ftreportitem')) {
+        
+        var sid = aObj['field_actionitem_ftreportitem']['und'][0]['target_id'];
+        
+        devtrac.indexedDB.open(function (db) {
+          devtrac.indexedDB.getSitevisit(db, sid).then(function(sitevisit) {
+            if(sitevisit['fresh_nid'] == undefined){
+              nodestring = nodestring + 'node[field_actionitem_ftreportitem][und][0][target_id]='+sitevisit['title']+"("+sitevisit['nid']+")"+'&';  
+            }
+            else{
+              nodestring = nodestring + 'node[field_actionitem_ftreportitem][und][0][target_id]='+sitevisit['title']+"("+sitevisit['fresh_nid']+")"+'&';
+            }
+            delete aObj['field_actionitem_ftreportitem'];
+            
+            devtracnodes.getActionItemString(aObj, nodestring, callback);
+          });
+          
+        });
+        
+        
+      }else if(aObj.hasOwnProperty('field_actionitem_followuptask')) {
+        nodestring = nodestring + 'node[field_actionitem_followuptask][und][0][value]='+aObj['field_actionitem_followuptask']['und'][0]['value']+'&';
+        delete aObj['field_actionitem_followuptask'];
+        
+        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        
+      }else if(aObj.hasOwnProperty('taxonomy_vocabulary_8')) {
+        nodestring = nodestring + 'node[taxonomy_vocabulary_8][und][tid]='+aObj['taxonomy_vocabulary_8']['und'][0]['tid']+'&';
+        delete aObj['taxonomy_vocabulary_8'];
+        
+        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        
+      }else if(aObj.hasOwnProperty('field_actionitem_due_date')) {
+        
+        var duedate = null;
+        if(aObj['user-added']) {
+          var dateparts = aObj['field_actionitem_due_date']['und'][0]['value']['date'].split('/');
+          duedate = dateparts[2]+'/'+dateparts[1]+'/'+dateparts[0];
+        }else{
+          var sitedate = aObj['field_actionitem_due_date']['und'][0]['value'];
+          var sitedatestring = JSON.stringify(sitedate);
+          var sitedateonly = sitedatestring.substring(1, sitedatestring.indexOf('T'));
+          var sitedatearray = sitedateonly.split("-");
+          
+          duedate =  sitedatearray[2] + "/" + sitedatearray[1] + "/" + sitedatearray[0];
           
         }
         
+        nodestring = nodestring + 'node[field_actionitem_due_date][und][0][value][date]='+duedate+'&';
+        delete aObj['field_actionitem_due_date'];
+        
+        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        
+      }else if(aObj.hasOwnProperty('field_actionitem_status')) {
+        
+        nodestring = nodestring + 'node[field_actionitem_status][und][value]='+aObj['field_actionitem_status']['und'][0]['value']+'&';
+        delete aObj['field_actionitem_status'];
+        
+        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        
+      }else if(aObj.hasOwnProperty('field_actionitem_responsible')) {
+        
+        nodestring = nodestring + 'node[field_actionitem_responsible][und][0][target_id]='+aObj['field_actionitem_responsible']['und'][0]['target_id']+'&';
+        delete aObj['field_actionitem_responsible'];
+        
+        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        
+      }else if(aObj.hasOwnProperty('type')) {
+        
+        nodestring = nodestring + 'node[type]='+aObj['type']+"&";
+        delete aObj['type'];
+        
+        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        
+      }else if(aObj.hasOwnProperty('title')) {
+        
+        nodestring = nodestring + 'node[title]='+aObj['title']+"&";
+        delete aObj['title'];
+        
+        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        
+      }else if(aObj.hasOwnProperty('uid')) {
+        
+        nodestring = nodestring + 'node[uid]='+aObj['uid'];
+        delete aObj['uid'];
+        
+        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        
+      }else{
+        console.log("actionitem callback "+nodestring);
+        callback(nodestring, aObj['nid']);  
       }
-
-      return d;
       
     },
     
@@ -1614,7 +1628,7 @@ var devtracnodes = {
             console.log("No types returned from server");
             d.reject("No types returned from server");
           }else{
-
+            
             for(var k = 0; k < data.length; k++){
               if(data[k]['name'].indexOf("uman") != -1){
                 localStorage.humaninterest = data[k]['term id'];
@@ -1704,7 +1718,7 @@ var devtracnodes = {
       
     },
     
-/*    saveSitetypes: function(db, data, callback) {
+    /*    saveSitetypes: function(db, data, callback) {
       console.log("inside save site types "+data.length);
       console.log("One site type is "+data[0]);
       var arrlength = data.length;
