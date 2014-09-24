@@ -931,7 +931,7 @@ var controller = {
               
               devtrac.indexedDB.open(function (db) {
                 devtrac.indexedDB.clearDatabase(db, 0, function() {
-                  localStorage.appurl = "http://test.devtrac.org";
+                  localStorage.appurl = "http://jenkinsge.mountbatten.net/devtracorgtest";
                   controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
                   $('.blockUI.blockMsg').center();
                 });
@@ -1066,7 +1066,7 @@ var controller = {
               
               controller.clearDBdialog().then(function() {
                 
-                var url = "http://test.devtrac.org";
+                var url = "http://jenkinsge.mountbatten.net/devtracorgtest";
                 controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
                 $('.blockUI.blockMsg').center();
                 
@@ -2264,8 +2264,8 @@ var controller = {
       var reportType = localStorage.reportType;
       var part1;
       var summaryvalue;
-      
-      //<p>&nbsp;</p>
+
+      //var summaryvalue = encodeURI(prt);
       
       if(prt.indexOf("<p>&nbsp;</p>") != -1) {
         summaryvalue =  prt.replace(/<p>&nbsp;<\/p>/g,'');
@@ -2275,7 +2275,7 @@ var controller = {
         console.log("summary val is clean "+prt);
         summaryvalue = prt;
       }
-
+ 
       console.log("saved follow up task "+summaryvalue);
       
       if ($("#form_add_actionitems").valid() && summaryvalue.length > 0) {
