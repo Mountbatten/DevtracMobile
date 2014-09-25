@@ -83,7 +83,12 @@ var auth = {
           dataType : 'json',
           headers: {'X-CSRF-Token': token},
           error : function(XMLHttpRequest, textStatus, errorThrown) {
-            $.unblockUI();
+            $.unblockUI({ 
+              onUnblock: function() {
+                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+              }
+               
+            });
             
             console.log('response error '+XMLHttpRequest.responseText);
             //hide and show dialog auth buttons
@@ -162,7 +167,12 @@ var auth = {
              
             },
           error : function(XMLHttpRequest, textStatus, errorThrown) {
-            $.unblockUI();
+            $.unblockUI({ 
+              onUnblock: function() {
+                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+              }
+               
+            });
             alert("Sorry "+errorThrown);	
             console.log('response error '+XMLHttpRequest.responseText);
             //hide and show dialog auth buttons
@@ -259,7 +269,12 @@ var auth = {
             'X-CSRF-Token': token
           },
           error : function(XMLHttpRequest, textStatus, errorThrown) {
-            $.unblockUI();
+            $.unblockUI({ 
+              onUnblock: function() {
+                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+              }
+               
+            });
             
             //hide and show dialog auth buttons
             $('#logindiv').hide();
@@ -270,7 +285,12 @@ var auth = {
             
           },
           success : function(data) {
-            $.unblockUI();
+            $.unblockUI({ 
+              onUnblock: function() {
+                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+              }
+               
+            });
             console.log("logged out okay");
             $(".menulistview").hide();
             $("#form_fieldtrip_details").hide();
