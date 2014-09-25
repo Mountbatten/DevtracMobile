@@ -29,22 +29,6 @@ var controller = {
     // Application Constructor
     initialize: function () {
       
-      if(controller.checkCordova() != undefined) {
-        //faster button clicks
-        window.addEventListener('load', function() {
-          FastClick.attach(document.body);
-        }, false);
-        
-      }
-      
-      //center the loading message
-      $.fn.center = function () {
-        this.css("position","absolute");
-        this.css("top", ( $(window).height() - this.height() ) / 2+$(window).scrollTop() + "px");
-        this.css("left", ( $(window).width() - this.width() ) / 2+$(window).scrollLeft() + "px");
-        return this;
-      }
-      
       //initialise section for templates
       var leftMenu = Handlebars.compile($("#leftmenu-tpl").html()); 
       $(".leftmenu").html(leftMenu());
@@ -65,6 +49,32 @@ var controller = {
       $("#header_download").html(header({id: "download", title: "Download Nodes"}));
       
       $(window).bind('orientationchange pageshow pagechange resize', mapctlr.resizeMapIfVisible);
+      
+      //return date in ISO format
+      Date.prototype.yyyymmdd = function() {         
+        
+        var yyyy = this.getFullYear().toString();                                    
+        var mm = (this.getMonth()+1).toString(); // getMonth() is zero-based         
+        var dd  = this.getDate().toString();             
+        
+        return yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]);
+      }; 
+      
+      if(controller.checkCordova() != undefined) {
+        //faster button clicks
+        window.addEventListener('load', function() {
+          FastClick.attach(document.body);
+        }, false);
+        
+      }
+      
+      //center the loading message
+      $.fn.center = function () {
+        this.css("position","absolute");
+        this.css("top", ( $(window).height() - this.height() ) / 2+$(window).scrollTop() + "px");
+        this.css("left", ( $(window).width() - this.width() ) / 2+$(window).scrollLeft() + "px");
+        return this;
+      }
       
       //start with hidden notifications button
       $("#notify_fieldtrip").hide();
@@ -162,7 +172,7 @@ var controller = {
             onUnblock: function() {
               document.removeEventListener("backbutton", controller.onBackKeyDown, false);
             }
-             
+          
           });
           
           if(window.localStorage.getItem("usernam") != null && window.localStorage.getItem("passw") != null) {
@@ -193,7 +203,7 @@ var controller = {
               onUnblock: function() {
                 document.removeEventListener("backbutton", controller.onBackKeyDown, false);
               }
-               
+            
             });  
           }, 2000);
           
@@ -341,7 +351,7 @@ var controller = {
       
       //add site visit
       $("#page_site_report_type").bind('pagebeforeshow', function(){
-         console.log("before adding "+localStorage.humaninterest + "," + localStorage.roadside+ "," +localStorage.sitevisit);
+        console.log("before adding "+localStorage.humaninterest + "," + localStorage.roadside+ "," +localStorage.sitevisit);
         var addftritem = $("#sitevisit_add_type"); 
         
         addftritem.find('option')
@@ -816,6 +826,7 @@ var controller = {
       $("#editsitevisit").bind("click", function (event) {
         controller.buildSelect("placetype", []);
         var x = new Date();
+        var isodate = x.yyyymmdd();
         var timenow = x.getHours()+":"+x.getMinutes()+":"+x.getSeconds();
         
         var snid = localStorage.snid;
@@ -832,9 +843,16 @@ var controller = {
             var uncleandate =  sitevisitObject['field_ftritem_date_visited']['und'][0]['value'];
             var cleandate = uncleandate.substring(0, uncleandate.indexOf("T")+1);
             console.log("date is "+cleandate);
-            var datetimenow = cleandate + timenow;
+            var datetimenow;
+            if(cleandate.length > 0) {
+              datetimenow = cleandate + timenow;
+            }else{
+              datetimenow = isodate +"T" + timenow;
+            }
+            
             
             $("#sitevisit_date").val(datetimenow);
+            //$("#sitevisit_date").val(uncleandate);
             
             $("#sitevisit_summary").html(sitevisitObject['field_ftritem_public_summary']['und'][0]['value']);
             localStorage.sitevisit_summary = sitevisitObject['field_ftritem_public_summary']['und'][0]['value'];
@@ -1253,7 +1271,7 @@ var controller = {
                   onUnblock: function() {
                     document.removeEventListener("backbutton", controller.onBackKeyDown, false);
                   }
-                   
+                
                 });
                 
               });
@@ -1714,7 +1732,7 @@ var controller = {
               onUnblock: function() {
                 document.removeEventListener("backbutton", controller.onBackKeyDown, false);
               }
-               
+            
             });
           } else if (data.length == 1) {
             console.log("one fieldtrip");
@@ -1772,7 +1790,7 @@ var controller = {
               localStorage.fendday = parseInt(endday);
               localStorage.fendmonth = parseInt(endmonth);
               localStorage.fendyear = parseInt(endyear);
-             
+              
               $( "#sitevisit_date" ).datepicker( "destroy" );
               
               $("#sitevisit_date").datepicker({ 
@@ -1845,7 +1863,7 @@ var controller = {
                 onUnblock: function() {
                   document.removeEventListener("backbutton", controller.onBackKeyDown, false);
                 }
-                 
+              
               });
             } else {
               controller.loadingMsg("Please add dates to Fieldtrip from Devtrac", 2000);
@@ -1864,7 +1882,7 @@ var controller = {
               onUnblock: function() {
                 document.removeEventListener("backbutton", controller.onBackKeyDown, false);
               }
-               
+            
             });
           }
         });
@@ -1968,7 +1986,7 @@ var controller = {
     
     //handle submit of site report type
     submitSitereporttype: function() {
-
+      
       localStorage.ftritem = $("#sitevisit_add_type :selected").text();
       localStorage.ftritemtype = $("#sitevisit_add_type :selected").val();
       console.log("report id is "+localStorage.ftritemtype);
@@ -2085,7 +2103,7 @@ var controller = {
           $('#sitevisists_details_location').show();
           $('#sitevisists_details_location').prev("label").show();
           switch (fObject['taxonomy_vocabulary_7']['und'][0]['tid']) {
-
+            
             case localStorage.sitevisit:
               $("#sitevisists_details_type").html("Site Visit");
               localStorage.reportType = "site";
@@ -2111,12 +2129,12 @@ var controller = {
           
           $("#sitevisists_details_title").html(fObject['title']);
           $("#sitevisists_details_summary").html(fObject['field_ftritem_public_summary']['und'][0]['value']);
-
+          
           //determine type of site visit before looking up it location
           //(road side visits donot have locations)
           var ftritemType = localStorage.reportType;
           if(ftritemType.indexOf("oa") == -1) {
-
+            
             //get location details
             devtrac.indexedDB.getPlace(db, pnid, function (place) {
               if (place != undefined) {
@@ -2307,7 +2325,7 @@ var controller = {
       var reportType = localStorage.reportType;
       var part1;
       var summaryvalue;
-
+      
       //var summaryvalue = encodeURI(prt);
       
       if(prt.indexOf("<p>&nbsp;</p>") != -1) {
@@ -2318,7 +2336,7 @@ var controller = {
         console.log("summary val is clean "+prt);
         summaryvalue = prt;
       }
- 
+      
       console.log("saved follow up task "+summaryvalue);
       
       if ($("#form_add_actionitems").valid() && summaryvalue.length > 0) {
