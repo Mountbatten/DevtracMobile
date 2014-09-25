@@ -527,7 +527,12 @@ var devtracnodes = {
         if(e == "Could not create destination directory") {
           var newsitevisits = [];
           devtracnodes.uploadsitevisits(db, sitevisits, newsitevisits, function(newsitevisits) {
-            $.unblockUI();
+            $.unblockUI({ 
+              onUnblock: function() {
+                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+              }
+               
+            });
           });
           
         }else{
@@ -922,7 +927,11 @@ var devtracnodes = {
           controller.loadingMsg("Finished Syncing Fieldtrips ...", 0);
           $('.blockUI.blockMsg').center();
           if(fieldtrips == true && actionitems == true){
-            $.unblockUI();
+            $.unblockUI({ 
+                onUnblock: function() {
+                  document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+                } 
+            });
           }
           
         }).fail(function(e){
@@ -930,7 +939,12 @@ var devtracnodes = {
           $('.blockUI.blockMsg').center();
           fieldtrips = true;
           if(fieldtrips == true && actionitems == true){
-            $.unblockUI();
+            $.unblockUI({ 
+              onUnblock: function() {
+                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+              }
+               
+            });
             
           }
           
@@ -939,7 +953,12 @@ var devtracnodes = {
       }else{
         fieldtrips = true;
         if(fieldtrips == true && actionitems == true) {
-          $.unblockUI();
+          $.unblockUI({ 
+            onUnblock: function() {
+              document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+            }
+             
+          });
           
         }
       }
@@ -1545,7 +1564,11 @@ var devtracnodes = {
         success : function(data) {
           //create bubble notification
           if(data.length <= 0) {
-            $.unblockUI();
+            $.unblockUI({ 
+                onUnblock: function(){ 
+                  document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+                } 
+            });
             
             d.reject("No Fieldtrips Found");
             
@@ -1744,7 +1767,12 @@ var devtracnodes = {
         dataType : 'json',
         error : function(XMLHttpRequest, textStatus, errorThrown) { 
           //console.log("Error location "+errorThrown);
-          $.unblockUI();
+          $.unblockUI({ 
+            onUnblock: function() {
+              document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+            }
+             
+          });
         },
         success : function(data) {
           //console.log("Downloaded location "+data[0]['title']);
