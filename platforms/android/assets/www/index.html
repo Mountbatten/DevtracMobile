@@ -438,8 +438,7 @@ body {
       <form id="form_sitevisit_edits" method="" action="">
         <fieldset>
           <label for='sitevisit_title'>Title</label> <input type='text' value='' id='sitevisit_title' required> <label for='sitevisit_date'>Date
-              Visited</label> <input type='text' value='' id='sitevisit_date'
-            readonly='true' required /> <label for='sitevisit_summary'>Summary</label>
+              Visited</label> <input type='text' value='' id='sitevisit_date' required /> <label for='sitevisit_summary'>Summary</label>
             <textarea id="sitevisit_summary" name="sitevisit_summary" required></textarea>
 
         </fieldset>
@@ -485,7 +484,7 @@ body {
 
         <label for='sitevisit_add_oecds'>Oecds</label>
         <div id="select_oecds"></div>
-        <label for="sitevisit_add_date">Date</label> <input type='text' id='sitevisit_add_date' readonly='true' name='sitevisit_add_date' required/> <label
+        <label for="sitevisit_add_date">Date</label> <input type='text' id='sitevisit_add_date' name='sitevisit_add_date' required/> <label
           for="sitevisit_add_public_summary">Public Summary</label>
         <textarea id='sitevisit_add_public_summary'
           name='sitevisit_add_public_summary' required></textarea>
@@ -545,6 +544,9 @@ body {
 
         <div id='actionitems_oecds'></div>
 
+<label for="actionitem_date">Due Date</label> <input type='text'
+          id='actionitem_date' name='' required />
+
         <div class="ui-field-contain">
           <label for="actionitem_status">Status</label> <select
             name="actionitem_status" id="actionitem_status" data-mini="true"
@@ -565,9 +567,7 @@ body {
           </select>
         </div>
 
-        <label for="actionitem_date">Due Date</label> <input type='text'
-          id='actionitem_date' name='actionitem_date' data-role="date"
-          data-inline="false" readonly='true' required /> <label
+         <label
           for="actionitem_followuptask">Follow up task</label>
         <textarea value='' id='actionitem_followuptask'
           name='actionitem_followuptask' required></textarea>
