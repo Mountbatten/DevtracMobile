@@ -74,8 +74,8 @@ var controller = {
         //localStorage.appurl = "http://localhost/dt11";
         //localStorage.appurl = "http://192.168.38.113/dt11";
         //localStorage.appurl = "http://192.168.38.114/dt13";
-        localStorage.appurl = "http://jenkinsge.mountbatten.net/devtracmanual";
-        //localStorage.appurl = "http://demo.devtrac.org";
+        //localStorage.appurl = "http://jenkinsge.mountbatten.net/devtracmanual";
+        localStorage.appurl = "http://demo.devtrac.org";
         //localStorage.appurl = "http://10.0.2.2/dt11";
         //localStorage.appurl = "http://jenkinsge.mountbatten.net/devtraccloud";
         
@@ -158,7 +158,12 @@ var controller = {
           $("#syncForm").hide();
           
           controller.resetForm($('#form_fieldtrip_details'));
-          $.unblockUI();
+          $.unblockUI({ 
+            onUnblock: function() {
+              document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+            }
+             
+          });
           
           if(window.localStorage.getItem("usernam") != null && window.localStorage.getItem("passw") != null) {
             $("#page_login_name").val(window.localStorage.getItem("usernam"));
@@ -182,7 +187,16 @@ var controller = {
           //hide logout button and show login button when offline
           $('#logoutdiv').hide();
           $('#logindiv').show();
-          $.unblockUI();
+          
+          setTimeout(function(){
+            $.unblockUI({ 
+              onUnblock: function() {
+                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+              }
+               
+            });  
+          }, 2000);
+          
         }
       }
       
@@ -639,8 +653,7 @@ var controller = {
       actionitem_form.validate({
         rules: {
           actionitem_date: {
-            required: true,
-            date: true
+            required: true
           },
           actionitem_title: {
             required: true
@@ -706,7 +719,8 @@ var controller = {
             required: true
           },
           sitevisit_add_date:{
-            required: true
+            required: true,
+            date: true
           },
           sitevisit_add_public_summary:{
             required: true
@@ -754,6 +768,14 @@ var controller = {
           'id': "action_snid"
         }).val(snid).prependTo(form);
         
+        //$( "#actionitem_date" ).datepicker("destroy");
+        
+        $("#actionitem_date").datepicker({ 
+          dateFormat: "yy/mm/dd", 
+          minDate: new Date(localStorage.fstartyear, localStorage.fstartmonth, localStorage.fstartday), 
+          maxDate: new Date(localStorage.fendyear, localStorage.fendmonth, localStorage.fendday) 
+        });
+        
         controller.buildSelect("oecdobj", []);
         
       });
@@ -793,6 +815,9 @@ var controller = {
       //handle edit sitevisit click event
       $("#editsitevisit").bind("click", function (event) {
         controller.buildSelect("placetype", []);
+        var x = new Date();
+        var timenow = x.getHours()+":"+x.getMinutes()+":"+x.getSeconds();
+        
         var snid = localStorage.snid;
         if(localStorage.user == "true"){
           snid = parseInt(snid);
@@ -803,8 +828,13 @@ var controller = {
         devtrac.indexedDB.open(function (db) {
           devtrac.indexedDB.getSitevisit(db, snid).then(function (sitevisitObject) {
             $("#sitevisit_title").val(sitevisitObject['title']);
-            //['taxonomy_vocabulary_1']['und'][0]['tid'];
-            $("#sitevisit_date").val(sitevisitObject['field_ftritem_date_visited']['und'][0]['value']);
+            
+            var uncleandate =  sitevisitObject['field_ftritem_date_visited']['und'][0]['value'];
+            var cleandate = uncleandate.substring(0, uncleandate.indexOf("T")+1);
+            console.log("date is "+cleandate);
+            var datetimenow = cleandate + timenow;
+            
+            $("#sitevisit_date").val(datetimenow);
             
             $("#sitevisit_summary").html(sitevisitObject['field_ftritem_public_summary']['und'][0]['value']);
             localStorage.sitevisit_summary = sitevisitObject['field_ftritem_public_summary']['und'][0]['value'];
@@ -1219,7 +1249,12 @@ var controller = {
                 
               }).fail(function (errorThrown) {
                 console.log("fail not logged in");
-                $.unblockUI();
+                $.unblockUI({ 
+                  onUnblock: function() {
+                    document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+                  }
+                   
+                });
                 
               });
               
@@ -1675,7 +1710,12 @@ var controller = {
             $("#fieldtrip_count").html(count);
             
             $.mobile.changePage("#home_page", "slide", true, false);
-            $.unblockUI();
+            $.unblockUI({ 
+              onUnblock: function() {
+                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+              }
+               
+            });
           } else if (data.length == 1) {
             console.log("one fieldtrip");
             //set home screen to be fieldtrip details
@@ -1732,21 +1772,14 @@ var controller = {
               localStorage.fendday = parseInt(endday);
               localStorage.fendmonth = parseInt(endmonth);
               localStorage.fendyear = parseInt(endyear);
-              
-              $( "#actionitem_date" ).datepicker( "destroy" );
+             
               $( "#sitevisit_date" ).datepicker( "destroy" );
-              
-              $("#actionitem_date").datepicker({ 
-                dateFormat: "yy/mm/dd", 
-                minDate: new Date(startyear, startmonth, startday), 
-                maxDate: new Date(endyear, endmonth, endday) 
-              });
               
               $("#sitevisit_date").datepicker({ 
                 dateFormat: "yy/mm/dd", 
                 minDate: new Date(startyear, startmonth, startday), 
                 maxDate: new Date(endyear, endmonth, endday) 
-              });
+              }).datepicker( "refresh" );
               
               $("#fieldtrip_details_start").html('').append(formatedstartdate);
               $("#fieldtrip_details_end").html('').append(formatedenddate);
@@ -1808,7 +1841,12 @@ var controller = {
               });
               
               $.mobile.changePage("#page_fieldtrip_details", "slide", true, false);
-              $.unblockUI();
+              $.unblockUI({ 
+                onUnblock: function() {
+                  document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+                }
+                 
+              });
             } else {
               controller.loadingMsg("Please add dates to Fieldtrip from Devtrac", 2000);
               $('.blockUI.blockMsg').center();
@@ -1822,7 +1860,12 @@ var controller = {
             
           } else {
             
-            $.unblockUI();
+            $.unblockUI({ 
+              onUnblock: function() {
+                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+              }
+               
+            });
           }
         });
         
@@ -2547,6 +2590,8 @@ var controller = {
     //save location
     onSavelocation: function () {
       var locationcount = 0;
+      var placetype = $('#select_placetype').val();
+      
       if ($("#form_add_location").valid()) {
         
         //save added location items
@@ -2607,8 +2652,8 @@ var controller = {
         updates['taxonomy_vocabulary_1'] = {};
         updates['taxonomy_vocabulary_1']['und'] = [];
         updates['taxonomy_vocabulary_1']['und'][0] = {};
-        updates['taxonomy_vocabulary_1']['und'][0]['tid'] = $('#select_placetype').val();
-        console.log("Saving location "+$('#select_placetype').val());
+        updates['taxonomy_vocabulary_1']['und'][0]['tid'] = placetype;
+        console.log("Saving location "+placetype);
         
         //get district information
         updates['taxonomy_vocabulary_6'] = {};
@@ -2616,28 +2661,35 @@ var controller = {
         updates['taxonomy_vocabulary_6']['und'][0] = {};
         updates['taxonomy_vocabulary_6']['und'][0]['tid'] = "93";
         
-        devtrac.indexedDB.open(function (db) {
-          devtrac.indexedDB.getAllplaces(db, function (locations) {
-            for (var k in locations) {
-              if (locations[k]['user-added'] && locations[k]['nid'] == updates['nid']) {
-                updates['nid'] = locations[k]['nid'] + 1;
-                
+        if(placetype.length > 0) {
+          devtrac.indexedDB.open(function (db) {
+            devtrac.indexedDB.getAllplaces(db, function (locations) {
+              for (var k in locations) {
+                if (locations[k]['user-added'] && locations[k]['nid'] == updates['nid']) {
+                  updates['nid'] = locations[k]['nid'] + 1;
+                  
+                }
               }
-            }
-            
-            devtrac.indexedDB.addPlacesData(db, updates).then(function() {
-              controller.createSitevisitfromlocation(updates['nid'], $('#location_name').val());
-              //stop browser geolocation
-              controller.clearWatch();
-              $("#imagePreview").html("");
-              $.mobile.changePage("#page_fieldtrip_details", "slide", true, false);
+              
+              devtrac.indexedDB.addPlacesData(db, updates).then(function() {
+                controller.createSitevisitfromlocation(updates['nid'], $('#location_name').val());
+                //stop browser geolocation
+                controller.clearWatch();
+                $("#imagePreview").html("");
+                $.mobile.changePage("#page_fieldtrip_details", "slide", true, false);
+                
+              });
               
             });
+            controller.resetForm($('#form_sitereporttype'));
             
-          });
-          controller.resetForm($('#form_sitereporttype'));
+          });  
+        }else {
+          controller.loadingMsg("Please select a placetype", 2000)
+          $('.blockUI.blockMsg').center();
           
-        });  
+        }
+        
       }else{
         console.log("location form is invalid");
       }
@@ -2952,6 +3004,12 @@ var controller = {
       }
     },
     
+    // Handle the back button
+    //
+    onBackKeyDown: function () {
+      console.log("clicked back key");
+    },
+    
     // onOnline event handler
     checkOnline: function () {
       var d = $.Deferred();
@@ -3121,6 +3179,10 @@ var controller = {
         fadeIn: 700, 
         fadeOut: 700,
         timeout: t,
+        onBlock: function() {           
+          //Register the event listener
+          document.addEventListener("backbutton", controller.onBackKeyDown, false);
+        }, 
         
         css: { 
           width: '300px', 
