@@ -1,0 +1,975 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="format-detection" content="telephone=no" />
+<!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+<meta name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link href='http://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet'
+  type='text/css'/>
+<link rel="stylesheet" type="text/css" href="../assets/www/css/style_light.css" />
+
+<link rel="stylesheet" href="../assets/www/css/jquery.mobile-1.4.0.min.css" />
+<link rel="stylesheet"
+  href="../assets/www/css/jquery.mobile.simpledialog.min.css"/>
+<link rel="stylesheet"
+  href="../assets/www/css/jquery.mobile.theme-1.4.0.min.css" />
+<link rel="stylesheet" href="../assets/www/css/jquery-ui-1.10.4.custom.css" />
+
+<link rel="stylesheet" href="../assets/www/css/jquery.mobile.datepicker.css" />
+
+<link rel="stylesheet" href="../assets/www/css/leaflet.css" />
+<link rel="stylesheet" href="../assets/www/css/index.css"/>
+
+<link rel="stylesheet" href="../assets/www/css/chosen.css"/>
+  
+      <!-- new notifications -->
+    <link rel="stylesheet" href="../assets/www/css/obNotificationCenter.css"/>
+
+<!-- Important Owl stylesheet -->
+<link rel="stylesheet" href="../assets/www/libs/owl-carousel/owl.carousel.css"/>
+
+<!-- Default Theme -->
+<link rel="stylesheet" href="../assets/www/libs/owl-carousel/owl.theme.css"/>
+
+<!-- <link rel="stylesheet" href="../assets/www/css/font-awesome.css"> -->
+
+<link rel="stylesheet"
+  href="../assets/www/libs/FontAwesome/css/font-awesome.min.css"/>
+
+<style type="text/css">
+/* Attempt to fix the flicker of page transitions */
+body {
+  /* Setting body margins to 0 to have proper positioning of #container div */
+  margin: 0;
+}
+
+/* #container div with absolute position and 100% width and height so it takes up whole window */
+#container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+</style>
+
+</head>
+<body>
+
+  <!-- 
+     Here we have some handle bars templates like the menu and the top bar
+-->
+  <script id="leftmenu-tpl" type="text/template">
+<ul data-role="listview" class="menulistview">
+  <li><img src="../assets/www/img/person.png" /><span><strong
+      class="username"></strong><br> <small class="user_title"></small></span></li>
+  <li><a href="#home_page" class="settings_panel_home"><i
+      class="fa fa-home fa-fw"></i>&nbsp Home</a></li>
+  <li><a class="" href="#syncall_page"><i class="fa fa-upload fa-fw"></i>&nbsp
+      Upload</a></li>
+  <li><a href="#page_download" class=""><i class="fa fa-download fa-fw"></i>&nbsp
+      Download</a></li>
+
+  <li><a id="set" href="#page_add_settings" class="panel_add_dwon"><i
+      class="fa fa-gear fa-fw"></i>&nbsp Settings</a></li>
+  <li><a id="" class="panel_logout"><i class="fa fa-sign-out fa-fw"></i>&nbsp
+      Logout</a></li>
+<li><a id="" href="#page_about"><i class="fa fa-info fa-fw"></i>&nbsp
+      About</a></li>
+</ul>
+</script>
+
+
+<script id="header-tpl" type="text/template">
+  <a class="ui-btn-left" href="#navpanel_{{id}}" data-role="button"
+  data-iconpos="notext" id="barsbutton_{{id}}"><i class="fa fa-bars fa-lg"></i></a> 
+{{{notes}}}
+  <h1>{{ title }}</h1>
+  {{{extra_buttons}}}
+</script>
+  <!--loadfieldtriplist:
+      end of templates 
+-->
+
+
+  <!-- Page Login  -->
+  <div data-role="page" id="page_login">
+
+  <div data-role="panel" id="navpanel_login" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+  
+    <div data-role="header" id="header_login">
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+      <form class="cmxform" id="loginForm" method="" action="">
+
+        <div class="input-prepend">
+
+          <input type="text" id="page_login_name" minlength="2"
+            placeholder="username" required />
+
+        </div>
+
+        <br>
+
+        <div class="input-prepend">
+
+          <input type="password" id="page_login_pass" minlength="2"
+            placeholder="password" required />
+        </div>
+
+        <div id='logindiv'>
+          <button type="button" data-theme="a" id="page_login_submit"
+            data-mini="true">Sign In</button>
+        </div>
+
+        <div id='logoutdiv'>
+          <button type="button" data-theme="a" id="page_logout_submit"
+            data-mini="true">Logout</button>
+        </div>
+        <p>
+          <input type="checkbox" data-theme="a" name="checkbox-mini-0"
+            id="checkbox-mini-0" data-mini="true"> <label
+            for="checkbox-mini-0">Remember Me</label>
+        </p>
+  
+  
+        <label for="myurl style='font-size: small'">Either Type in a url or Select one from the list below: </label>
+        <input type="url" placeholder="Start with http:// and remove trailing slash" name="myurl" class="myurl" value="">
+        <br>
+        
+        <select data-placeholder="Choose Url ..." class="seturlselect" id="loginselect">
+        <option value="manual">manual</option>
+        <option value="custom">custom</option>
+        <option value="test">test</option>
+        </select>
+        
+        <div id='urldiv'>
+          <a href="#" data-role="button" data-inline="true" data-theme="b" data-mini="true"
+            class='save_url'>Save Url</a>
+        </div>
+        <div class="urllogging"></div>
+              <div class="clickedurl"></div>
+              <div class="errorHTML"></div>
+    
+      </form>
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+
+  <!-- Fieldtrips details -->
+  <div data-role="page" id="page_fieldtrip_details">
+    <div data-role="panel" id="navpanel_fieldtrip" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+
+        <div id="content" class="hide">
+
+    </div>
+    
+    <div data-role="header" id="fieldtrip_details_header"></div>
+    <!-- /header -->
+
+    <div data-role="content" class='content fieldtriplist'>
+      <form id="form_fieldtrip_details" action="">
+
+        <fieldset class="ui-grid-a">
+          <div class="ui-block-a">
+            <label for="fieldtrip_details_title"><b>Title: </b></label>
+            <p id="fieldtrip_details_title" required></p>
+
+
+
+
+            <label for="fieldtrip_details_status"><b>Status:</b></label>
+            <p id="fieldtrip_details_status" required></p>
+
+
+
+            <label for="fieldtrip_details_start"><b>Start:</b></label>
+            <p id="fieldtrip_details_start" required></p>
+
+
+
+
+            <label for="fieldtrip_details_end"><b>End:</b></label>
+            <p id="fieldtrip_details_end" required></p>
+
+          </div>
+
+          <div class="ui-block-b">
+            <a class="" data-role="button" id="edit_fieldtrip"
+              href="#page_fieldtrip_edit" data-rel="dialog" data-iconpos=""><i
+              class="fa fa-edit fa-lg"></i>&nbsp&nbsp Edit</a>
+
+          </div>
+        </fieldset>
+
+        <h4 align="center">
+          Site Reports <a href="#page_site_report_type" data-rel="dialog"
+            class="ui-btn-inline" data-role="button" data-iconpos=""
+            data-inline="true" id="addsitereportbutton"> <i class="fa fa-plus-square fa-lg"></i>&nbsp&nbsp
+            Add Site Report
+          </a>
+        </h4>
+
+        <ul data-role="listview" id="list_sitevisits" data-filter="true">
+
+        </ul>
+      </form>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- Application Home page  -->
+  <div data-role="page" id="home_page">
+
+    <div data-role="panel" id="navpanel_home" data-theme="b" data-position="left"
+      class="leftmenu"></div>
+
+    <div data-role="header" id="header_home">
+      <!-- <a class="bars-button" class="ui-btn-left" style="margin-top: 2.5px;"
+        href="#navpanel" data-iconpos="notext" id="panelIt"><i
+        class="fa fa-bars fa-lg"></i></a> -->
+
+      
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+      <form class="cmxform" id="homeForm" method="" action="">
+        <ul data-role="listview" id="list_fieldtrips">
+
+        </ul>
+      </form>
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- Syncall page  -->
+  <div data-role="page" id="syncall_page">
+    <div data-role="panel" id="navpanel_sync" data-theme="b" data-position="left"
+      class="leftmenu"></div>
+
+    <div data-role="header" id="header_sync">
+      
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+
+      <form class="syncform" id="syncForm" method="" action="">
+
+        <ul data-role="listview" id="uploads_listview">
+          <li data-role="list-divider">Upload Status</li>
+          <li data-icon="false"><a data-role="button" data-mini="true" data-icon=""
+            onclick="">Site Visits</a>
+            <div id="sitevisit_count" class="ui-li-count"></div></li>
+          <li data-icon="false"><a data-role="button" data-mini="true" data-icon=""
+            onclick="">Locations</a>
+            <div id="location_count" class="ui-li-count"></div></li>
+          <!-- <li><a data-role="button" data-mini="true" data-icon="arrow-u" onclick="devtracnodes.postComments();">Comments</a><div id="comment_count" class="ui-li-count"></div></li> -->
+          <li data-icon="false"><a data-role="button" data-mini="true" data-icon=""
+            onclick="">Action Items</a>
+            <div id="actionitem_count" class="ui-li-count"></div></li>
+          <li data-icon="false"><a data-role="button" data-mini="true" data-icon=""
+            onclick="">Fieldtrip</a>
+            <div id="fieldtrip_count" class="ui-li-count"></div></li>
+
+          <li><a data-role="button" data-mini="true" data-icon=""
+            onclick="devtracnodes.syncAll()" style="text-align: center"><i
+              class="fa fa-upload fa-lg"></i>&nbsp&nbsp Sync All</a></li>
+
+        </ul>
+      </form>
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- Site visits details -->
+  <div data-role="page" id="page_sitevisits_details">
+  <div data-role="panel" id="navpanel_sitereport" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+  
+    <div data-role="header" id="header_sitereports">
+
+<!--       <a id="" class="ui-btn-left" href="#page_fieldtrip_details"
+        data-role="button" data-iconpos="notext"><i
+        class="fa fa-chevron-circle-left fa-lg"></i></a>
+
+
+      <h3>Site Report</h3>
+-->
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+      <form id="form_sitevisists_details" method="" action="">
+
+
+        <fieldset class="ui-grid-a">
+          <div class="ui-block-a">
+            <div class="ui-bar" style="width: 70%">
+              <!-- <div class="ui-field-contain"> -->
+              <label for="sitevisists_details_title"><b>Title:</b></label>
+              <p id="sitevisists_details_title" required></p>
+              <!-- </div> -->
+
+              <!-- <div class="ui-field-contain"> -->
+              <label for="sitevisists_details_date"><b>Date Visited:
+              </b></label>
+              <p id="sitevisists_details_date" required></p>
+
+              <!-- </div> -->
+
+
+              <!-- <div class="ui-field-contain"> -->
+              <label for="sitevisists_details_type"><b>Type: </b></label>
+              <p id="sitevisists_details_type" required></p>
+
+              <!-- </div> -->
+
+              <!-- <div class="ui-field-contain"> -->
+              <label for="sitevisists_details_summary"><b>Summary: </b></label>
+              <p id="sitevisists_details_summary" required></p>
+
+              <!-- </div> -->
+
+              <!-- <div class="ui-field-contain"> -->
+              <label for="sitevisists_details_location"><b>Location
+                  Name: </b></label>
+              <p id="sitevisists_details_location" required></p>
+              <!-- </div> -->
+
+            </div>
+          </div>
+
+          <div class="ui-block-b">
+            <p>
+              <a href="" data-role="button"
+                id="editsitevisit" data-rel="dialog"><i
+                class="fa fa-edit fa-lg"></i>&nbsp&nbsp Edit</a>
+            </p>
+
+          </div>
+        </fieldset>
+
+
+        <h4 align="center">
+          Action Items <a href="#page_add_actionitems" class="ui-btn-inline"
+            data-role="button" id="addactionitem" data-rel="dialog"
+            data-inline="true" style="margin-right: 1px;"><i
+            class="fa fa-plus-square fa-lg"></i>&nbsp&nbsp Add Action Item</a>
+
+        </h4>
+
+        <ul data-role="listview" id="list_actionitems" data-filter="true">
+
+        </ul>
+      </form>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- List locations -->
+  <div data-role="page" id="page_location_list">
+  <div data-role="panel" id="navpanel_location" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+    <div data-role="header" id="header_location">
+      
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+      <form id="form_location_list" method="" action="">
+        <ul data-role="listview" id="locationslist" data-split-icon="gear"
+          data-split-theme="d">
+
+        </ul>
+
+      </form>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- Select site report type -->
+  <div data-role="page" id="page_site_report_type">
+    <div data-role="header" id="header_ftritemtype">
+      <!-- <a id="" href="#page_fieldtrip_details" data-role="button"
+        data-icon="delete" data-iconpos="notext"></a>
+      <h3 title="Select Site Report Type">Select Site Report Type</h3> -->
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+      <form id="form_sitereporttype" method="" action="">
+        <label for='sitevisit_add_type'>Site Report Type</label> <select
+          name="sitevisit_add_type" id="sitevisit_add_type" data-mini="true"
+          required>
+          <option value="211">Human Interest Story</option>
+          <option value="210">Roadside Observation</option>
+          <option value="209">Site Visit</option>
+        </select> <input type='text' value='' id='location_latlon' name='location_latlon'
+          required style="display: none" /> <label for="map_district"
+          style="color: red;" id="map_district_error"></label><a
+          id="submit_sitereporttype" data-role="button" href=""
+          onclick="controller.submitSitereporttype();" data-theme='b'
+          data-mini="true">Submit</a>
+      </form>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+
+  <!-- Edit site visit details -->
+  <div data-role="page" id="page_sitevisit_edits">
+    <div data-role="header" id="header_editsitevisit">
+      <!-- <h3 title="Edit Site Visit">Edit Site Visit</h3> -->
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+      <form id="form_sitevisit_edits" method="" action="">
+        <fieldset>
+          <label for='sitevisit_title'>Title</label> <input type='text' value=''
+            id='sitevisit_title' required/>
+            <label
+          for="placetypes">Location Types</label>
+        <div id='placetypes'></div>
+        
+             <label for='sitevisit_date'>Date
+            Visited</label> <input type='text' value='' id='sitevisit_date' readonly='true' required/> <label
+            for='sitevisit_summary'>Summary</label>
+            <textarea id="sitevisit_summary" rows="4" cols="12" required></textarea>
+
+        </fieldset>
+      </form>
+      <input type="button" data-inline="true" data-theme="b"
+        id="save_site_visit_edits" onclick="controller.onSitevisitedit();"
+        value="Save" /> <a href="#page_sitevisits_details" data-role="button" data-inline="true"
+        data-theme="a" id="cancel_site_visit_edits">Cancel</a>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- Edit fieldtrips details -->
+  <div data-role="page" id="page_fieldtrip_edit">
+    <div data-role="header" id="header_editfieldtrip">
+      <!-- <h3 title="Edit FieldTrip">Edit Fieldtrip</h3> -->
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+      <form id="form_fieldtrip_edits" method="" action=""></form>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- Add site visit details -->
+  <div data-role="page" id="page_sitevisit_add">
+  <div data-role="panel" id="navpanel_addsitereport" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+    <div data-role="header" id="header_addsitereport">
+<!-- 
+      <a id="" href="#page_site_report_type" data-rel="dialog"
+        data-role="button" data-iconpos="notext"><i
+        class="fa fa-chevron-circle-left fa-lg"></i></a>
+      <h3>Add Site Visit</h3> -->
+
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+      <form id="form_sitevisit_add" method="" action="">
+
+        <label for="sitevisit_add_title">Title</label> <input type='text'
+          value='' id='sitevisit_add_title' name='sitevisit_add_title' required />
+
+        <label for='sitevisit_add_oecds'>Oecds</label><div id="select_oecds"></div> <label for="sitevisit_add_date">Date</label>
+        <input type='text' readonly='true' id='sitevisit_add_date' name='sitevisit_add_date'
+          data-role="date" required/> <label
+          for="sitevisit_add_public_summary">Public Summary</label>
+        <textarea rows="8" value=''
+          id='sitevisit_add_public_summary' name='sitevisit_add_public_summary'
+          required></textarea>
+
+        <label for="sitevisit_add_report">Full Report</label>
+        <textarea rows="8" value='' id='sitevisit_add_report'
+          name='sitevisit_add_report' required></textarea>
+
+        <div
+          class="ui-btn ui-icon-plus ui-btn-icon-left ui-corner-all fileinput-button">
+          <span>Image: </span> <input type="file" name="file" id="roadsidefile"
+            multiple="multiple">
+        </div>
+        <br>
+        <div id="uploadPreview"></div>
+        <div id="uploaderror" style="color: red"></div>
+        <br> <a data-inline="true" data-role="button" data-theme='b'
+          data-mini="true" id='sitevisit_add_save'>Save</a> <a
+          data-role="button" data-rel="dialog" data-theme='b'
+          href="#page_site_report_type" data-mini="true" data-inline="true"
+          id='sitevisit_add_cancel'>Cancel</a>
+      </form>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- Add action items -->
+  <div data-role="page" id="page_add_actionitems">
+  <div data-role="panel" id="navpanel_addactionitems" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+    <div data-role="header" id="header_addactionitems">
+      <h3 title="Add Action Items">Add Action Items</h3>
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+      <form id="form_add_actionitems" method="" action="">
+        <label for="actionitem_title">Title</label> <input type='text' value=''
+          id='actionitem_title' name='actionitem_title' required />
+
+        <div id='actionitems_oecds'></div>
+
+        <div class="ui-field-contain">
+          <label for="actionitem_status">Status</label> <select
+            name="actionitem_status" id="actionitem_status" data-mini="true"
+            required>
+            <option value="1">Open</option>
+            <option value="2">Rejected</option>
+            <option value="3">Closed</option>
+          </select>
+        </div>
+
+        <div class="ui-field-contain">
+          <label for="actionitem_priority">Priority</label> <select
+            name="actionitem_priority" id="actionitem_priority" data-mini="true"
+            required>
+            <option value="1">High</option>
+            <option value="2">Medium</option>
+            <option value="3">Low</option>
+          </select>
+        </div>
+
+        <label for="actionitem_date">Due Date</label> <input type='text'
+          id='actionitem_date' name='actionitem_date' readonly='true' data-role="date"
+          data-inline="false" required /> <label for="actionitem_followuptask">Follow
+          up task</label>
+        <textarea rows="8" value='' id='actionitem_followuptask'
+          name='actionitem_followuptask' required></textarea>
+
+        <label for="actionitem_tags">Tags</label> <input type='text' value=''
+          id='actionitem_tags' /> <input data-inline="true" type="button"
+          onclick="controller.onSaveactionitem();" value='Save' data-theme='b'
+          id='action_item_save' /><input type="button" onclick=""
+          value='Cancel' data-theme='b' data-inline="true"
+          id='action_item_cancel' />
+      </form>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- Action items details -->
+  <div data-role="page" id="page_actionitemdetails">
+  <div data-role="panel" id="navpanel_actionitemdetails" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+    <div data-role="header" id="header_actionitemdetails">
+      <!-- <a id="" data-rel="back" data-role="button" data-iconpos="notext"><i
+        class="fa fa-chevron-circle-left fa-lg"></i></a>
+      <h3 title="Action Item">Action Item</h3> -->
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+      <form id="form_actionitems_details" method="" action="">
+
+
+        <fieldset class="ui-grid-a">
+          <div class="ui-block-a">
+            <div class="ui-bar" style="width: 70%">
+              <label for="actionitem_details_title"><b>Title: </b></label>
+              <p id="actionitem_details_title" required></p>
+
+              <label for="actionitem_due_date"><b>Due Date: </b></label>
+              <p id="actionitem_due_date" required></p>
+
+              <label for="actionitem_resp_location"><b>Responsible
+                  Location: </b></label>
+              <p id="actionitem_resp_location" required></p>
+
+            </div>
+          </div>
+          <div class="ui-block-b">
+            <div data-role="collapsible" data-theme="b" id="commentcollapse">
+              <h4>Comment</h4>
+              <label for="actionitem_comment"><h5>Tell Us What You
+                  Think</h5></label>
+              <textarea rows="8" value='' id='actionitem_comment'
+                required></textarea>
+              <input type='button' onclick="controller.onSavecomment();"
+                value='Save' data-mini="true" id='actionitem_comment_save' />
+            </div>
+
+            <div data-role="collapsible" data-theme="b">
+              <h4>Follow Up Task</h4>
+              <ul data-role="listview">
+                <li><label for="actionitem_author"><b>Author: </b></label>
+                  <p id="actionitem_author" required></p></li>
+                <li><label for="actionitem_resp_person"><b>Responsible
+                      Person: </b></label>
+                  <p id="actionitem_resp_person" required></p></li>
+                <li><label for="actionitem_followup_tas"><b>Follow
+                      Up Task: </b></label>
+                  <p id="actionitem_followup_task" required></p></li>
+              </ul>
+            </div>
+
+            <div data-role="collapsible" data-theme="b">
+              <h4>Status</h4>
+              <ul data-role="listview">
+                <li><label for="actionitem_details_status"><b>Status:
+                  </b></label>
+                  <p id="actionitem_details_status" required></p></li>
+
+                <li><label for="actionitem_ftritem"><b>Report:
+                  </b></label>
+                  <p id="actionitem_ftritem" required></p></li>
+
+                <li><label for="actionitem_details_priority"><b>Priority:
+                  </b></label>
+                  <p id="actionitem_details_priority" required></p></li>
+
+              </ul>
+            </div>
+
+
+
+          </div>
+        </fieldset>
+
+        <h4 align="center">Comments</h4>
+        <ul data-role="listview" id="list_comments" data-filter="true">
+
+        </ul>
+      </form>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+
+
+  <!-- Edit Location Page -->
+  <div data-role="page" id="page_location_edits">
+  <div data-role="panel" id="navpanel_location_edits" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+    <div data-role="header">
+      <!-- <h3 title="FieldTrip">Edit Locations</h3> -->
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content' id='locationcontent'>
+      <form id="editlocationform">
+        <label for='place_title'>Title</label> <input type='text' value=''
+          id='place_title'> <label for='place_name'>Name</label> <input
+          type='text' value='' id='place_name'> <label
+          for='place_reponsible'>Responsible person</label> <input type='text'
+          value='' id='place_responsible'> <label for='place_email'>Email</label>
+        <input type='text' value='' id='place_email'>
+      </form>
+      <input type="button" data-inline="true" data-theme="b"
+        id="save_places_info" class="" onclick="controller.onPlacesave(this);"
+        value="Save" /> <a data-role="button" data-inline="true"
+        data-rel="back" data-theme="a" id="cancel_places_info">Cancel</a>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- page add location-->
+  <div data-role="page" id="page_add_location">
+<div data-role="panel" id="navpanel_addlocation" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+    <div data-role="header" id="header_addlocation">
+
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+      <form id="form_add_location" method="" action="">
+        <label for="location_name">Name</label> <input type='text' value=''
+          id='location_name' name='location_name' required /> 
+          
+          <label
+          for="location_placetypes">Location Types</label>
+        <div id='location_placetypes'></div>
+
+<label for="latlon">GPS</label> <input type='text' value=''
+          id='latlon' name='latlon' />
+          
+                    <label for="gpslat">GPS Lat</label> <input type='text' value=''
+          id='gpslat' name='gpslat' placeholder="Enter your own Latitude"/>
+          
+          <label for="gpslon">GPS Lon</label> <input type='text' value=''
+          id='gpslon' name='gpslon' placeholder="Enter your own Longitude"/>
+          
+          <small><p class="error" id="coordserror"></p></small>
+          
+          <label for="gpserror">GPS Errors</label> <input type='text' value=''
+          id='gpserror' class="error" name='latlon' disabled="disabled"/>
+
+        <div data-role="collapsible" data-theme="a">
+          <h4>Contact</h4>
+          
+          <label for="locationcontact">Contact Name</label> <input type='text'
+            value='' id='locationcontact' /> 
+            <label for="locationphone">Phone</label>
+          <input type='text' value='' id='locationphone' name="locationphone"/> 
+          
+          <label
+            for="locationemail">Email</label> <input type='text' value=''
+            id='locationemail' name="locationemail" /> 
+            
+            <label for="locationwebsite">Website</label>
+          <input type='text' value='' id='locationwebsite' name="locationwebsite" />
+        </div>
+        
+        <div class="ui-grid-b ui-responsive">
+    <div class="ui-block-a">
+        <div
+          class="ui-btn ui-icon-plus ui-btn-icon-left ui-corner-all fileinput-button">
+          <span>Image: </span> <input type="file" name="sitevisitfile" id="sitevisitfile"
+            multiple="multiple">
+        </div>
+    </div>
+    <div id="ordiv"><b id="orbold">OR</b></div>
+    <div class="ui-block-b">
+    <a data-role="button" id="takephoto">Take Photo</a>
+    
+    </div>
+    
+</div>
+
+        <br>
+        <div id="imagePreview"></div>
+        <div id="uploaderror" style="color: red"></div>
+        <input type='button' onclick="controller.onSavelocation();" value='Save'
+          id='location_item_save' data-inline="true" data-theme='b' /> <a id="cancel_addlocation"
+          href="#page_site_report_type" data-role="button" data-theme='b'
+          data-inline="true" data-rel="dialog">Cancel</a>
+
+      </form>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- Map page -->
+  <div data-role="page" id="mappage">
+    <div data-role="header">
+
+      <a id="viewlocation_back" data-rel="dialog" class="ui-btn-left"
+        href="#page_sitevisits_details" data-iconpos="notext"><i
+        class="fa fa-chevron-circle-left fa-lg"></i></a>
+
+      <h3 id="mapheader"></h3>
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+      <div id="map"></div>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- Add questionnaire page -->
+  <div data-role="page" id="page_add_questionnaire">
+<div data-role="panel" id="navpanel_qtnr" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+    <div data-role="header" id='header_qtnr'>
+      <!-- <a id="" href="#page_sitevisits_details" data-iconpos="notext"
+        data-role="button" style="margin-top: 2.5px;"><i
+        class="fa fa-chevron-circle-left fa-lg"></i></a> 
+      <h3 id="qtn_title" title="Questionnaire">Questionnaire</h3>-->
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content' id='qtnairecontent'>
+      <div id="owl-demo" class="owl-carousel owl-theme"></div>
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- Add page -->
+  <div data-role="page" id="page_add_settings">
+    <div data-role="panel" id="navpanel_settings" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+      
+    <div data-role="header" id='header_settings'>
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content' id='Settingscontent'>
+      <form action="" class="settingsform">
+      <label for="myurl style='font-size: small'">Either Type in a url or Select one from the list below: </label>
+        <input type="url" placeholder="Start with http:// and remove trailing slash" name="myurl" class="myurl" value="">
+        <br>
+        
+        <select data-placeholder="Choose Url ..." class="seturlselect" id="settingselect">
+        <option value="manual">manual</option>
+        <option value="custom">custom</option>
+        <option value="test">test</option>
+        </select>
+        
+        <div id='urldiv'>
+          <a href="#" data-role="button" data-inline="true" data-theme="b" data-mini="true"
+            class='save_url_settings'>Save Url</a>
+        </div>
+      
+      </form>
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+  <!-- Add page -->
+  <div data-role="page" id="page_download">
+    <div data-role="panel" id="navpanel_download" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+    <div data-role="header" id='header_download'>
+      <!-- <a class="ui-btn-left" href="#navpanel4" data-role="button"
+        data-iconpos="notext"><i class="fa fa-bars fa-lg"></i></a>
+      <h3 id="" title="download">Downloads</h3> -->
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content' id='downloadcontent'>
+      <a class="refresh-button" data-role="button" data-iconpos="notext"><i
+        class="fa fa-refresh fa-lg"></i></a>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+  
+  <!-- About page -->
+  <div data-role="page" id="page_about">
+    <div data-role="panel" id="navpanel_about" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+      
+    <div data-role="header" id='header_about'>
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content' id='aboutcontent'>
+
+    <p>DevtracMobile</p>
+    <strong>Version:</strong><p>0.0.6</p>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+
+
+  <script src="../assets/www/libs/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="../assets/www/libs/tinymce/tinymce.min.js"></script>
+  <script type="text/javascript">
+  //Attempt to fix transition flicker
+        $(document).one("mobileinit", function () {
+ 
+            // Setting #container div as a jqm pageContainer
+            $.mobile.pageContainer = $('#container');
+ 
+            // Setting default page transition to slide
+            $.mobile.defaultPageTransition = 'slide';
+ 
+        });
+    </script>
+
+  <script src="../assets/www/libs/jquery-ui-1.10.4.custom.js"></script>
+
+  <!-- Include js plugin -->
+  <script src="../assets/www/libs/owl-carousel/owl.carousel.js"></script>
+  <!-- <script src="../assets/www/libs/jquery.mobile-1.4.0.min.js"></script> -->
+  <script src="../assets/www/libs/jquery.mobile-1.4.0.min.js"></script>
+  <script src="../assets/www/libs/chosen.jquery.js"></script>
+  <script src="../assets/www/libs/jquery.mobile.datepicker.js"></script>
+
+  <script src="../assets/www/js/ttw-notification-menu.js" type="text/javascript"></script>
+
+  <script src="../assets/www/libs/jquery.validate.min.js"></script>
+  <script src="../assets/www/libs/additional-methods.min.js"></script>
+  <script src="../assets/www/libs/jquery.blockUI.js"></script>
+  <script src="../assets/www/libs/leaflet.js"></script>
+
+  <script src="../assets/www/libs/handlebars-v1.3.0.js"></script>
+  <script src="../assets/www/libs/jquery.mobile.simpledialog2.min.js"></script>
+
+  <!-- new notifications -->
+  <script src="../assets/www/libs/obNotificationCenter.min.js"></script>
+
+  <script type="text/javascript" src="../assets/www/js/model/indexdb-store.js"></script>
+  <script src="../assets/www/libs/movies-app.js"></script>
+  <script type="text/javascript"
+    src="../assets/www/js/controller/map-controller.js"></script>
+
+  <script type="text/javascript" src="../assets/www/js/authentication.js"></script>
+  <script type="text/javascript" src="../assets/www/js/vocabularies.js"></script>
+  <script type="text/javascript" src="../assets/www/js/devtrac-nodes.js"></script>
+  <script type="text/javascript" src="../assets/www/js/controller/controller.js"></script>
+
+  <script type="text/javascript">
+	    controller.initialize();
+	    
+  </script>
+
+</body>
+</html>
