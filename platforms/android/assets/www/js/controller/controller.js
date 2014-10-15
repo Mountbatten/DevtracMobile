@@ -373,11 +373,11 @@ var controller = {
           plugins: [
                     "advlist autolink autosave link lists charmap hr anchor",
                     "visualblocks visualchars code fullscreen nonbreaking",
-                    "contextmenu directionality template textcolor paste fullpage textcolor colorpicker"
+                    "contextmenu directionality template textcolor paste fullpage"
                     ],
                     
-                    toolbar1: "bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | subscript superscript",
-                    toolbar2: "bullist numlist | outdent indent | link code | forecolor backcolor",
+                    toolbar1: "bold italic | alignleft aligncenter alignright alignjustify",
+                    toolbar2: "bullist numlist",
                     
                     menubar: false,
                     toolbar_items_size: 'small',          
@@ -412,11 +412,11 @@ var controller = {
           plugins: [
                     "advlist autolink autosave link lists charmap hr anchor",
                     "visualblocks visualchars code fullscreen nonbreaking",
-                    "contextmenu directionality template textcolor paste fullpage textcolor colorpicker"
+                    "contextmenu directionality template textcolor paste fullpage"
                     ],
                     
-                    toolbar1: "bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | subscript superscript",
-                    toolbar2: "bullist numlist | outdent indent | link code | forecolor backcolor",
+                    toolbar1: "bold italic | alignleft aligncenter alignright alignjustify",
+                    toolbar2: "bullist numlist",
                     
                     menubar: false,
                     toolbar_items_size: 'small',
@@ -441,11 +441,11 @@ var controller = {
           plugins: [
                     "advlist autolink autosave link lists charmap hr anchor",
                     "visualblocks visualchars code fullscreen nonbreaking",
-                    "contextmenu directionality template textcolor paste fullpage textcolor colorpicker"
+                    "contextmenu directionality template textcolor paste fullpage"
                     ],
                     
-                    toolbar1: "bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | subscript superscript",
-                    toolbar2: "bullist numlist | outdent indent | link code | forecolor backcolor",
+                    toolbar1: "bold italic | alignleft aligncenter alignright alignjustify",
+                    toolbar2: "bullist numlist",
                     
                     menubar: false,
                     toolbar_items_size: 'small'
@@ -460,11 +460,11 @@ var controller = {
           plugins: [
                     "advlist autolink autosave link lists charmap hr anchor",
                     "visualblocks visualchars code fullscreen nonbreaking",
-                    "contextmenu directionality template textcolor paste fullpage textcolor colorpicker"
+                    "contextmenu directionality template textcolor paste fullpage"
                     ],
                     
-                    toolbar1: "bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | subscript superscript",
-                    toolbar2: "bullist numlist | outdent indent | link code | forecolor backcolor",
+                    toolbar1: "bold italic | alignleft aligncenter alignright alignjustify",
+                    toolbar2: "bullist numlist",
                     
                     menubar: false,
                     toolbar_items_size: 'small'
