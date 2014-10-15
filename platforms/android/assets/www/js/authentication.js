@@ -1,11 +1,5 @@
 var auth = {
-    
-    //delete bubble
-    deleteBubble: function(notifications, notification){
-      notifications.deleteNotification(notification);
-      
-    },
-    
+
     //get site token
     getToken: function() {
       var d = $.Deferred();
@@ -27,10 +21,10 @@ var auth = {
           
           if(errorThrown == ""){
             controller.loadingMsg("Selected Url "+localStorage.appurl+" is Unavailable. Make sure you have an internet connection or try another url.", 5000)
-            $('.blockUI.blockMsg').center();
+            
           }else {
             controller.loadingMsg("Error: "+errorThrown, 3000);
-            $('.blockUI.blockMsg').center();
+            
             $('.errorHTML').html(jqXHR.responseText);
             
           }
@@ -257,7 +251,7 @@ var auth = {
       var d = $.Deferred();
       
       controller.loadingMsg("Logging out...", 0);
-      $('.blockUI.blockMsg').center();
+      
       // Obtain session token.
       auth.getToken().then(function (token) {
         // Call system logout with session token.

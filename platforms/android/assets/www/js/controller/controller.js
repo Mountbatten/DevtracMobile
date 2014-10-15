@@ -94,7 +94,7 @@ var controller = {
       
       if(controller.connectionStatus) {
         controller.loadingMsg("Please Wait..", 0);
-        $('.blockUI.blockMsg').center();
+        
         auth.loginStatus().then(function () {
           
           $(".menulistview").show();
@@ -118,7 +118,7 @@ var controller = {
             }).fail(function() {
               
               controller.loadingMsg("OECD Codes were not found", 2000);
-              $('.blockUI.blockMsg').center();
+              
               
               setTimeout(function() {
                 auth.logout();
@@ -139,7 +139,7 @@ var controller = {
               }).fail(function() {
                 
                 controller.loadingMsg("OECD Codes were not found", 2000);
-                $('.blockUI.blockMsg').center();
+                
                 
                 setTimeout(function() {
                   auth.logout();
@@ -150,7 +150,7 @@ var controller = {
             }).fail(function(error){
               auth.logout();
               controller.loadingMsg(error,5000);
-              $('.blockUI.blockMsg').center();
+              
             });
             
           });
@@ -187,13 +187,13 @@ var controller = {
         
         if(window.localStorage.getItem("username") != null && window.localStorage.getItem("pass") != null){
           controller.loadingMsg("You are offline, cannot upload data. Now using offline data", 6000);
-          $('.blockUI.blockMsg').center();
+          
           //load field trip details from the database if its one and the list if there's more.
           controller.loadFieldTripList();
           
         }else {
           controller.loadingMsg("Please connect to the internet to login and download your devtrac data.", 2000);
-          $('.blockUI.blockMsg').center();
+          
           //hide logout button and show login button when offline
           $('#logoutdiv').hide();
           $('#logindiv').show();
@@ -221,7 +221,7 @@ var controller = {
         devtracnodes.getFieldtrips(db).then(function () {
           
           controller.loadingMsg("Fieldtrips Saved", 0);
-          $('.blockUI.blockMsg').center();
+          
           notes.push('Fieldtrips');
           
           devtracnodes.getSitereporttypes(db).then(function () {
@@ -229,13 +229,13 @@ var controller = {
             //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, saveTypes, failsaveTypes);
             
             controller.loadingMsg("Site Report Types Saved", 0);
-            $('.blockUI.blockMsg').center();  
+              
             notes.push('Site Report Types');
             
             devtracnodes.getSiteVisits(db, function(response) {
               
               controller.loadingMsg("Sitevisits Saved", 0);
-              $('.blockUI.blockMsg').center();
+              
               notes.push('Sitevisits');
               devtracnodes.getPlaces(db);
               devtracnodes.getActionItems(db);
@@ -247,9 +247,9 @@ var controller = {
                   console.log("fetch success "+response);
                   counter = counter + 1;
                   controller.loadingMsg(response, 1500);
-                  $('.blockUI.blockMsg').center();
+                  
                   notes.push(response);
-                  if(counter > controller.nodes.length - 1){
+                  if(counter > controller.nodes.length - 1) {
                     console.log("creating notes");
                     owlhandler.notes(notes);
                     
@@ -259,7 +259,7 @@ var controller = {
                 }).fail(function(e) {
                   
                   controller.loadingMsg(e, 2000);
-                  $('.blockUI.blockMsg').center();
+                  
                   
                   setTimeout(function(){
                     auth.logout();
@@ -329,7 +329,7 @@ var controller = {
             
           } else {
             controller.loadingMsg("Geolocation is not supported by this browser", 1000);
-            $('.blockUI.blockMsg').center();
+            
           }
           
         }
@@ -385,6 +385,19 @@ var controller = {
                       
                       ed.on('click', function(e) {
                         console.log('Editor was clicked');
+                        var textareatext = e.srcElement.innerHTML
+                        if(textareatext.indexOf('summary') != -1) {
+                          //tinyMCE.get('sitevisit_add_public_summary').setContent("");
+                          
+                          tinymce.execCommand('mceSetContent', false, "");
+                          tinyMCE.execCommand('mceRepaint');
+                        }else if(textareatext.indexOf('report') != -1) {
+                          //tinyMCE.get('sitevisit_add_report').setContent("");
+                          
+                          tinymce.execCommand('mceSetContent', false, "");
+                          tinyMCE.execCommand('mceRepaint');
+                        }
+                        
                       });
                     }
         });
@@ -594,7 +607,7 @@ var controller = {
                 
                 if(controller.connectionStatus){
                   controller.loadingMsg("Downloading Data ...", 0);
-                  $('.blockUI.blockMsg').center();
+                  
                   
                   devtrac.indexedDB.open(function (db) {
                     devtrac.indexedDB.clearDatabase(db, 0, function() {
@@ -607,7 +620,7 @@ var controller = {
                         }).fail(function() {
                           
                           controller.loadingMsg("OECD Codes were not found", 2000);
-                          $('.blockUI.blockMsg').center();
+                          
                           
                           setTimeout(function() {
                             auth.logout();
@@ -619,7 +632,7 @@ var controller = {
                         auth.logout();
                         if(error.indexOf("field") != -1){
                           controller.loadingMsg(error,5000);  
-                          $('.blockUI.blockMsg').center();
+                          
                         }
                         
                       });
@@ -629,7 +642,7 @@ var controller = {
                   
                 }else{
                   controller.loadingMsg("Please Connect to Internet ...", 2000);
-                  $('.blockUI.blockMsg').center();
+                  
                 }
               },
               id: "redownload",
@@ -908,13 +921,13 @@ var controller = {
             devtrac.indexedDB.clearDatabase(db, 0, function() {
               localStorage.appurl = $(".myurl").val();
               controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-              $('.blockUI.blockMsg').center();
+              
             });
           });
           
         }else if($('.seturlselect option:selected"').val() == "custom" && $(".myurl").val().length == 0) {
           controller.loadingMsg("Please Save a URL", 1500);
-          $('.blockUI.blockMsg').center();
+          
           
         }else 
         {
@@ -929,7 +942,7 @@ var controller = {
                 devtrac.indexedDB.clearDatabase(db, 0, function() {
                   localStorage.appurl = "http://192.168.38.114/dt13";
                   controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                  $('.blockUI.blockMsg').center();
+                  
                 });
               });
               
@@ -941,7 +954,7 @@ var controller = {
                 devtrac.indexedDB.clearDatabase(db, 0, function() {
                   localStorage.appurl = "http://jenkinsge.mountbatten.net/devtraccloud";
                   controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                  $('.blockUI.blockMsg').center();
+                  
                 });
               });
               
@@ -953,7 +966,7 @@ var controller = {
                 devtrac.indexedDB.clearDatabase(db, 0, function() {
                   localStorage.appurl = "http://jenkinsge.mountbatten.net/devtracmanual";
                   controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                  $('.blockUI.blockMsg').center();
+                  
                 });
               });
               
@@ -964,7 +977,7 @@ var controller = {
                 devtrac.indexedDB.clearDatabase(db, 0, function() {
                   localStorage.appurl = "http://devtrac.ug";
                   controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                  $('.blockUI.blockMsg').center();
+                  
                 });
               });
               
@@ -972,7 +985,7 @@ var controller = {
             case "Choose Url ...":
               
               controller.loadingMsg("Please select one url", 2000);
-              $('.blockUI.blockMsg').center();
+              
               break;
               
             case "test":
@@ -981,7 +994,7 @@ var controller = {
                 devtrac.indexedDB.clearDatabase(db, 0, function() {
                   localStorage.appurl = "http://jenkinsge.mountbatten.net/devtracorgtest";
                   controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                  $('.blockUI.blockMsg').center();
+                  
                 });
               });
               
@@ -993,7 +1006,7 @@ var controller = {
                 devtrac.indexedDB.clearDatabase(db, 0, function() {
                   localStorage.appurl = "http://demo.devtrac.org";
                   controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                  $('.blockUI.blockMsg').center();
+                  
                 });
               });
               
@@ -1016,7 +1029,7 @@ var controller = {
             localStorage.appurl2 = localStorage.appurl;
             localStorage.appurl = $(".myurl").val();
             controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-            $('.blockUI.blockMsg').center();
+            
             controller.updateDB().then(function(){
               
             }).fail(function(){
@@ -1024,7 +1037,7 @@ var controller = {
             });
           }).fail(function(){
             controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-            $('.blockUI.blockMsg').center();
+            
           });
           
         }else
@@ -1041,7 +1054,7 @@ var controller = {
               controller.clearDBdialog().then(function() {
                 var url = "http://192.168.38.114/dt13";
                 controller.loadingMsg("Saved Url "+url, 2000);
-                $('.blockUI.blockMsg').center();
+                
                 controller.updateDB(url).then(function(){
                   
                 }).fail(function(){
@@ -1049,7 +1062,7 @@ var controller = {
                 });
               }).fail(function(){
                 controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                $('.blockUI.blockMsg').center();
+                
               });
               break;
               
@@ -1059,14 +1072,14 @@ var controller = {
               controller.clearDBdialog().then(function() {
                 var url = "http://jenkinsge.mountbatten.net/devtraccloud";
                 controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                $('.blockUI.blockMsg').center();
+                
                 controller.updateDB(url).then(function(){
                 }).fail(function(){
                   
                 });
               }).fail(function(){
                 controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                $('.blockUI.blockMsg').center();
+                
               });
               break;
               
@@ -1076,7 +1089,7 @@ var controller = {
                 
                 var url = "http://jenkinsge.mountbatten.net/devtracmanual";
                 controller.loadingMsg("Saved Url "+url, 2000);
-                $('.blockUI.blockMsg').center();
+                
                 controller.updateDB(url).then(function(){
                   
                 }).fail(function(){
@@ -1084,7 +1097,7 @@ var controller = {
                 });
               }).fail(function(){
                 controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                $('.blockUI.blockMsg').center();
+                
               });
               break;
             case "DevtracUganda":
@@ -1093,7 +1106,7 @@ var controller = {
                 
                 var url = "http://devtrac.ug";
                 controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                $('.blockUI.blockMsg').center();
+                
                 controller.updateDB(url).then(function(){
                   
                 }).fail(function(){
@@ -1101,13 +1114,13 @@ var controller = {
                 });
               }).fail(function(){
                 controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                $('.blockUI.blockMsg').center();
+                
               });
               break;
             case "Choose Url ...":
               
               controller.loadingMsg("Please select one url", 2000);
-              $('.blockUI.blockMsg').center();
+              
               break;
               
             case "test":
@@ -1116,7 +1129,7 @@ var controller = {
                 
                 var url = "http://jenkinsge.mountbatten.net/devtracorgtest";
                 controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                $('.blockUI.blockMsg').center();
+                
                 
                 controller.updateDB(url).then(function(){
                   
@@ -1125,7 +1138,7 @@ var controller = {
                 });
               }).fail(function(){
                 controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                $('.blockUI.blockMsg').center();
+                
               });
               break;
               
@@ -1135,7 +1148,7 @@ var controller = {
                 
                 var url = "http://demo.devtrac.org";
                 controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                $('.blockUI.blockMsg').center();
+                
                 
                 controller.updateDB(url).then(function(){
                   
@@ -1144,7 +1157,7 @@ var controller = {
                 });
               }).fail(function(){
                 controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                $('.blockUI.blockMsg').center();
+                
               });
               break;
               
@@ -1187,7 +1200,7 @@ var controller = {
         $(".loginlogs").html("clicked sign in");
         if ($("#page_login_name").valid() && $("#page_login_pass").valid()) {
           controller.loadingMsg("Logging In ...", 0);
-          $('.blockUI.blockMsg').center();
+          
           
           if(controller.connectionStatus) {
             
@@ -1221,7 +1234,7 @@ var controller = {
                       }).fail(function() {
                         console.log("didnt find oecds");
                         controller.loadingMsg("OECD Codes were not found", 2000);
-                        $('.blockUI.blockMsg').center();
+                        
                         
                         setTimeout(function() {
                           auth.logout();
@@ -1232,7 +1245,7 @@ var controller = {
                     }).fail(function(error) {
                       auth.logout();
                       controller.loadingMsg(error,5000);
-                      $('.blockUI.blockMsg').center();
+                      
                     });
                     
                   });
@@ -1249,7 +1262,7 @@ var controller = {
                     }).fail(function() {
                       console.log("didnt find oecds");
                       controller.loadingMsg("OECD Codes were not found", 2000);
-                      $('.blockUI.blockMsg').center();
+                      
                       
                       setTimeout(function() {
                         auth.logout();
@@ -1260,7 +1273,7 @@ var controller = {
                   }).fail(function(error) {
                     auth.logout();
                     controller.loadingMsg(error,5000);
-                    $('.blockUI.blockMsg').center();
+                    
                   });
                   
                 });
@@ -1280,7 +1293,7 @@ var controller = {
             
           }else{
             controller.loadingMsg("Please Connect to Internet ...", 1000);
-            $('.blockUI.blockMsg').center();
+            
           }
           
         }
@@ -1295,7 +1308,7 @@ var controller = {
           
         }else{
           controller.loadingMsg("Please Connect to Internet ...", 1000);
-          $('.blockUI.blockMsg').center();
+          
         }
         
       });
@@ -1335,13 +1348,13 @@ var controller = {
       
       if(error.code == 1 || error.code == "1") {//PERMISSION_DENIED
         controller.loadingMsg("User denied the request for Geolocation.", 3000);
-        $('.blockUI.blockMsg').center();
+        
       }else if(error.code == 2 || error.code == "2") {//POSITION_UNAVAILABLE
         controller.loadingMsg("Please Check GPS is Switched ON.", 3000);
-        $('.blockUI.blockMsg').center();
+        
       }else if(error.code == 3 || error.code == "3") {//TIMEOUT
         //controller.loadingMsg("The request to get user location timed out.", 1000);
-        // $('.blockUI.blockMsg').center();
+        // 
       }
     },
     
@@ -1481,22 +1494,22 @@ var controller = {
       switch(error.code) {
         case error.PERMISSION_DENIED:
           controller.loadingMsg("User denied the request for Geolocation.", 1000);
-          $('.blockUI.blockMsg').center();
+          
           $("#gpserror").html("User denied the request for Geolocation");
           break;
         case error.POSITION_UNAVAILABLE:
           controller.loadingMsg("Location information is unavailable.", 1000);
-          $('.blockUI.blockMsg').center();
+          
           $("#gpserror").html("Location information is unavailable");
           break;
         case error.TIMEOUT:
           controller.loadingMsg("The request to get user location timed out.", 1000);
-          $('.blockUI.blockMsg').center();
+          
           $("#gpserror").html("The request to get user location timed out");
           break;
         case error.UNKNOWN_ERROR:
           controller.loadingMsg("An unknown error occurred.", 1000);
-          $('.blockUI.blockMsg').center();
+          
           $("#gpserror").html("An unknown error occurred");
           break;
       }
@@ -1580,7 +1593,7 @@ var controller = {
     onOffline: function() {
       controller.connectionStatus = false;
       controller.loadingMsg("You are offline. Connect to Upload and Download your Data", 2000);
-      $('.blockUI.blockMsg').center();
+      
     },
     
     //cordova online event
@@ -1663,7 +1676,7 @@ var controller = {
         devtrac.indexedDB.open(function (db) {
           devtrac.indexedDB.addSavedQuestions(db, questionnaire).then(function() {
             controller.loadingMsg("Saved", 2000);
-            $('.blockUI.blockMsg').center();
+            
             $(':input','.qtions')
             .not(':button, :submit, :reset, :hidden')
             .val('')
@@ -1677,12 +1690,12 @@ var controller = {
           }).fail(function() {
             //todo: check if we can answer numerous questions for one site visit
             controller.loadingMsg("Already Saved", 2000);
-            $('.blockUI.blockMsg').center();
+            
           });      
         });
       }else {
         controller.loadingMsg("Please Answer Atleast Once", 2000);
-        $('.blockUI.blockMsg').center();
+        
       }
     },
     
@@ -1867,7 +1880,7 @@ var controller = {
               });
             } else {
               controller.loadingMsg("Please add dates to Fieldtrip from Devtrac", 2000);
-              $('.blockUI.blockMsg').center();
+              
               
               setTimeout(function(){
                 auth.logout();
@@ -2040,6 +2053,7 @@ var controller = {
         snid = anchor_id.substring(anchor_id.indexOf('d') + 1);
         localStorage.snid = snid;
         localStorage.user = false;
+        
       }
       else if(anchor_id.indexOf('r') != -1) {
         snid = anchor_id.substring(anchor_id.indexOf('r') + 1);
@@ -2067,18 +2081,20 @@ var controller = {
             console.log("this ftritem has a place "+fObject['field_ftritem_place']['und'][0]['target_id']);
             
             if(fObject['user-added'] == true) {
-              
+              localStorage.locationtype = "user";
               pnid = parseInt(localStorage.pnid);
-            }else{
               
+            }else {
+              localStorage.locationtype = "server";
               pnid = localStorage.pnid;
             }
             
             
-          }else{
+          }else {
             if(fObject['user-added'] == true) {
+              localStorage.locationtype = "user";
               pnid = parseInt(localStorage.pnid);
-            }else{//needs work
+            }else {//needs work
               pnid = "RV";
             }
           }
@@ -2130,7 +2146,7 @@ var controller = {
           $("#sitevisists_details_title").html(fObject['title']);
           $("#sitevisists_details_summary").html(fObject['field_ftritem_public_summary']['und'][0]['value']);
           
-          //determine type of site visit before looking up it location
+          //determine type of site visit before looking up its location
           //(road side visits donot have locations)
           var ftritemType = localStorage.reportType;
           if(ftritemType.indexOf("oa") == -1) {
@@ -2280,7 +2296,7 @@ var controller = {
         });
       }else {
         controller.loadingMsg("Please enter an Edit Summary", 2000)
-        $('.blockUI.blockMsg').center();
+        
       }
       
     },
@@ -2309,7 +2325,7 @@ var controller = {
         
         devtrac.indexedDB.editPlace(db, pnid, updates).then(function () {
           controller.loadingMsg('Saved ' + updates['title'], 2000);
-          $('.blockUI.blockMsg').center();
+          
           $.mobile.changePage("#page_sitevisits_details", "slide", true, false);
         });
       });
@@ -2325,8 +2341,6 @@ var controller = {
       var reportType = localStorage.reportType;
       var part1;
       var summaryvalue;
-      
-      //var summaryvalue = encodeURI(prt);
       
       if(prt.indexOf("<p>&nbsp;</p>") != -1) {
         summaryvalue =  prt.replace(/<p>&nbsp;<\/p>/g,'');
@@ -2408,6 +2422,20 @@ var controller = {
         updates['field_actionitem_ftreportitem']['und'][0]['target_id'] = localStorage.currentsnid;
         updates['field_actionitem_resp_place']['und'][0]['target_id'] = localStorage.pnid;
         
+        var locationtype = localStorage.locationtype;
+        if(locationtype.indexOf("user") != -1) {
+          updates['loctype'] = "user_added";
+        }else {
+          updates['loctype'] = "server_added";
+        }
+        
+        var sitetype = localStorage.user;
+        if(sitetype.indexOf('true') != -1) {
+          updates['sitetype'] = "user_added";
+        }else {
+          updates['sitetype'] = "server_added";
+        }
+        
         devtrac.indexedDB.open(function (db) {
           devtrac.indexedDB.getAllActionitems(db, function (actionitems) {
             var actionitemcount = 1;
@@ -2458,7 +2486,7 @@ var controller = {
         });    
       }else {
         controller.loadingMsg("Please fill in a followuptask", 2000);
-        $('.blockUI.blockMsg').center();
+        
       }
     },
     
@@ -2475,7 +2503,7 @@ var controller = {
             if(trip['title'] == updates['title']){
               
               controller.loadingMsg("Nothing new was added !", 3000);
-              $('.blockUI.blockMsg').center();
+              
             }else {
               
               updates['editflag'] = 1;
@@ -2486,8 +2514,8 @@ var controller = {
                 $("#fieldtrip_count").html("1");
                 $('#fieldtrip_details_title').html(updates['title']);
                 
-                controller.loadingMsg("Saved your Edits", 3000);
-                $('.blockUI.blockMsg').center();
+                controller.loadingMsg("Saving your Edits", 1500);
+                
               });      
               
               
@@ -2497,7 +2525,7 @@ var controller = {
         });
       }else{
         controller.loadingMsg("Please Enter a Fieldtrip Title", 2000);
-        $('.blockUI.blockMsg').center();
+        
       }
       
     },
@@ -2704,7 +2732,7 @@ var controller = {
           });  
         }else {
           controller.loadingMsg("Please select a placetype", 2000)
-          $('.blockUI.blockMsg').center();
+          
           
         }
         
@@ -2911,7 +2939,7 @@ var controller = {
         });  
       }else {
         controller.loadingMsg("Please enter all Fields", 2000)
-        $('.blockUI.blockMsg').center();
+        
       }
     },
     
@@ -2975,7 +3003,7 @@ var controller = {
             list_comment.listview('refresh');
             
             controller.loadingMsg("Saved", 1000);
-            $('.blockUI.blockMsg').center();
+            
             $('#actionitem_comment').val("");
             $('#commentcollapse').collapsible('collapse');
             
@@ -2986,7 +3014,7 @@ var controller = {
         
       }else{
         controller.loadingMsg("Please fill in a comment", 2000);
-        $('.blockUI.blockMsg').center();
+        
       } 
     },
     
@@ -3015,7 +3043,7 @@ var controller = {
       
       if(navigator.network.connection.type == Connection.NONE) {
         controller.loadingMsg("Sorry, you are offline", 2000);
-        $('.blockUI.blockMsg').center();
+        
         controller.connectionStatus = false;
       } else {
         controller.connectionStatus = true;
@@ -3198,8 +3226,7 @@ var controller = {
         fadeOut: 700,
         timeout: t,
         onBlock: function() {           
-          //Register the event listener
-          document.addEventListener("backbutton", controller.onBackKeyDown, false);
+          
         }, 
         
         css: { 
@@ -3213,6 +3240,8 @@ var controller = {
           color: '#fff' 
         } 
       }); 
+      
+      $('.blockUI.blockMsg').center();
       
     },
     
