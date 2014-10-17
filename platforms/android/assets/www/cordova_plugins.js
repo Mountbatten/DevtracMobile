@@ -186,20 +186,6 @@ module.exports = [
         ]
     },
     {
-        "file": "plugins/org.apache.cordova.file-transfer/www/FileTransferError.js",
-        "id": "org.apache.cordova.file-transfer.FileTransferError",
-        "clobbers": [
-            "window.FileTransferError"
-        ]
-    },
-    {
-        "file": "plugins/org.apache.cordova.file-transfer/www/FileTransfer.js",
-        "id": "org.apache.cordova.file-transfer.FileTransfer",
-        "clobbers": [
-            "window.FileTransfer"
-        ]
-    },
-    {
         "file": "plugins/org.apache.cordova.camera/www/CameraConstants.js",
         "id": "org.apache.cordova.camera.Camera",
         "clobbers": [
@@ -258,7 +244,6 @@ module.exports.metadata =
     "org.apache.cordova.vibration": "0.3.6",
     "org.apache.cordova.battery-status": "0.2.5",
     "org.apache.cordova.file": "1.1.0",
-    "org.apache.cordova.file-transfer": "0.4.3",
     "org.apache.cordova.camera": "0.3.1",
     "org.apache.cordova.device": "0.2.11",
     "org.apache.cordova.network-information": "0.2.11"
