@@ -44,3 +44,5 @@ platforms/android/res/layout/
 
 .cordova/config.json
 platforms/android/.project
+platforms/android/.directory
+platforms/android/.classpath
