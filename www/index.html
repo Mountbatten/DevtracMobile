@@ -12,7 +12,7 @@
 <!-- <link rel="stylesheet" href="css/jquery.mobile.theme-1.4.0.min.css" /> -->
 <link rel="stylesheet" href="css/jquery.mobile.theme-1.4.3.min.css" />
    <!-- new notifications -->
-    <link rel="stylesheet" href="css/obNotificationCenter.css">
+    <link rel="stylesheet" href="css/obNotificationCenter.css"/>
   <link rel="stylesheet" href="css/jquery-ui-1.10.4.custom.css" />
   <link rel="stylesheet" href="css/jquery.mobile.datepicker.css" />
 
@@ -81,12 +81,13 @@ body {
   <script id="header-tpl" type="text/template">
   <a class="ui-btn-left" href="#navpanel_{{id}}" data-role="button"
   data-iconpos="notext" id="barsbutton_{{id}}"><i class="fa fa-bars fa-lg"></i></a>
-{{{notes}}}
+  {{{notes}}}
   <h1>{{ title }}</h1>
   {{{extra_buttons}}}
 </script>
-  <!--loadfieldtriplist:
-      end of templates 
+  <!--
+  loadfieldtriplist:
+  end of templates 
 -->
 
 
@@ -137,13 +138,15 @@ body {
           placeholder="Start with http://" name="myurl" class="myurl" value="">
             <br> <select data-placeholder="Choose Url ..."
               class="seturlselect" id="loginselect">
-                <option value="manual">manual</option>
+                <!-- <option value="manual">manual</option>
                 <option value="custom">custom</option>
                 <option value="DevtracUg" disabled="disabled">DevtracUganda</option>
                 <option value="test">test</option>
                 <option value="cloud">cloud</option>
-                <option value="local">local</option>
+                <option value="local">local</option> -->
 
+              <option value="demo">demo</option>
+              <option value="custom">custom</option>
             </select>
 
               <div id='urldiv'>
@@ -280,7 +283,7 @@ body {
             data-icon="" onclick="">Fieldtrip</a>
             <div id="fieldtrip_count" class="ui-li-count"></div></li>
 
-          <li><a data-role="button" data-mini="true" data-icon=""
+          <li><a data-role="button" data-icon=""
             onclick="devtracnodes.syncAll()" style="text-align: center"><i
               class="fa fa-upload fa-lg"></i>&nbsp&nbsp Sync All</a></li>
 
@@ -300,13 +303,6 @@ body {
 
     <div data-role="header" id="header_sitereports">
 
-      <!--       <a id="" class="ui-btn-left" href="#page_fieldtrip_details"
-        data-role="button" data-iconpos="notext"><i
-        class="fa fa-chevron-circle-left fa-lg"></i></a>
-
-
-      <h3>Site Report</h3>
--->
     </div>
     <!-- /header -->
 
@@ -417,9 +413,7 @@ body {
         <label for='sitevisit_add_type'>Site Report Type</label> <select
           name="sitevisit_add_type" id="sitevisit_add_type" data-mini="true"
           required>
-          <option value="211">Human Interest Story</option>
-          <option value="210">Roadside Observation</option>
-          <option value="209">Site Visit</option>
+          
         </select> <input type='text' value='' id='location_latlon' name='location_latlon'
           required style="display: none" /> <label for="map_district"
           style="color: red;" id="map_district_error"></label><a
@@ -444,8 +438,7 @@ body {
       <form id="form_sitevisit_edits" method="" action="">
         <fieldset>
           <label for='sitevisit_title'>Title</label> <input type='text' value='' id='sitevisit_title' required> <label for='sitevisit_date'>Date
-              Visited</label> <input type='text' value='' id='sitevisit_date'
-            readonly='true' required /> <label for='sitevisit_summary'>Summary</label>
+              Visited</label> <input type='text' value='' id='sitevisit_date' required /> <label for='sitevisit_summary'>Summary</label>
             <textarea id="sitevisit_summary" name="sitevisit_summary" required></textarea>
 
         </fieldset>
@@ -491,7 +484,7 @@ body {
 
         <label for='sitevisit_add_oecds'>Oecds</label>
         <div id="select_oecds"></div>
-        <label for="sitevisit_add_date">Date</label> <input type='text' id='sitevisit_add_date' readonly='true' name='sitevisit_add_date' required/> <label
+        <label for="sitevisit_add_date">Date</label> <input type='text' id='sitevisit_add_date' name='sitevisit_add_date' required/> <label
           for="sitevisit_add_public_summary">Public Summary</label>
         <textarea id='sitevisit_add_public_summary'
           name='sitevisit_add_public_summary' required></textarea>
@@ -551,6 +544,9 @@ body {
 
         <div id='actionitems_oecds'></div>
 
+<label for="actionitem_date">Due Date</label> <input type='text'
+          id='actionitem_date' name='' required />
+
         <div class="ui-field-contain">
           <label for="actionitem_status">Status</label> <select
             name="actionitem_status" id="actionitem_status" data-mini="true"
@@ -571,9 +567,7 @@ body {
           </select>
         </div>
 
-        <label for="actionitem_date">Due Date</label> <input type='text'
-          id='actionitem_date' name='actionitem_date' data-role="date"
-          data-inline="false" readonly='true' required /> <label
+         <label
           for="actionitem_followuptask">Follow up task</label>
         <textarea value='' id='actionitem_followuptask'
           name='actionitem_followuptask' required></textarea>
@@ -837,13 +831,15 @@ body {
           or Select one from the list below: </label> <input type="url" placeholder="Start with http://" name="myurl" class="myurl" value="">
           <br> <select data-placeholder="Choose Url ..."
             class="seturlselect" id="settingselect">
-              <option value="manual">manual</option>
+              <!-- <option value="manual">manual</option>
               <option value="custom">custom</option>
               <option value="DevtracUg" disabled="disabled">DevtracUganda</option>
               <option value="test">test</option>
               <option value="cloud">cloud</option>
-              <option value="local">local</option>
+              <option value="local">local</option> -->
 
+              <option value="demo">demo</option>
+              <option value="custom">custom</option>
           </select>
 
             <div id='urldiv'>
@@ -894,7 +890,7 @@ body {
       <p>DevtracMobile</p>
       <strong>Version:</strong>
 
-      <p>0.0.6</p>
+      <p>0.0.7</p>
 
     </div>
     <!-- /content -->
@@ -958,6 +954,7 @@ body {
   <script type="text/javascript" src="js/authentication.js"></script>
   <script type="text/javascript" src="js/vocabularies.js"></script>
   <script type="text/javascript" src="js/devtrac-nodes.js"></script>
+  <script type="text/javascript" src="js/FileAccess.js"></script>
   <script type="text/javascript" src="js/controller/controller.js"></script>
 
   <script type="text/javascript">

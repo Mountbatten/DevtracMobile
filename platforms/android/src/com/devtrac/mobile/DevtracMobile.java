@@ -22,17 +22,13 @@ package com.devtrac.mobile;
 import android.os.Bundle;
 import org.apache.cordova.*;
 
-public class DevtracMobile extends CordovaActivity 
+public class DevtracMobile extends CordovaActivity
 {
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        super.init();
-        
-        super.setIntegerProperty("loadUrlTimeoutValue", 8000000);
-        super.loadUrl(Config.getStartUrl());
-        
+        // Set by <content src="index.html" /> in config.xml
+        loadUrl(launchUrl);
     }
 }
-

@@ -27,8 +27,10 @@ var owlhandler = {
     },
     
     notes: function(notesy) {
+      console.log("inside notes");
+      
       $("body").obNotificationCenter({
-        trigger: "mousedown",
+        trigger: "click",
         selectors: "#notify_fieldtrip",
         content: function(){
           var data = "";
@@ -44,16 +46,18 @@ var owlhandler = {
           return data;
         },
         beforeCloseItem: function (item) {
-          item.empty();
+          item.addClass("closed");
 
-          if($(".obNotifScrollable").children().length == 1) {
+          if($(".obNotifScrollable").children(':not(.closed)').length < 1) {
             $("#notify_fieldtrip").hide();
+
           }
             
         }
         
       });
       $("#notify_fieldtrip").show();
+      $(".obNotifScrollable").children().removeClass('closed').show();
     },
     
     populateOwl: function(snid) {

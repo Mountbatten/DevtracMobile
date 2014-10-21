@@ -18,3 +18,16 @@ platforms/android/res/drawable-land-mdpi/
 platforms/android/res/drawable-land-xhdpi/
 
 platforms/android/assets/_where-is-www.txt
+
+platforms/android/res/drawable-port-hdpi/
+platforms/android/res/drawable-port-ldpi/
+platforms/android/res/drawable-port-mdpi/
+platforms/android/res/drawable-port-xhdpi/
+
+www/web/index.html~
+
+platforms/android/web/node_modules/
+platforms/android/src/
+platforms/android/project.properties
+platforms/android/cordova/
+platforms/android/build.xml
