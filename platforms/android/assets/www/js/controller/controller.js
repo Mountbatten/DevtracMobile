@@ -6,11 +6,13 @@ var controller = {
     filenames : [],
     filedimensions: [],
     filesizes : [],
+    imageSource: [],
     
     b64Images : [],
     fnames : [],
     fdimensions: [],
     fsizes : [],
+    imageSrc: [],
     
     watchID : null,
     watchid : null,
@@ -229,7 +231,7 @@ var controller = {
             //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, saveTypes, failsaveTypes);
             
             controller.loadingMsg("Site Report Types Saved", 0);
-              
+            
             notes.push('Site Report Types');
             
             devtracnodes.getSiteVisits(db, function(response) {
@@ -819,36 +821,55 @@ var controller = {
         }
       });
       
-      //if device runs kitkat android 4.4 use plugin to access image files
-      if( device.platform.toLowerCase() === 'android' && device.version.indexOf( '4.4' ) === 0 ) {
-        console.log("its kitkat");
-        $('#roadsidefile').click( function(e) {
+      if(controller.checkCordova() != undefined) {
+        //if device runs kitkat android 4.4 use plugin to access image files
+        if( device.platform.toLowerCase() === 'android' && device.version.indexOf( '4.4' ) === 0 ) {
+          
+          $('#roadsidefile').click( function(e) {
             filechooser.open( {}, function(data){
-              alert(data);
+              
+              controller.filenames.push(data.name);
+              controller.base64Images.push(data.content);
+              controller.imageSource.push(true);
+              
+              $("#uploadPreview").append('<div>'+data.name +'</div>');
+              
             }, function(error){
               alert(error);
             });
-        });
-        
-      }else {
-        console.log("its lower than kitkat; some ancient monkey");
-        //read image from roadside visit
-        $('#roadsidefile').on('change', function(event, ui) {
-          if(this.disabled) return alert('File upload not supported!');
-          var F = this.files;
-          if(F && F[0]) for(var i=0; i<F.length; i++) controller.readImage( F[i], "roadside" );  
+          });
           
-        });
-        
-        //read image from roadside visit
-        $('#sitevisitfile').on('change', function(event, ui) {
-          if(this.disabled) return alert('File upload not supported!');
-          var F = this.files;
-          if(F && F[0]) for(var i=0; i<F.length; i++) controller.readImage( F[i], "other" );  
+          $('#sitevisitfile').click( function(e) {
+            filechooser.open( {}, function(data){
+              controller.fnames.push(data.name);
+              controller.b64Images.push(data.content);
+              controller.imageSrc.push(true);
           
-        });
+              $("#imagePreview").append('<div>'+data.name+'</div>');
+            }, function(error) {
+              alert(error);
+            });
+            
+          });
           
+        }  
       }
+      
+      //read image from roadside visit
+      $('#roadsidefile').on('change', function(event, ui) {
+        if(this.disabled) return alert('File upload not supported!');
+        var F = this.files;
+        if(F && F[0]) for(var i=0; i<F.length; i++) controller.readImage( F[i], "roadside" );  
+        
+      });
+      
+      //read image from roadside visit
+      $('#sitevisitfile').on('change', function(event, ui) {
+        if(this.disabled) return alert('File upload not supported!');
+        var F = this.files;
+        if(F && F[0]) for(var i=0; i<F.length; i++) controller.readImage( F[i], "other" );  
+        
+      });
       
       //handle edit sitevisit click event
       $("#editsitevisit").bind("click", function (event) {
@@ -1589,6 +1610,8 @@ var controller = {
           controller.filenames.push(n);
           controller.base64Images.push(image.src);
           controller.filesizes.push(~~(file.size/1024));
+          controller.imageSource.push(false);
+          
           $("#uploadPreview").append('<div>'+n+" "+~~(file.size/1024)+'kb</div>');
           
         }else
@@ -1596,6 +1619,7 @@ var controller = {
           controller.fnames.push(n);
           controller.b64Images.push(image.src);
           controller.fsizes.push(~~(file.size/1024));
+          controller.imageSrc.push(false);
           
           $("#imagePreview").append('<div>'+n+" "+~~(file.size/1024)+'kb</div>');
         }
@@ -2775,6 +2799,7 @@ var controller = {
       images['base64s'] = controller.b64Images;
       images['names'] = controller.fnames;
       images['sizes'] = controller.fsizes;
+      images['kitkat'] = controller.imageSrc;
       
       updates['user-added'] = true;
       updates['nid'] = 1;
@@ -2872,6 +2897,7 @@ var controller = {
         images['base64s'] = controller.base64Images;
         images['names'] = controller.filenames;
         images['sizes'] = controller.filesizes;
+        images['kitkat'] = controller.imageSource;
         
         updates['user-added'] = true;
         updates['nid'] = 1;

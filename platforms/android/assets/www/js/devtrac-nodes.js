@@ -544,8 +544,12 @@ var devtracnodes = {
     postImageFile: function(images, index, nid) {
       var d = $.Deferred();
       
-      var parsedImage = images['base64s'][index].substring(images['base64s'][index].indexOf(",")+1);
-      
+    //if device runs kitkat android 4.4 use plugin to access image files
+      if(images['kitkat']) {
+        var parsedImage = images['base64s'][index];
+      }else{
+        var parsedImage = images['base64s'][index].substring(images['base64s'][index].indexOf(",")+1);  
+      }
       
       var filedata = {
           "file": {
