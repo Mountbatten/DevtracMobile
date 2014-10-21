@@ -188,6 +188,20 @@ module.exports = [
         "clobbers": [
             "Connection"
         ]
+    },
+    {
+        "file": "plugins/com.cesidiodibenedetto.filechooser/www/filechooser.js",
+        "id": "com.cesidiodibenedetto.filechooser.FileChooser",
+        "clobbers": [
+            "FileChooser"
+        ]
+    },
+    {
+        "file": "plugins/org.apache.cordova.device/www/device.js",
+        "id": "org.apache.cordova.device.device",
+        "clobbers": [
+            "device"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -196,7 +210,9 @@ module.exports.metadata =
     "org.apache.cordova.camera": "0.3.3",
     "org.apache.cordova.file": "1.3.1",
     "org.apache.cordova.geolocation": "0.3.10",
-    "org.apache.cordova.network-information": "0.2.13"
+    "org.apache.cordova.network-information": "0.2.13",
+    "com.cesidiodibenedetto.filechooser": "1.0.0",
+    "org.apache.cordova.device": "0.2.12"
 }
 // BOTTOM OF METADATA
 });
