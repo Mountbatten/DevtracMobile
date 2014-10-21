@@ -819,21 +819,36 @@ var controller = {
         }
       });
       
-      //read image from roadside visit
-      $('#roadsidefile').on('change', function(event, ui) {
-        if(this.disabled) return alert('File upload not supported!');
-        var F = this.files;
-        if(F && F[0]) for(var i=0; i<F.length; i++) controller.readImage( F[i], "roadside" );  
+      //if device runs kitkat android 4.4 use plugin to access image files
+      if( device.platform.toLowerCase() === 'android' && device.version.indexOf( '4.4' ) === 0 ) {
+        console.log("its kitkat");
+        $('#roadsidefile').click( function(e) {
+            filechooser.open( {}, function(data){
+              alert(data);
+            }, function(error){
+              alert(error);
+            });
+        });
         
-      });
-      
-      //read image from roadside visit
-      $('#sitevisitfile').on('change', function(event, ui) {
-        if(this.disabled) return alert('File upload not supported!');
-        var F = this.files;
-        if(F && F[0]) for(var i=0; i<F.length; i++) controller.readImage( F[i], "other" );  
+      }else {
+        console.log("its lower than kitkat; some ancient monkey");
+        //read image from roadside visit
+        $('#roadsidefile').on('change', function(event, ui) {
+          if(this.disabled) return alert('File upload not supported!');
+          var F = this.files;
+          if(F && F[0]) for(var i=0; i<F.length; i++) controller.readImage( F[i], "roadside" );  
+          
+        });
         
-      });
+        //read image from roadside visit
+        $('#sitevisitfile').on('change', function(event, ui) {
+          if(this.disabled) return alert('File upload not supported!');
+          var F = this.files;
+          if(F && F[0]) for(var i=0; i<F.length; i++) controller.readImage( F[i], "other" );  
+          
+        });
+          
+      }
       
       //handle edit sitevisit click event
       $("#editsitevisit").bind("click", function (event) {
