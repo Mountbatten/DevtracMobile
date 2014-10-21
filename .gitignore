@@ -11,3 +11,10 @@ platforms/android/build.gradle
 platforms/android/custom_rules.xml
 platforms/android/settings.gradle
 www/web/npm-debug.log
+
+platforms/android/res/drawable-land-hdpi/
+platforms/android/res/drawable-land-ldpi/
+platforms/android/res/drawable-land-mdpi/
+platforms/android/res/drawable-land-xhdpi/
+
+platforms/android/assets/_where-is-www.txt
