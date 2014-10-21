@@ -33,3 +33,11 @@ platforms/android/cordova/
 platforms/android/build.xml
 
 platforms/android/project.properties
+platforms/android/libs/
+
+platforms/android/res/drawable-hdpi/
+platforms/android/res/drawable-mdpi/
+platforms/android/res/drawable-xhdpi/
+platforms/android/res/drawable-xxhdpi/
+
+platforms/android/res/layout/
