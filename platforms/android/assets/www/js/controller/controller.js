@@ -1397,6 +1397,7 @@ var controller = {
     //camera functions
     
     onPhotoDataSuccess: function(imageData) {
+      alert("success");
       var currentdate = new Date(); 
       var datetime = currentdate.getDate()
       + (currentdate.getMonth()+1)
@@ -1407,17 +1408,21 @@ var controller = {
       
       var imagename = "img_"+datetime+".jpeg";
       // Get image handle
+      console.log("its a "+localStorage.ftritemtype);
       var reporttype = localStorage.ftritemtype;
       if(reporttype.indexOf('oa') != -1) 
       {
         controller.filenames.push(imagename);
         controller.base64Images.push(imageData);
+        controller.imageSource.push(false);
+        
         $("#uploadPreview").append('<div>'+imagename+'</div>');
         
       }else
       {
         controller.fnames.push(imagename);
         controller.b64Images.push(imageData);
+        controller.imageSrc.push(false);
         
         $("#imagePreview").append('<div>'+imagename+'</div>');
       }
