@@ -4,11 +4,11 @@ devtrac.indexedDB = {};
 //open database
 devtrac.indexedDB.db = null;
 
-devtrac.indexedDBopen = function(callback) {
+devtrac.indexedDB.open = function(callback) {
 
   var version = 1;
 
-  var request = indexedDB.open("a8", version);
+  var request = indexedDB.open("b9", version);
 
   request.onsuccess = function(e) {
     devtrac.indexedDB.db = e.target.result;
@@ -23,7 +23,7 @@ devtrac.indexedDB.open = function(callback) {
 
   var version = 1;
 
-  var request = indexedDB.open("a8", version);
+  var request = indexedDB.open("b9", version);
 
   // We can only create Object stores in a versionchange transaction.
   request.onupgradeneeded = function(e) {
@@ -66,7 +66,7 @@ devtrac.indexedDB.open = function(callback) {
     }
     if(db.objectStoreNames.contains("images")){
       db.deleteObjectStore("images");
-    }
+    }  
 
     var store = db.createObjectStore("oecdobj", {autoIncrement: true});
 
@@ -382,6 +382,33 @@ devtrac.indexedDB.addPlacesData = function(db, placeObj) {
     d.reject("No places returned");
   }
   return d;
+};
+
+
+//count taxonomies
+devtrac.indexedDB.countTaxonomyItems = function(db, storename, callback) {
+  
+  var trans = db.transaction([storename], "readonly");
+  var store = trans.objectStore(storename);
+  var taxonomies = [];
+  
+  // Get everything in the store;
+  var keyRange = IDBKeyRange.lowerBound(0);
+  var cursorRequest = store.openCursor(keyRange);
+  
+  cursorRequest.onsuccess = function(e) {
+    var result = e.target.result;
+    if(!!result == false) {
+      callback(taxonomies);
+      return;
+    }
+
+    taxonomies.push(result.value);
+    result["continue"]();
+  };
+
+  cursorRequest.onerror = devtrac.indexedDB.onerror;
+
 };
 
 //query taxonomy data from datastore
@@ -795,10 +822,14 @@ devtrac.indexedDB.editFieldtrip = function(db, fnid, updates) {
 
     // Get the old value that we want to update
     var data = request.result;
-    data.title = updates['title'];
-    data.editflag = updates['editflag'];
+    if(updates['title'] != undefined){
+      data.title = updates['title'];  
+    }
+    if(updates['editflag'] != undefined){
+      data.editflag = updates['editflag'];  
+    }
+    
     // update the value(s) in the object that you want to change
-
     // Put this updated object back into the database.
     var requestUpdate = store.put(data);
 
@@ -834,6 +865,7 @@ devtrac.indexedDB.editActionitem = function(db, anid, updates) {
     // Get the old value that we want to update
     var data = request.result;
     data.submit = updates['submit'];
+    data['fresh_nid'] = updates['nid'];
 
     // Put this updated object back into the database.
     var requestUpdate = store.put(data);
@@ -844,7 +876,7 @@ devtrac.indexedDB.editActionitem = function(db, anid, updates) {
     };
     requestUpdate.onsuccess = function(event) {
       // Success - the data is updated!
-      store['delete'](anid);
+      //store['delete'](anid);
       console.log("Action item update success");
       d.resolve();
     };
@@ -864,6 +896,7 @@ devtrac.indexedDB.editPlace = function(db, pnid, updates) {
     // Handle errors!
     console.log("Error getting place to update "+pnid);
   };
+  
   request.onsuccess = function(event) {
     // Get the old value that we want to update
     var data = request.result;
@@ -871,14 +904,18 @@ devtrac.indexedDB.editPlace = function(db, pnid, updates) {
     for(var key in updates){
       if(key == "email"){
         data['field_place_responsible_email']['und'][0]['email'] = updates['email'];
-      }else if(key == "responsible"){
+      }
+      if(key == "responsible"){
         data['field_place_responsible_person']['und'][0]['value'] = updates['responsible']; 
-      }else if(key == "title"){
+      }
+      if(key == "title"){
         data['title'] = updates['title']; 
-      }else if(key == "submit"){
+      }
+      if(key == "submit"){
         data['submit'] = updates['submit']; 
-      }else if(key == "nid"){
-        data['new_nid'] = updates['nid']; 
+      }
+      if(key == "fresh_nid"){
+        data['fresh_nid'] = updates['fresh_nid']; 
       }
     }
 
@@ -929,6 +966,9 @@ devtrac.indexedDB.editSitevisit = function(db, snid, updates) {
       }
       if(key == "editflag"){
         data['editflag'] = updates['editflag'];
+      }
+      if(key == "fresh_nid"){
+        data['fresh_nid'] = updates['fresh_nid'];
       }
     }
 

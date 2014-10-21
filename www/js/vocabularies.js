@@ -12,17 +12,20 @@ var vocabularies = {
           d.reject(errorThrown);
         },
         success : function(data) {
-          console.log("We have the oecds");
-          
-          devtrac.indexedDB.open(function (dbs) {
-            devtrac.indexedDB.addTaxonomyData(dbs, "oecdobj", data).then(function() {
-              d.resolve("Oecds");
-            }).fail(function(err) {
-              d.resolve("Oecds Not Saved");
+          if(data.length <= 0) {
 
+            d.reject("No Oecds Found");
+          }else {
+            devtrac.indexedDB.open(function (dbs) {
+              devtrac.indexedDB.addTaxonomyData(dbs, "oecdobj", data).then(function() {
+                d.resolve("Oecds");
+              }).fail(function(err) {
+                d.resolve("Oecds Not Saved");
+
+              });
             });
-          });
-          
+  
+          }
           
         }
       });
@@ -44,7 +47,7 @@ var vocabularies = {
           d.reject(errorThrown);
         },
         success : function(data) {
-        //create bubble notification
+
           if(data.length <= 0) {
 
             d.reject("No Placetypes Found");

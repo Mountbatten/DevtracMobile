@@ -1,11 +1,5 @@
 var auth = {
-    
-    //delete bubble
-    deleteBubble: function(notifications, notification){
-      notifications.deleteNotification(notification);
-      
-    },
-    
+
     //get site token
     getToken: function() {
       var d = $.Deferred();
@@ -27,17 +21,12 @@ var auth = {
           
           if(errorThrown == ""){
             controller.loadingMsg("Selected Url "+localStorage.appurl+" is Unavailable. Make sure you have an internet connection or try another url.", 5000)
-            controller.loadingMsg("Check that your Internet bundle has not expired.", 9000);
-            $('.blockUI.blockMsg').center();
-          }else if(jqXHR.responseText.indexOf('<') != -1 || jqXHR.responseText.indexOf('/>') != -1) {
+            
+          }else {
             controller.loadingMsg("Error: "+errorThrown, 3000);
-            $('.blockUI.blockMsg').center();
+            
             $('.errorHTML').html(jqXHR.responseText);
             
-          }
-          else{
-            controller.loadingMsg("Error: "+errorThrown+" Try another url.", 5000);
-            $('.blockUI.blockMsg').center();
           }
           
           $.mobile.changePage("#page_login", "slide", true, false);
@@ -88,7 +77,12 @@ var auth = {
           dataType : 'json',
           headers: {'X-CSRF-Token': token},
           error : function(XMLHttpRequest, textStatus, errorThrown) {
-            $.unblockUI();
+            $.unblockUI({ 
+              onUnblock: function() {
+                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+              }
+               
+            });
             
             console.log('response error '+XMLHttpRequest.responseText);
             //hide and show dialog auth buttons
@@ -167,7 +161,12 @@ var auth = {
              
             },
           error : function(XMLHttpRequest, textStatus, errorThrown) {
-            $.unblockUI();
+            $.unblockUI({ 
+              onUnblock: function() {
+                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+              }
+               
+            });
             alert("Sorry "+errorThrown);	
             console.log('response error '+XMLHttpRequest.responseText);
             //hide and show dialog auth buttons
@@ -186,6 +185,7 @@ var auth = {
             $("#addquestionnaire").show();
             $(".settingsform").show();
             $(".ui-navbar").show();
+            $("#syncForm").show();
             
             localStorage.username = name;
             localStorage.pass = pass;
@@ -251,7 +251,7 @@ var auth = {
       var d = $.Deferred();
       
       controller.loadingMsg("Logging out...", 0);
-      $('.blockUI.blockMsg').center();
+      
       // Obtain session token.
       auth.getToken().then(function (token) {
         // Call system logout with session token.
@@ -263,7 +263,12 @@ var auth = {
             'X-CSRF-Token': token
           },
           error : function(XMLHttpRequest, textStatus, errorThrown) {
-            $.unblockUI();
+            $.unblockUI({ 
+              onUnblock: function() {
+                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+              }
+               
+            });
             
             //hide and show dialog auth buttons
             $('#logindiv').hide();
@@ -274,7 +279,12 @@ var auth = {
             
           },
           success : function(data) {
-            $.unblockUI();
+            $.unblockUI({ 
+              onUnblock: function() {
+                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+              }
+               
+            });
             console.log("logged out okay");
             $(".menulistview").hide();
             $("#form_fieldtrip_details").hide();
@@ -283,6 +293,7 @@ var auth = {
             $(".settingsform").hide();
             $("#addquestionnaire").hide();
             $(".ui-navbar").hide();
+            $("#syncForm").hide();
             
             $.mobile.changePage("#page_login", "slide", true, false);
             
