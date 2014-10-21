@@ -41,3 +41,6 @@ platforms/android/res/drawable-xhdpi/
 platforms/android/res/drawable-xxhdpi/
 
 platforms/android/res/layout/
+
+.cordova/config.json
+platforms/android/.project
