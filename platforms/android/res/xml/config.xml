@@ -11,6 +11,12 @@
     <feature name="NetworkStatus">
         <param name="android-package" value="org.apache.cordova.networkinformation.NetworkManager" />
     </feature>
+    <feature name="FileChooser">
+        <param name="android-package" value="com.cesidiodibenedetto.filechooser.FileChooser" />
+    </feature>
+    <feature name="Device">
+        <param name="android-package" value="org.apache.cordova.device.Device" />
+    </feature>
     <name>DevtracMobile</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.
@@ -21,10 +27,4 @@
     <content src="index.html" />
     <access origin="*" />
     <icon src="icons/favicon.png" />
-    <feature name="FileChooser">
-        <param name="android-package" value="com.cesidiodibenedetto.filechooser.FileChooser" />
-    </feature>
-    <feature name="Device">
-        <param name="android-package" value="org.apache.cordova.device.Device" />
-    </feature>
 </widget>
