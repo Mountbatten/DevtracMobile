@@ -31,3 +31,5 @@ platforms/android/src/
 platforms/android/project.properties
 platforms/android/cordova/
 platforms/android/build.xml
+
+platforms/android/project.properties
