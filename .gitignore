@@ -1,3 +1,13 @@
 platforms/android/CordovaLib/
 platforms/android/bin/
 platforms/android/gen/
+platforms/android/cordova/
+www/web/node_modules/
+www/plugins/
+plugins/
+platforms/android/assets/www/plugins/
+platforms/android/ant-build/
+platforms/android/build.gradle
+platforms/android/custom_rules.xml
+platforms/android/settings.gradle
+www/web/npm-debug.log
