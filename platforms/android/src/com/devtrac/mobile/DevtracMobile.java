@@ -29,6 +29,7 @@ public class DevtracMobile extends CordovaActivity
     {
         super.onCreate(savedInstanceState);
         // Set by <content src="index.html" /> in config.xml
+        super.setIntegerProperty("loadUrlTimeoutValue", 8000000);
         loadUrl(launchUrl);
     }
 }
