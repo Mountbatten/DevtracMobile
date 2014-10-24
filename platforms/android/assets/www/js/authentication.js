@@ -8,7 +8,6 @@ var auth = {
       $.ajax({
         url: localStorage.appurl+"/services/session/token",
         type:"get",
-        dataType:"text",
         error:function (jqXHR, textStatus, errorThrown) {
           console.log("token error "+errorThrown);
           console.log("detailed token error "+jqXHR.responseText);
