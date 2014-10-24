@@ -253,7 +253,7 @@ var controller = {
 								controller.nodes[x](db).then(function(response) {
 									console.log("fetch success "+response);
 									counter = counter + 1;
-									controller.loadingMsg(response, 1500);
+									controller.loadingMsg("Saved "+response, 1500);
 
 									notes.push(response);
 									if(counter > controller.nodes.length - 1) {
@@ -265,7 +265,7 @@ var controller = {
 
 								}).fail(function(e) {
 
-									controller.loadingMsg(e, 2000);
+									controller.loadingMsg("Error: "+e, 2000);
 
 
 									setTimeout(function(){
@@ -295,15 +295,6 @@ var controller = {
 		//Bind any events that are required on startup
 		bindEvents: function () {
 
-/*			$(document).on("pagecontainershow", function (e, ui) {
-				if (typeof ui.prevPage[0] !== "undefined" && ui.prevPage[0].id == "page_login") {
-					console.log("removing page");
-					$.mobile.navigate.history.stack.splice(0,1);
-					$(ui.prevPage).remove();
-				}
-			});*/
-
-			//$(".seturlselect").chosen({width: "100%"}); 
 			$(".menulistview").listview().listview('refresh');
 
 			if($(".seturlselect option:selected").val() == "custom") {
@@ -334,11 +325,10 @@ var controller = {
 						console.log("watch id is null");
 						var options = { maximumAge: 5000, timeout: 10000, enableHighAccuracy: true };
 						controller.watchID = navigator.geolocation.watchPosition(controller.onSuccess, controller.onError, options);
-						console.log("watch id is "+controller.watchID);
 
 					}
 
-				}else{
+				}else {
 					if (navigator.geolocation) {
 						controller.watchid = navigator.geolocation.watchPosition(controller.showPosition, controller.errorhandler);
 
@@ -486,8 +476,21 @@ var controller = {
 				});
 			});
 
-			$("#page_fieldtrip_details").bind('pagebeforeshow', function(){
+			//hide or show filter for site visits depending on presence of children
+			$("#page_fieldtrip_details").live('pageshow', function(){
 				$("#page_fieldtrip_details").trigger("create");
+				var list_length = $("#list_sitevisits > li").length;
+				
+				if(list_length == 0) {
+				
+					$("#list_sitevisits").prev("form.ui-filterable").hide();
+					
+				}else {
+				
+					$("#list_sitevisits").prev("form.ui-filterable").show();
+					
+				}
+				
 			});
 
 			$("#page_sitevisits_details").bind('pageinit', function(){
@@ -1748,7 +1751,8 @@ var controller = {
 						fieldtripList.listview().listview('refresh');
 						$("#fieldtrip_count").html(count);
 						
-						$("body").pagecontainer("change", $("#home_page"), {changeHash: false});
+						//$("body").pagecontainer("change", $("#home_page"), {changeHash: false});
+						$.mobile.changePage($("#home_page"), {changeHash: false});
 						
 						$.unblockUI({ 
 							onUnblock: function() {
@@ -1880,7 +1884,9 @@ var controller = {
 
 							});
 
-							$("body").pagecontainer("change", $("#page_fieldtrip_details"), {changeHash: false});
+							$.mobile.changePage($("#page_fieldtrip_details"), {changeHash: false});
+
+							//$("body").pagecontainer("change", $("#page_fieldtrip_details"), {changeHash: false});
 							
 							$.unblockUI({ 
 								onUnblock: function() {
