@@ -119,6 +119,12 @@ body {
           <input type="password" id="page_login_pass" minlength="2"
             placeholder="password" required />
         </div>
+        
+                <p>
+          <input type="checkbox" data-theme="a" name="checkbox-mini-0"
+            id="checkbox-mini-0" data-mini="true"> <label
+            for="checkbox-mini-0">Remember Me</label>
+        </p>
 
         <div id='logindiv'>
           <button type="button" data-theme="a" id="page_login_submit"
@@ -129,19 +135,15 @@ body {
           <button type="button" data-theme="a" id="page_logout_submit"
             data-mini="true">Logout</button>
         </div>
-        <p>
-          <input type="checkbox" data-theme="a" name="checkbox-mini-0"
-            id="checkbox-mini-0" data-mini="true"> <label
-            for="checkbox-mini-0">Remember Me</label>
-        </p>
-  
+        
+        <br>
   
         <label for="myurl style='font-size: small'">Either Type in a url or Select one from the list below: </label>
         <input type="url" placeholder="Start with http:// and remove trailing slash" name="myurl" class="myurl" value="">
         <br>
         
         <select data-placeholder="Choose Url ..." class="seturlselect" id="loginselect">
-        <option value="manual">manual</option>
+        
         <option value="custom">custom</option>
         <option value="test">test</option>
         </select>
