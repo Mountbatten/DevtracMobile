@@ -2,17 +2,22 @@ var controller = {
     pictureSource: null, // picture source
     destinationType: null,
     connectionStatus : true,
+    
+    //Start Roadside visit image variables 
     base64Images : [],
     filenames : [],
     filedimensions: [],
     filesizes : [],
     imageSource: [],
+    //end roadside visit image variables
     
+    //Start Human Interest and site visit image variables
     b64Images : [],
     fnames : [],
     fdimensions: [],
     fsizes : [],
     imageSrc: [],
+    //end Human Interest and site visit image variables
     
     watchID : null,
     watchid : null,
@@ -821,40 +826,6 @@ var controller = {
         }
       });
       
-      if(controller.checkCordova() != undefined) {
-        //if device runs kitkat android 4.4 use plugin to access image files
-        if( device.platform.toLowerCase() === 'android' && device.version.indexOf( '4.4' ) === 0 ) {
-          
-          $('#roadsidefile').click( function(e) {
-            filechooser.open( {}, function(data){
-              
-              controller.filenames.push(data.name);
-              controller.base64Images.push(data.content);
-              controller.imageSource.push(true);
-              
-              $("#uploadPreview").append('<div>'+data.name +'</div>');
-              
-            }, function(error){
-              alert(error);
-            });
-          });
-          
-          $('#sitevisitfile').click( function(e) {
-            filechooser.open( {}, function(data){
-              controller.fnames.push(data.name);
-              controller.b64Images.push(data.content);
-              controller.imageSrc.push(true);
-          
-              $("#imagePreview").append('<div>'+data.name+'</div>');
-            }, function(error) {
-              alert(error);
-            });
-            
-          });
-          
-        }  
-      }
-      
       //read image from roadside visit
       $('#roadsidefile').on('change', function(event, ui) {
         if(this.disabled) return alert('File upload not supported!');
@@ -1397,7 +1368,6 @@ var controller = {
     //camera functions
     
     onPhotoDataSuccess: function(imageData) {
-      alert("success");
       var currentdate = new Date(); 
       var datetime = currentdate.getDate()
       + (currentdate.getMonth()+1)
@@ -2788,6 +2758,7 @@ var controller = {
     
     //create sitevisit or human interest story
     createSitevisitfromlocation: function (pnid, title) {
+      
       var ftritemtype = "";
       var stringtype = localStorage.ftritem
       if(stringtype.indexOf("oa") != -1){
@@ -2865,12 +2836,13 @@ var controller = {
           devtrac.indexedDB.addSiteVisitsData(db, updates).then(function() {
             controller.refreshSitevisits();
             
-            if(images['sizes'].length > 0) {
+            if(images['names'].length > 0) {
               
               devtrac.indexedDB.addImages(db, images).then(function() {
                 controller.b64Images = [];
                 controller.fnames = [];
                 controller.fsizes = [];
+                controller.imageSrc=[];
                 
               });
             }
@@ -2965,12 +2937,13 @@ var controller = {
             devtrac.indexedDB.addSiteVisitsData(db, updates).then(function() {
               controller.refreshSitevisits();
               
-              if(images['sizes'].length > 0) {
+              if(images['names'].length > 0) {
                 devtrac.indexedDB.addImages(db, images).then(function() {
                   controller.base64Images = [];
                   controller.filenames = [];
                   controller.filesizes = [];
                   controller.filedimensions = [];
+                  controller.imageSource = [];
                 });  
                 
               }
@@ -3076,6 +3049,40 @@ var controller = {
     
     // device ready event handler
     onDeviceReady: function () {
+      if(controller.checkCordova() != undefined) {
+        //if device runs kitkat android 4.4 use plugin to access image files
+        if( device.platform.toLowerCase() === 'android' && device.version.indexOf( '4.4' ) === 0 ) {
+          
+          $('#roadsidefile').click( function(e) {
+            filechooser.open( {}, function(data){
+              
+              controller.filenames.push(data.name);
+              controller.base64Images.push(data.content);
+              controller.imageSource.push(true);
+              
+              $("#uploadPreview").append('<div>'+data.name +'</div>');
+              
+            }, function(error){
+              alert(error);
+            });
+          });
+          
+          $('#sitevisitfile').click( function(e) {
+            filechooser.open( {}, function(data){
+              controller.fnames.push(data.name);
+              controller.b64Images.push(data.content);
+              controller.imageSrc.push(true);
+          
+              $("#imagePreview").append('<div>'+data.name+'</div>');
+            }, function(error) {
+              alert(error);
+            });
+            
+          });
+          
+        }  
+      }
+      
       controller.checkOnline().then(function(){
         controller.connectionStatus = true;
       }).fail(function(){

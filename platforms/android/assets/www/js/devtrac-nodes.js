@@ -497,13 +497,13 @@ var devtracnodes = {
         callback(e, "error");
       });
     },
-    
+   
     //loop through and upload all images
     imagehelper: function (nid, index, fds, fdn, imagearr, sid_date, sid, ftritemType, upNodes, callback) {
       var imagestring = "";
       
       devtracnodes.postImageFile(imagearr, index, nid).then(function (fd, imagename, ftrid) {
-        if(ftritemType.indexOf('road') != -1){
+        if(ftritemType.indexOf('road') != -1) {
           upNodes['roadside'][imagearr['nid']][imagearr['names'][index]] = fd;
         }else {
           upNodes['sitevisits'][imagearr['nid']][imagearr['names'][index]] = fd;  
@@ -512,8 +512,8 @@ var devtracnodes = {
         index = index + 1;
         fds.push(fd);
         fdn.push(imagename);
-        //fds, fdn, ftrid, ftrdate, updateId
-        if(parseInt(index, 10) === parseInt(imagearr['base64s'].length, 10)){
+        
+        if(parseInt(index, 10) === parseInt(imagearr['base64s'].length, 10)) {
           callback(fds, fdn, ftrid, sid_date, sid, upNodes);  
         }else {
           devtracnodes.imagehelper(nid, index, fds, fdn, imagearr, sid_date, sid, ftritemType, upNodes, callback);
@@ -544,8 +544,8 @@ var devtracnodes = {
     postImageFile: function(images, index, nid) {
       var d = $.Deferred();
       
-    //if device runs kitkat android 4.4 use plugin to access image files
-      if(images['kitkat']) {
+      //if device runs kitkat android 4.4 use plugin to access image files
+      if(images['kitkat'][0]) {
         var parsedImage = images['base64s'][index];
       }else{
         var parsedImage = images['base64s'][index].substring(images['base64s'][index].indexOf(",")+1);  
@@ -558,8 +558,6 @@ var devtracnodes = {
             "filepath":"public://"+images['names'][index],
           }
       };
-      
-      console.log("image is "+parsedImage);
       
       $.ajax({
         url: localStorage.appurl+"/api/file.json",
@@ -594,8 +592,11 @@ var devtracnodes = {
         if(sitevisits[0]['user-added'] == true && sitevisits[0]['taxonomy_vocabulary_7']['und'][0]['tid'] == localStorage.roadside) {
           devtracnodes.getSitevisitString(sitevisits[0]).then(function(jsonstring, active_sitereport, date, siteid) {
             devtracnodes.postNode(jsonstring, active_sitereport, date, siteid).then(function(updates, x, y, z, active_ftritem, datevisited) {
+              
+              console.log("Checking for images using id "+parseInt(active_ftritem['nid']));
+              
               devtrac.indexedDB.getImage(db, parseInt(active_ftritem['nid']), updates['nid'], datevisited, y).then(function(image, nid, vdate, sid) {
-                
+                console.log("Images found to upload");
                 var indx = 0;
                 var imageid = [];
                 var imagename = [];
@@ -648,6 +649,7 @@ var devtracnodes = {
                 });
                 //no images to upload for this site visit
               }).fail(function(){
+                console.log("No images found to upload");
                 newsitevisits[updates['nid']] = sitevisits[0]['title'];
                 
                 nodeStatus['roadside'][sitevisits[0]['nid']]['nid'] = updates['nid'];
@@ -715,7 +717,7 @@ var devtracnodes = {
       var ftritems = [];
       var idstore = [];
       
-      devtracnodes.loopFtritems(names, newnids, oldnids, db, ftritems, idstore).then(function(sitevisits, ids) {
+      devtracnodes.loopFtritems(names, newnids, oldnids, db, ftritems, idstore, function(sitevisits, ids) {
         d.resolve(names, newnids, oldnids, sitevisits);
         
       });  
@@ -724,8 +726,7 @@ var devtracnodes = {
     },
     
     //get individual site visits
-    loopFtritems: function(names, newnids, oldids, db, sitev, idcontainer, uNodes) {
-      var d = $.Deferred();
+    loopFtritems: function(names, newnids, oldids, db, sitev, idcontainer, callback) {
       var sitevisits = sitev;
       
       var idcontainer = idcontainer;
@@ -736,15 +737,12 @@ var devtracnodes = {
         oldids.splice(0, 1);
         sitevisits.push(sitevisit);
         if(oldids.length > 0) {
-          devtracnodes.loopFtritems(names, newnids, oldids, db, sitevisits, idcontainer).then(function(sitevisit, idstore) {
-            d.resolve(sitevisit, idstore);
-          });
+          devtracnodes.loopFtritems(names, newnids, oldids, db, sitevisits, idcontainer, callback);
         }else{
-          d.resolve(sitevisits, idcontainer, uNodes);
+          callback(sitevisits, idcontainer);
         }
       });
       
-      return d;
     },
     
     //upload fieldtrips
@@ -1267,12 +1265,14 @@ var devtracnodes = {
     postSitevisitHelper: function(sitevisits, names, newnids, ftritemdetails, upNodes, callback) {
       if(sitevisits.length > 0){
         devtracnodes.getSitevisitString(sitevisits[0], names[0], newnids[0]).then(function(jsonstring, p, q, r, mark) {
-          console.log("sitevisit string is "+jsonstring);
           devtracnodes.postNode(jsonstring, mark, sitevisits.length, r).then(function(updates, stat, snid) {
-            //upNodes['sitevisits'][sitevisits[0]['nid']] = updates['nid'];
+            
+            console.log("Checking images");
             
             devtrac.indexedDB.open(function (db) {
-              devtrac.indexedDB.getImage(db, sitevisits[0]['nid'], updates['nid']).then(function(image, ftritemid) {
+              devtrac.indexedDB.getImage(db, parseInt(sitevisits[0]['nid']), updates['nid']).then(function(image, ftritemid) {
+            	  console.log("found images");
+            	  
                 var indx = 0;
                 var imageid = [];
                 var imagename = [];
@@ -1321,6 +1321,8 @@ var devtracnodes = {
                 });
                 //No images found for this site visit so edit and proceed to the next
               }).fail(function(){
+            	  console.log("not found images");
+            	  
                 /*todo*/ 
                 devtrac.indexedDB.editSitevisit(db, sitevisits[0]['nid'], updates).then(function() {
                   
