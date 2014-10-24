@@ -331,16 +331,14 @@ var devtracnodes = {
     
     countOecds: function() {
       var d = $.Deferred();
-      console.log("counting oecds");
+
       devtrac.indexedDB.open(function (db) {
         devtrac.indexedDB.countTaxonomyItems(db, "oecdobj",function(tripsy) {
           
           if(tripsy.length > 0) {
-            console.log("found oecds "+tripsy.length);
             d.resolve();  
           }else
           {
-            console.log("not found oecds "+tripsy.length);
             d.reject();
           }
           

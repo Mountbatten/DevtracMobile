@@ -124,7 +124,7 @@ var controller = {
               controller.loadFieldTripList();                    
             }).fail(function() {
               
-              controller.loadingMsg("OECD Codes were not found", 2000);
+              controller.loadingMsg("Subjects were not found", 2000);
               
               
               setTimeout(function() {
@@ -145,7 +145,7 @@ var controller = {
                 controller.loadFieldTripList();                    
               }).fail(function() {
                 
-                controller.loadingMsg("OECD Codes were not found", 2000);
+                controller.loadingMsg("Subjects were not found", 2000);
                 
                 
                 setTimeout(function() {
@@ -367,7 +367,7 @@ var controller = {
         
         addftritem.append('<option value="'+localStorage.humaninterest+'">Human Interest Story</option>');
         addftritem.append('<option value="'+localStorage.roadside+'">Roadside Observation</option>');
-        addftritem.append('<option value="'+localStorage.sitevisit+'">Site visit</option>');
+        addftritem.append('<option value="'+localStorage.sitevisit+'">Site Visit</option>');
         
         addftritem.val("Human Interest Story").selectmenu('refresh');
       });
@@ -626,7 +626,7 @@ var controller = {
                           controller.loadFieldTripList();                    
                         }).fail(function() {
                           
-                          controller.loadingMsg("OECD Codes were not found", 2000);
+                          controller.loadingMsg("Subjects were not found", 2000);
                           
                           
                           setTimeout(function() {
@@ -729,17 +729,6 @@ var controller = {
           }
         }
       });
-      
-      /*      //site report type validation
-      var site_report_form = $("#form_sitereporttype");
-      site_report_form.validate({
-        rules: {
-          sitevisit_add_type: {
-            required: true,
-          }
-      
-        }
-      });*/
       
       //site visit validation
       var sitevisit_form = $("#form_sitevisit_add");
@@ -1232,15 +1221,13 @@ var controller = {
                   }).fail(function() {
                     //download all devtrac data for user.
                     controller.fetchAllData().then(function(){
-                      console.log("Downloaded all data .. checking oecds");
                       devtracnodes.countOecds().then(function() {
-                        
-                        console.log("found oecds");
+
                         //load field trip details from the database if its one and the list if there's more.
                         controller.loadFieldTripList();                    
                       }).fail(function() {
                         console.log("didnt find oecds");
-                        controller.loadingMsg("OECD Codes were not found", 2000);
+                        controller.loadingMsg("Subjects were not found", 2000);
                         
                         
                         setTimeout(function() {
@@ -1260,15 +1247,14 @@ var controller = {
                 }).fail(function() {
                   //download all devtrac data for user.
                   controller.fetchAllData().then(function(){
-                    console.log("Downloaded all data .. checking oecds");
+
                     devtracnodes.countOecds().then(function() {
                       
-                      console.log("found oecds");
                       //load field trip details from the database if its one and the list if there's more.
                       controller.loadFieldTripList();                    
                     }).fail(function() {
                       console.log("didnt find oecds");
-                      controller.loadingMsg("OECD Codes were not found", 2000);
+                      controller.loadingMsg("Subjects were not found", 2000);
                       
                       
                       setTimeout(function() {
