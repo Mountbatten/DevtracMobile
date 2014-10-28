@@ -952,6 +952,7 @@ devtrac.indexedDB.editSitevisit = function(db, snid, updates) {
     var data = request.result;
 
     for(var key in updates){
+    	console.log("we have these keys "+key);
       if(key == "title"){
         data['title'] = updates['title'];  
       } 
@@ -960,6 +961,9 @@ devtrac.indexedDB.editSitevisit = function(db, snid, updates) {
       }
       if(key  == "summary"){
         data['field_ftritem_public_summary']['und'][0]['value'] = updates['summary'];
+      }
+      if(key  == "report"){
+          data['field_ftritem_narrative']['und'][0]['value'] = updates['report'];
       }
       if(key == "submit"){
         data['submit'] = updates['submit'];

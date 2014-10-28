@@ -20,6 +20,9 @@ var auth = {
           //hide and show panel auth buttons
           $('.panel_login').show();
           $('.panel_logout').hide();
+
+          //hide menu button on login page 
+          $("#barsbutton_login").hide();
           
           if(errorThrown == ""){
             controller.loadingMsg("Selected Url "+localStorage.appurl+" is Unavailable. Make sure you have an internet connection or try another url.", 5000)
@@ -175,6 +178,8 @@ var auth = {
             $('#logoutdiv').hide();
             $('#logindiv').show();
             
+            $("#barsbutton_login").show();
+            
             d.reject();
           },
           success : function(data) {
@@ -188,6 +193,8 @@ var auth = {
             $(".settingsform").show();
             $(".ui-navbar").show();
             $("#syncForm").show();
+            
+            $("#barsbutton_login").show();
             
             localStorage.username = name;
             localStorage.pass = pass;
@@ -226,6 +233,9 @@ var auth = {
               
               //set user title in menu
               $(".user_title").html(localStorage.usertitle);
+              
+              //show help text on login page
+              $("#helptext").show();
               
               //hide and show dialog auth buttons
               $('#logindiv').hide();
@@ -297,6 +307,12 @@ var auth = {
             $(".ui-navbar").hide();
             $("#syncForm").hide();
             
+            $("#loginForm").show();
+            $("#helptext").hide();
+            
+            //hide menu button on login page
+            $("#barsbutton_login").hide();
+            
             $.mobile.changePage("#page_login", "slide", true, false);
             
             localStorage.token = null;
@@ -311,7 +327,7 @@ var auth = {
             
             //clear login credentials
             
-            if(window.localStorage.getItem("usernam") != null && window.localStorage.getItem("passw") != null){
+            if(window.localStorage.getItem("usernam") != null && window.localStorage.getItem("passw") != null) {
               $("#page_login_name").val(window.localStorage.getItem("usernam"));
               $("#page_login_pass").val(window.localStorage.getItem("passw"));  
             }else

@@ -115,8 +115,9 @@ var controller = {
 
 					$("#syncForm").show();
 
-					console.log("logged in");
-
+					//show menu button on login page
+					$("#barsbutton_login").show();
+					
 					devtracnodes.countFieldtrips().then(function(){
 						devtracnodes.countOecds().then(function() {
 
@@ -174,6 +175,9 @@ var controller = {
 
 					$("#syncForm").hide();
 
+					//hide menu button if user is not logged in
+					$("#barsbutton_login").hide();
+					
 					controller.resetForm($('#form_fieldtrip_details'));
 					$.unblockUI({ 
 						onUnblock: function() {
@@ -195,6 +199,8 @@ var controller = {
 				if(window.localStorage.getItem("username") != null && window.localStorage.getItem("pass") != null){
 					controller.loadingMsg("You are offline, cannot upload data. Now using offline data", 6000);
 
+					$("#barsbutton_login").hide();
+					
 					//load field trip details from the database if its one and the list if there's more.
 					controller.loadFieldTripList();
 
@@ -410,10 +416,10 @@ var controller = {
 
 			//apply tinymce b4 this page is displayed
 			$("#page_sitevisit_edits").bind('pagebeforeshow', function(event, data) {
-				tinymce.execCommand('mceSetContent', false, localStorage.sitevisit_summary);
+				//tinymce.execCommand('mceSetContent', false, localStorage.sitevisit_summary);
 
 				tinymce.init({
-					selector: "textarea#sitevisit_summary",
+					selector: "textarea#sitevisit_summary, textarea#sitevisit_report",
 					plugins: [
 					          "advlist autolink autosave link lists charmap hr anchor",
 					          "visualblocks visualchars code fullscreen nonbreaking",
@@ -429,6 +435,8 @@ var controller = {
 					        	  ed.on("init",
 					        			  function(ed) {
 					        		  tinyMCE.get('sitevisit_summary').setContent(localStorage.sitevisit_summary);
+					        		  tinyMCE.get('sitevisit_report').setContent(localStorage.sitevisit_report);
+					        		  
 					        		  tinyMCE.execCommand('mceRepaint');
 
 					        	  }
@@ -478,6 +486,9 @@ var controller = {
 
 			//hide or show filter for site visits depending on presence of children
 			$("#page_fieldtrip_details").live('pageshow', function(){
+				$("#loginForm").hide();
+				$("#helptext").show();
+				
 				$("#page_fieldtrip_details").trigger("create");
 				var list_length = $("#list_sitevisits > li").length;
 				
@@ -525,8 +536,6 @@ var controller = {
 					el.val('demo').selectmenu('refresh');
 
 				}
-
-				$("#barsbutton_login").hide();
 			});
 
 			//show the connected url in the drop down select - settings page
@@ -557,7 +566,6 @@ var controller = {
 
 				}
 
-				$("#barsbutton_login").hide();
 			});
 
 
@@ -872,10 +880,12 @@ var controller = {
 
 
 						$("#sitevisit_date").val(datetimenow);
-						//$("#sitevisit_date").val(uncleandate);
 
 						$("#sitevisit_summary").html(sitevisitObject['field_ftritem_public_summary']['und'][0]['value']);
+						$("#sitevisit_report").html(sitevisitObject['field_ftritem_narrative']['und'][0]['value']);
+						
 						localStorage.sitevisit_summary = sitevisitObject['field_ftritem_public_summary']['und'][0]['value'];
+						localStorage.sitevisit_report = sitevisitObject['field_ftritem_narrative']['und'][0]['value'];
 
 						$.mobile.changePage("#page_sitevisit_edits", {transition: "slide"});  
 					});
@@ -2267,6 +2277,9 @@ var controller = {
 			var editsummary = $("#sitevisit_summary").val();
 			var editsummaryvalue = editsummary.substring(editsummary.lastIndexOf("<body>")+6, editsummary.lastIndexOf("</body>")).trim();
 
+			var editreport = $("#sitevisit_report").val();
+			var editreportvalue = editreport.substring(editreport.lastIndexOf("<body>")+6, editreport.lastIndexOf("</body>")).trim();
+			
 			if($("#form_sitevisit_edits").valid() && editsummaryvalue.length > 0) {
 
 				//save site visit edits
@@ -2274,9 +2287,19 @@ var controller = {
 				$('#form_sitevisit_edits *').filter(':input').not(':button').each(function () {
 					var key = $(this).attr('id').substring($(this).attr('id').indexOf('_') + 1);
 					if (this.localName == "textarea") {
-						var summary = $(this)[0].value;
-						var clean_summary = summary.substring(summary.lastIndexOf('<body>')+6, summary.lastIndexOf('</body>')).trim();
-						updates["summary"] = clean_summary;
+						if(key == "report") {
+
+							var report = $(this)[0].value;
+							var clean_report = report.substring(report.lastIndexOf('<body>')+6, report.lastIndexOf('</body>')).trim();
+							updates["report"] = clean_report;
+							
+						}else if(key == "summary"){
+
+							var summary = $(this)[0].value;
+							var clean_summary = summary.substring(summary.lastIndexOf('<body>')+6, summary.lastIndexOf('</body>')).trim();
+							updates["summary"] = clean_summary;	
+						}
+						
 					}else{
 						updates[key] = $(this).val();
 					}
@@ -2307,6 +2330,8 @@ var controller = {
 						$("#sitevisists_details_date").html($("#sitevisit_date").val());
 						$("#sitevisists_details_summary").html(editsummaryvalue);
 
+						controller.refreshSitevisits();
+						
 						$.mobile.changePage("#page_sitevisits_details", "slide", true, false);
 					});
 				});
