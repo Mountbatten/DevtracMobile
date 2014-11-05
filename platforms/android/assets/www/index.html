@@ -446,7 +446,18 @@ body {
             
             <label for='sitevisit_report'>Report</label>
             <textarea id="sitevisit_report" name="sitevisit_report" required></textarea>
-
+<br/>
+			<div
+              class="ui-btn ui-icon-plus ui-btn-icon-left ui-corner-all fileinput-button">
+              <span>Image: </span> <input type="file" name="file"
+                id="editImageFile" multiple="multiple">
+            </div>
+            
+            <div id="imagesEdits">
+            <ul data-role="listview" id="editimagefile_list" data-split-icon="delete" data-split-theme="a" data-inset="true">
+   
+</ul>
+            </div>
         </fieldset>
       </form>
       <input type="button" data-inline="true" data-theme="b"
@@ -459,6 +470,7 @@ body {
 
   </div>
   <!-- /page -->
+  
 
   <!-- Edit fieldtrips details -->
   <div data-role="page" id="page_fieldtrip_edit">
@@ -785,11 +797,9 @@ body {
   <!-- Map page -->
   <div data-role="page" id="mappage">
     <div data-role="header">
-
-      <a id="viewlocation_back" data-rel="dialog" class="ui-btn-left"
+<a id="viewlocation_back" class="ui-btn-left"
         href="#page_sitevisits_details" data-iconpos="notext"><i
         class="fa fa-chevron-circle-left fa-lg"></i></a>
-
       <h3 id="mapheader"></h3>
     </div>
     <!-- /header -->
@@ -808,10 +818,7 @@ body {
     <div data-role="panel" id="navpanel_qtnr" data-theme="b"
       data-position="left" class="leftmenu"></div>
     <div data-role="header" id='header_qtnr'>
-      <!-- <a id="" href="#page_sitevisits_details" data-iconpos="notext"
-        data-role="button" style="margin-top: 2.5px;"><i
-        class="fa fa-chevron-circle-left fa-lg"></i></a> 
-      <h3 id="qtn_title" title="Questionnaire">Questionnaire</h3>-->
+      
     </div>
     <!-- /header -->
 
@@ -896,7 +903,7 @@ body {
       <p>DevtracMobile</p>
       <strong>Version:</strong>
 
-      <p>0.0.7</p>
+      <p>0.0.8</p>
 
     </div>
     <!-- /content -->
