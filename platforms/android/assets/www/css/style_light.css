@@ -775,3 +775,152 @@
     height: 0;
 }
 
+/*===========================================================================*\
+    Devtrac Mobile Theming
+\*===========================================================================*/
+
+.ui-mobile-viewport.ui-overlay-a {
+    background: #FFFFFF;
+}
+
+.ui-overlay-a, 
+.ui-page-theme-a, 
+.ui-page-theme-a .ui-panel-wrapper {
+    background: #FFFFFF;
+}
+
+.ui-link.ui-btn.ui-shadow.ui-corner-all {
+    background: #777777;
+    color: #FFFFFF;
+    text-shadow: none;
+    font-weight: normal;
+    box-shadow: none;
+    display: inline-block;
+    border: none;
+}
+
+.ui-link.ui-btn.ui-shadow.ui-corner-all:hover {
+    background: #333333;
+    color: #FFFFFF;
+    text-shadow: none;
+    font-weight: normal;
+    box-shadow: none;
+    display: inline-block;
+}
+
+
+/*===========================================================================*\
+    Header Styles
+\*===========================================================================*/
+
+.ui-header.ui-bar-inherit ,
+#fieldtrip_details_header {
+    background: #FFFFFF !important;
+    border-bottom: 5px solid rgb(255, 0, 0) !important;
+}
+
+#header_login {
+    background: #333333;
+    border-bottom: 5px solid rgb(255, 0, 0);
+}
+
+#page_login .ui-title {
+    color: transparent;
+    text-shadow: none;
+}
+
+
+
+
+/*===========================================================================*\
+    Content Styles
+\*===========================================================================*/
+
+
+#loginForm {
+    background: url(images/logo.png) no-repeat 50% 0;
+    padding-top: 50px;
+}
+
+.content .ui-grid-a>.ui-block-a label {
+    display: inline-block !important;
+    clear: left !important;
+    padding-right: 10px;
+    float: left;
+    margin: 0;
+}
+
+.ui-mobile fieldset {
+    position: relative;
+}
+
+.content .ui-grid-a>.ui-block-a {
+    width: 100% !important;
+}
+
+.content .ui-grid-a>.ui-block-a .ui-bar {
+    width: 100% !important;
+    padding: 0;
+}
+
+.content .ui-grid-a>.ui-block-b {
+    width: auto !important;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+
+.ui-grid-a>.ui-block-b .ui-link.ui-btn.ui-shadow.ui-corner-all {
+    margin: 0;
+}
+
+/*#addquestionnaire {
+    display: block;
+}*/
+
+
+
+
+
+
+.content .ui-grid-a>.ui-block-a label[for='sitevisists_details_title'] ,
+.content .ui-grid-a>.ui-block-a label[for='fieldtrip_details_title'] {
+    display: none !important;
+}
+
+#sitevisists_details_title ,
+#fieldtrip_details_title {
+    font-size: 2.0em;
+    margin-top: 0;
+    margin-bottom: 20px;
+    margin-right: 100px;
+}
+
+
+.ui-block-a p {
+/*    display: inline-block !important;
+    clear: right !important;*/
+}
+
+h4[align="center"] {
+    text-align: left;
+    height: 42px;
+}
+
+h4[align="center"] a {
+    float: right;
+    margin: 0;
+}
+
+
+.ui-field-contain>label, 
+.ui-field-contain .ui-controlgroup-label, 
+.ui-field-contain>.ui-rangeslider>label {
+    margin-bottom: 20px !important;
+}
+
+/*===========================================================================*\
+    Footer Styles
+\*===========================================================================*/
+
