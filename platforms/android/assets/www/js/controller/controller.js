@@ -54,7 +54,7 @@ var controller = {
       $("#header_addlocation").html(header({id: "addlocation", title: "Locations"})); 
       $("#header_addsitereport").html(header({id: "addsitereport", title: "Add Site Visit"}));
       $("#header_actionitemdetails").html(header({id: "actionitemdetails", title: "Action Item"}));
-      $("#header_qtnr").html(header({id: "qtnr", title: "Questionnaire"}));
+//      /$("#header_qtnr").html(header({notes: '', id: "qtnr", title: "Questionnaire"}));
       $("#header_settings").html(header({id: "settings", title: "Settings"}));
       $("#header_download").html(header({id: "download", title: "Download Nodes"}));
 
@@ -88,6 +88,9 @@ var controller = {
       
       //start with hidden notifications button
       $("#notify_fieldtrip").hide();
+      
+      //initially hide the menu button on questionnaire
+      $("#barsbutton_qtnr").hide();
       
       //set application url if its not set
       if (!localStorage.appurl) {
@@ -549,13 +552,16 @@ var controller = {
           // Select the relevant option, de-select any others
           el.val('manual').selectmenu('refresh');
           
-        }else if(url.indexOf("dt13") != -1) {
-          // Select the relevant option, de-select any others
-          el.val('local').selectmenu('refresh');
-          
         }else if(url.indexOf("emo") != -1) {
           // Select the relevant option, de-select any others
           el.val('demo').selectmenu('refresh');
+          
+        }else if(url.indexOf("local") != -1 || url.indexOf("10.0.2") != -1 || url.indexOf("192.168") != -1) {
+          //show custom url in the textfield
+          $(".myurl").val(localStorage.appurl);
+          
+          // Select the relevant option, de-select any others
+          el.val('custom').selectmenu('refresh');
           
         }
       });
@@ -578,9 +584,12 @@ var controller = {
           // Select the relevant option, de-select any others
           el.val('manual').selectmenu('refresh');
           
-        }else if(url.indexOf("dt13") != -1) {
+        }else if(url.indexOf("dt13") != -1 || url.indexOf("local") != -1 || url.indexOf("10.0.2") != -1 || url.indexOf("192.168") != -1) {
+          //show custom url in the textfield
+          $(".myurl").val(localStorage.appurl);
+          
           // Select the relevant option, de-select any others
-          el.val('local').selectmenu('refresh');
+          el.val('custom').selectmenu('refresh');
           
         }else if(url.indexOf("emo") != -1) {
           // Select the relevant option, de-select any others
