@@ -1919,12 +1919,14 @@ var devtracnodes = {
               d.reject(errorThrown);
             },
             success : function(data) {
+              
+              console.log("received action items "+data.length);
               //create bubble notification
               if(data.length <= 0) {
                 
               }else{
                 data[0]['submit'] = 0;
-                devtracnodes.saveActionItems(db, data, 0).then(function(){
+                devtracnodes.saveActionItems(db, data, 0, function(){
                   d.resolve("Action Items");
                 });
               }
@@ -1936,20 +1938,60 @@ var devtracnodes = {
       
     },
     
-    saveActionItems: function(db, data, count) {
+  //Returns devtrac action item comments 
+    getActionItemComments: function(db) {
       var d = $.Deferred();
+      
+      devtrac.indexedDB.getAllActionitems(db, function(actionitems){
+        console.log("Counted actionitems "+actionitems.length);
+        for(var key in actionitems) {
+          $.ajax({  
+            url : localStorage.appurl+"/api/node/"+actionitems[key]['nid']+"/comments",
+            type : 'get',
+            dataType : 'json',
+            error : function(XMLHttpRequest, textStatus, errorThrown) { 
+              
+              console.log('actionitem comments error '+XMLHttpRequest.responseText);
+              d.reject(errorThrown);
+            },
+            success : function(data) {
+              console.log("Received action item comments");
+              
+              //create bubble notification
+              if(controller.sizeme(data) <= 0) {
+                
+              }else {
+                for(var key in data){
+                  data[key]['submit'] = 0;
+                  devtrac.indexedDB.addActionItemCommentsData(db, data[key]);
+                }
+                
+                d.resolve("Action Items Comments");
+              }
+            }
+          });
+        }
+      });
+      return d;
+      
+    },
+    
+    saveActionItems: function(db, data, count, callback) {
+      
       var arrlength = data.length;
       var counter = count;
       
       if(counter != arrlength) {
-        devtrac.indexedDB.addActionItemsData(db, data[counter]);
-        counter = counter + 1;
-        devtracnodes.saveActionItems(db, data, counter); 
+        devtrac.indexedDB.addActionItemsData(db, data[counter]).then(function(){
+          counter = counter + 1;
+          devtracnodes.saveActionItems(db, data, counter, callback);  
+        });
+         
       }
       else {
-        d.resolve();
+        callback();
       }
-      return d;
+      
     },
     
     saveSiteVisit: function(db, data, callback) {

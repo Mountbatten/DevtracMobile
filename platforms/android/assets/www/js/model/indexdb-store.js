@@ -8,7 +8,7 @@ devtrac.indexedDB.open = function(callback) {
   
   var version = 1;
   
-  var request = indexedDB.open("b9", version);
+  var request = indexedDB.open("b12", version);
   
   request.onsuccess = function(e) {
     devtrac.indexedDB.db = e.target.result;
@@ -23,7 +23,7 @@ devtrac.indexedDB.open = function(callback) {
   
   var version = 1;
   
-  var request = indexedDB.open("b9", version);
+  var request = indexedDB.open("b12", version);
   
   // We can only create Object stores in a versionchange transaction.
   request.onupgradeneeded = function(e) {
@@ -67,6 +67,9 @@ devtrac.indexedDB.open = function(callback) {
     if(db.objectStoreNames.contains("images")){
       db.deleteObjectStore("images");
     }  
+    if(db.objectStoreNames.contains("actionitemscomments")){
+      db.deleteObjectStore("actionitemscomments");
+    }  
     
     var store = db.createObjectStore("oecdobj", {autoIncrement: true});
     
@@ -100,6 +103,8 @@ devtrac.indexedDB.open = function(callback) {
     var submittedlocations = db.createObjectStore("sublocations", {keyPath: "nid"});
     submittedlocations.createIndex('nid', 'nid', { unique: true });
     
+    var actionitemcomments = db.createObjectStore("actionitemscomments", {keyPath: "cid"});
+    actionitemcomments.createIndex('cid', 'cid', { unique: true });
   };
   
   request.onsuccess = function(e) {
@@ -307,6 +312,27 @@ devtrac.indexedDB.addActionItemsData = function(db, aObj) {
   request = store.add(aObj);
   
   request.onsuccess = function(e) {
+    console.log("saved actionitem "+aObj['nid'] );
+    d.resolve();
+  };
+  
+  request.onerror = function(e) {
+    console.log("error saving actionitem "+aObj['nid'] );
+    d.resolve(e);
+  };
+  
+  return d;
+};
+
+//adding action item comments data to object store
+devtrac.indexedDB.addActionItemCommentsData = function(db, aObj) {
+  var d = $.Deferred();
+  var trans = db.transaction("actionitemscomments", "readwrite");
+  var store = trans.objectStore("actionitemscomments");
+  
+  request = store.add(aObj);
+  
+  request.onsuccess = function(e) {
     
     d.resolve();
   };
@@ -317,6 +343,31 @@ devtrac.indexedDB.addActionItemsData = function(db, aObj) {
   };
   
   return d;
+};
+
+//get all actionitem comments in database
+devtrac.indexedDB.getActionItemComments = function(db, callback) {
+  var actionitemcomments = [];
+  var trans = db.transaction(["actionitemscomments"], "readonly");
+  var store = trans.objectStore("actionitemscomments");
+  
+  // Get everything in the store;
+  var keyRange = IDBKeyRange.lowerBound(0);
+  var cursorRequest = store.openCursor(keyRange);
+  
+  cursorRequest.onsuccess = function(e) {
+    var result = e.target.result;
+    if(!!result == false) {
+      callback(actionitemcomments);
+      return;
+    }
+    
+    actionitemcomments.push(result.value);
+    
+    result["continue"]();
+  };
+  
+  cursorRequest.onerror = devtrac.indexedDB.onerror;
 };
 
 //adding comments data to object store

@@ -245,7 +245,9 @@ var controller = {
           
           devtracnodes.getSitereporttypes(db).then(function () {
             //save report types in a file
-            //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, saveTypes, failsaveTypes);
+            if(controller.checkCordova() != undefined) {
+              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, saveTypes, failsaveTypes);  
+            }
             
             controller.loadingMsg("Site Report Types Saved", 0);
             
@@ -257,7 +259,11 @@ var controller = {
               
               notes.push('Sitevisits');
               devtracnodes.getPlaces(db);
-              devtracnodes.getActionItems(db);
+              
+              devtracnodes.getActionItems(db).then(function(){
+                console.log("getting action comments");
+                devtracnodes.getActionItemComments(db);
+              });
               devtracnodes.getQuestions(db);
               
               var counter = 0;
@@ -491,26 +497,6 @@ var controller = {
                     menubar: false,
                     toolbar_items_size: 'small'
         });
-      });
-      
-      //hide or show filter for site visits depending on presence of children
-      $("#page_fieldtrip_details").live('pageshow', function(){
-        $("#loginForm").hide();
-        $("#helptext").show();
-        
-        $("#page_fieldtrip_details").trigger("create");
-        var list_length = $("#list_sitevisits > li").length;
-        
-        if(list_length == 0) {
-          
-          $("#list_sitevisits").prev("form.ui-filterable").hide();
-          
-        }else {
-          
-          $("#list_sitevisits").prev("form.ui-filterable").show();
-          
-        }
-        
       });
       
       //initialise navbar for site visit details
@@ -2007,6 +1993,17 @@ var controller = {
               var sitevisitcount = 0;
               devtrac.indexedDB.open(function (db) {
                 devtrac.indexedDB.getAllSitevisits(db, function (sitevisit) {
+                  //if there are no site visitss hide the filter
+                  if(sitevisit.length == 0) {
+                    
+                    $("#list_sitevisits").prev("form.ui-filterable").hide();
+                    
+                  }else {
+                    
+                    $("#list_sitevisits").prev("form.ui-filterable").show();
+                    
+                  }
+                  
                   for (var i in sitevisit) {
                     if(sitevisit[i]['field_ftritem_field_trip'] != undefined){
                       if (sitevisit[i]['field_ftritem_field_trip']['und'][0]['target_id'] == fObject['nid']) {
@@ -2219,7 +2216,10 @@ var controller = {
     //handle site visit click
     onSitevisitClick: function (anchor) {
       //read report types from a file
-      //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, readTypes, failreadTypes);
+      
+      if(controller.checkCordova() != undefined) {
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, readTypes, failreadTypes);  
+      }
       
       var state = false;
       var anchor_id = $(anchor).attr('id');
@@ -2842,7 +2842,9 @@ var controller = {
           
         });
         
-        devtrac.indexedDB.getAllComments(db, function (comments) {
+        console.log("getting action comments");
+        devtrac.indexedDB.getActionItemComments(db, function (comments) {
+          console.log("we have the following comments "+comments.length);
           for (var i in comments) {
             if (comments[i]['nid'] == localStorage.anid) {
               var aItem = comments[i];
