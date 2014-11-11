@@ -691,40 +691,36 @@ devtrac.indexedDB.editImage = function(db, inid, updates, newImages) {
     // Get the old value that we want to update
     var data = request.result;
     
-    if(newImages['base64s'].length > 0) {
-      
-      for(var item in newImages['base64s']) {
-        for(var item2 in data['base64s']) {
-          if(newImages['names'][item] == data['names'][item2]) {
-            newImages['base64s'].splice(item, 1);
-            newImages['names'].splice(item, 1);
-            newImages['kitkat'].splice(item, 1);
+    if(newImages['names'].length > 0){
+      for(var indx in data['names']) {
+        for(var indx2 in newImages['names']) {
+          if(data['names'][indx] == newImages['names'][indx2]) {
+            data['names'][indx] = "";
+            data['base64s'][indx] = "";
+            data['kitkat'][indx] = "";
+            
           }
         }
-        
       }
-      
-      if(newImages['names'].length > 0) {
-        for(var y in newImages['names']) {
-          data['base64s'].push(newImages['base64s'][y]);
-          data['names'].push(newImages['names'][y]);
-          data['kitkat'].push(newImages['kitkat'][y]);
-        }
-        
-      }
-      
     }
     
     for(var key in updates){
-      
       if(key == "names") {
         for(var index in data['names']) {
           for(var index2 in updates['names']) {
             if(data['names'][index] == updates['names'][index2]) {
-              data['names'][index] = "";
-              data['base64s'][index] = "";
+              updates['names'].splice(index2, 1);
+              updates['base64s'].splice(index2, 1);
               
             }
+          }
+        }
+        
+        for(var mark in updates['names']){
+          data['names'].push(updates['names'][mark]);
+          data['base64s'].push(updates['base64s'][mark]);
+          if(updates['base64s'].indexOf('data') != -1){
+            data['kitkat'].push(false);
           }
         }
       }
@@ -1092,7 +1088,14 @@ devtrac.indexedDB.editSitevisit = function(db, snid, updates) {
         data['title'] = updates['title'];  
       } 
       if(key == "date"){
-        data['field_ftritem_date_visited']['und'][0]['value'] = updates['date'];
+        var thedate = "";
+        if(updates['date'].indexOf('T') != -1) {
+          thedate = updates['date'].substring(0, updates['date'].indexOf('T'));  
+        }else {
+          thedate = updates['date'];
+        }
+        
+        data['field_ftritem_date_visited']['und'][0]['value'] = thedate;
       }
       if(key  == "summary"){
         data['field_ftritem_public_summary']['und'][0]['value'] = updates['summary'];

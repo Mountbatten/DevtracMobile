@@ -543,7 +543,7 @@ var devtracnodes = {
       var d = $.Deferred();
       
       //if device runs kitkat android 4.4 use plugin to access image files
-      if(images['kitkat'][0]) {
+      if(images['kitkat'][index]) {
         var parsedImage = images['base64s'][index];
       }else{
         var parsedImage = images['base64s'][index].substring(images['base64s'][index].indexOf(",")+1);  
@@ -586,8 +586,10 @@ var devtracnodes = {
       
       var date_visited = "";
       if(sitevisits.length > 0) {
-        
+
         if(sitevisits[0]['user-added'] == true && sitevisits[0]['taxonomy_vocabulary_7']['und'][0]['tid'] == localStorage.roadside) {
+          nodeStatus['sitevisits'][sitevisits[r]['nid']] = {};
+          
           devtracnodes.getSitevisitString(sitevisits[0]).then(function(jsonstring, active_sitereport, date, siteid) {
             devtracnodes.postNode(jsonstring, active_sitereport, date, siteid).then(function(updates, x, y, z, active_ftritem, datevisited) {
               
@@ -603,7 +605,7 @@ var devtracnodes = {
                   nodeStatus['roadside'][sitevisits[0]['nid']][image['names'][y]] = "";  
                 }
                 
-                devtracnodes.imagehelper(nid, indx, imageid, imagename, image, vdate, sid, "road", nodeStatus, function(fds, fdn, ftrid, ftrdate, updateId, uploadStatus) {
+                devtracnodes.imagehelper(nid, indx, imageid, imagename, image, vdate, sid, "sitevisit", nodeStatus, function(fds, fdn, ftrid, ftrdate, updateId, uploadStatus) {
                   
                   if(fdn == "error") {
                     callback(fds, "error")
@@ -674,12 +676,78 @@ var devtracnodes = {
           //edited site visit
         }else if(sitevisits[0]['user-added'] == undefined && sitevisits[0]['editflag'] == 1) {
           devtracnodes.getSitevisitString(sitevisits[0]).then(function(jsonstring, active_sitereport, date, siteid) {
+            nodeStatus['sitevisits'][sitevisits[0]['nid']] = {};
+            var datevisited = sitevisits[0]['field_ftritem_date_visited']['und'][0]['value'];
+            if(datevisited.indexOf('-') != -1) {
+              var datepieces = datevisited.split('-');
+              datevisited = datepieces[2]+"/"+datepieces[1]+"/"+datepieces[0];
+            }
+            
+            devtrac.indexedDB.getImage(db, sitevisits[0]['nid'], sitevisits[0]['nid'], datevisited, sitevisits[0]['nid']).then(function(image, nid, vdate, sid) {
+              console.log("Images found to upload");
+              var indx = 0;
+              var imageid = [];
+              var imagename = [];
+              
+              for(var y = 0; y < image['names'].length; y++) {
+                nodeStatus['sitevisits'][sitevisits[0]['nid']][image['names'][y]] = "";  
+              }
+              
+              devtracnodes.imagehelper(nid, indx, imageid, imagename, image, vdate, sid, "site", nodeStatus, function(fds, fdn, ftrid, ftrdate, updateId, uploadStatus) {
+                if(fdn == "error") {
+                  
+                }else{
+                  var y = 0;
+                  devtracnodes.updateNodeHelper(ftrid, y, fds, fdn, ftrdate, updateId, function(updates, ftritemid, activeid) {
+                    nodeStatus['sitevisits'][sitevisits[0]['nid']]['nid'] = sid;
+                    nodeStatus['sitevisits'][sitevisits[0]['nid']]['edit'] = true;
+                    
+                    newsitevisits[ftritemid] = sitevisits[0]['title'];
+                    updates['fresh_nid'] = ftritemid;
+                    
+                    if(ftritemid != "error") {
+                      
+                      var newsiteid = {};
+                      newsiteid['fresh_nid'] = updates['fresh_nid'];
+                      
+                      /*todo*/ 
+                      devtrac.indexedDB.editSitevisit(db, sitevisits[0]['nid'], newsiteid).then(function() {
+                       
+                        sitevisits.splice(0, 1);
+                        
+                        devtracnodes.uploadsitevisits(db, sitevisits, newsitevisits, uploadStatus, callback);  
+                      });
+                      
+                      
+                    }else if(updates.indexOf('Unauthorized') != -1){
+                      auth.getToken().then(function(token) {
+                        localStorage.usertoken = token;
+                        devtracnodes.uploadsitevisits(db, sitevisits, newsitevisits, uploadStatus, callback);
+                      });
+                    }
+                    else{
+                      
+                      callback(updates, "error", uploadStatus);
+                    }
+                    
+                  }); 
+                                
+                }
+                
+              });
+              //no images to upload for this site visit
+            }).fail(function(){
+              console.log("No images found to upload");
+              
+            });
+            
+            /*
             devtrac.indexedDB.open(function (db) {
               
               devtracnodes.updateNode(siteid, jsonstring).then(function(updates, ftritemid, sid) {
-                nodeStatus['roadside'][sitevisits[0]['nid']]['nid'] = updates['nid'];
-                nodeStatus['roadside'][sitevisits[0]['nid']]['edit'] = true;
-                
+                nodeStatus['sitevisits'][sitevisits[0]['nid']]['nid'] = sid;
+                nodeStatus['sitevisits'][sitevisits[0]['nid']]['edit'] = true;
+                    
                 newsitevisits[ftritemid] = sitevisits[0]['title'];
                 
                 sitevisits.splice(0, 1);
@@ -697,7 +765,7 @@ var devtracnodes = {
                   callback(e, "error", nodeStatus);
                 }
               });
-            });
+            });*/
             
           });
         }
@@ -885,12 +953,18 @@ var devtracnodes = {
               for(var sitevisit in syncData[nodeType]) {
                 if(controller.sizeme(syncData[nodeType][sitevisit]) > 0) {
                   var updates = {};
-                  updates['fresh_nid'] = parseInt(syncData[nodeType][sitevisit]['nid']);
+                  var sid = "";
+                  if(syncData[nodeType][sitevisit]['edit']){
+                    sid = syncData[nodeType][sitevisit]['nid'];
+                  }else {
+                    sid = parseInt(syncData[nodeType][sitevisit]['nid']);
+                  }
+                  updates['fresh_nid'] = sid;
                   updates['submit'] = 1;
                   updates['editflag'] = 0;
                   
                   devtrac.indexedDB.open(function (db) {
-                    devtrac.indexedDB.editSitevisit(db, parseInt(sitevisit), updates).then(function() {
+                    devtrac.indexedDB.editSitevisit(db, sid, updates).then(function() {
                       var count_container = $("#sitevisit_count").html().split(" ");
                       if(typeof parseInt(count_container[0]) == "number") {
                         var updated_count = parseInt(count_container[0]) - 1;
@@ -1025,10 +1099,6 @@ var devtracnodes = {
       if(parseInt($("#sitevisit_count").html()) > 0) {
         //upload site visits road side observations
         devtracnodes.checkSitevisits().then(function(sitevisits) { 
-          
-          for(var r = 0; r < sitevisits.length; r++) {
-            nodeStatus['roadside'][sitevisits[r]['nid']] = {};
-          }
           
           devtrac.indexedDB.open(function (db) {
             var newsitevisits = [];
@@ -1436,9 +1506,19 @@ var devtracnodes = {
               break;
             case 'field_ftritem_date_visited':
               var duedate = null;
-              if(aObj['user-added'] && aObj[a]['und'][0]['value'].indexOf('/') != -1) {
-                var dateparts = aObj[a]['und'][0]['value'].split('/');
+              
+              console.log("original date is "+aObj[a]['und'][0]['value']);
+              
+              if(aObj[a]['und'][0]['value'].indexOf('T') == -1) {
+                var dateparts = "";
+                if(aObj[a]['und'][0]['value'].indexOf('/') != -1) {
+                  dateparts = aObj[a]['und'][0]['value'].split('/');  
+                }else if(aObj[a]['und'][0]['value'].indexOf('-') != -1){
+                  dateparts = aObj[a]['und'][0]['value'].split('-');
+                }
+                
                 duedate = dateparts[2]+'/'+dateparts[1]+'/'+dateparts[0];
+                console.log("clean date is "+duedate);
                 
               }else{
                 var sitedate = aObj[a]['und'][0]['value'];
@@ -1449,10 +1529,13 @@ var devtracnodes = {
                 
                 duedate =  sitedatearray[2] + "/" + sitedatearray[1] + "/" + sitedatearray[0];
                 
+                console.log("unclean date is "+duedate);
               }
               
               visited_date = duedate;
               localStorage.visiteddate = visited_date; 
+              
+              console.log("upload date is "+duedate);
               
               nodestring = nodestring +a+'[und][0][value][date]='+duedate+'&';
               

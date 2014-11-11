@@ -588,6 +588,7 @@ var controller = {
       
       //count nodes for upload before uploads page is shown
       $("#syncall_page").bind('pagebeforeshow', function(){
+        //$("#uploads_listview").listview().listview('refresh');
         devtrac.indexedDB.open(function (db) {
           
           devtracnodes.countSitevisits(db).then(function(scount){
@@ -887,11 +888,16 @@ var controller = {
             $("#sitevisit_title").val(sitevisitObject['title']);
             
             var uncleandate =  sitevisitObject['field_ftritem_date_visited']['und'][0]['value'];
-            var cleandate = uncleandate.substring(0, uncleandate.indexOf("T")+1);
+            var cleandate = "";
+            if(uncleandate.indexOf("T") != -1){
+              cleandate = uncleandate.substring(0, uncleandate.indexOf("T"));  
+            }else {
+              cleandate = uncleandate;
+            }
             
             var datetimenow;
             if(cleandate.length > 0) {
-              datetimenow = cleandate + timenow;
+              datetimenow = cleandate + "T" +timenow;
             }else{
               datetimenow = isodate +"T" + timenow;
             }
@@ -2278,13 +2284,22 @@ var controller = {
           
           var sitedate = fObject['field_ftritem_date_visited']['und'][0]['value'];
           var formatedsitedate;
+          var sitedatearray = "";
           
           if(localStorage.user == "false" && sitedate.indexOf('/') == -1){
-            var sitedatestring = JSON.stringify(sitedate);
-            var sitedateonly = sitedatestring.substring(1, sitedatestring.indexOf('T'));
-            var sitedatearray = sitedateonly.split("-");
+            if(sitedate.indexOf('T') != -1) {
+              var sitedatestring = JSON.stringify(sitedate);
+              var sitedateonly = sitedatestring.substring(1, sitedatestring.indexOf('T'));
+              
+              sitedatearray = sitedateonly.split("-");
+              
+              formatedsitedate = sitedatearray[2] + "/" + sitedatearray[1] + "/" + sitedatearray[0];  
+            }else{
+              sitedatearray = sitedate.split("-");
+              
+              formatedsitedate = sitedatearray[2] + "/" + sitedatearray[1] + "/" + sitedatearray[0];
+            }
             
-            formatedsitedate = sitedatearray[2] + "/" + sitedatearray[1] + "/" + sitedatearray[0];
           }
           else {
             formatedsitedate = sitedate;            
@@ -2504,7 +2519,7 @@ var controller = {
                 imageEdits['names'] = controller.editedImageNames;
                 controller.editedImageNames = [];
                 
-                devtrac.indexedDB.editImage(db, snid, imageEdits, images).then(function(imageArray) {
+                devtrac.indexedDB.editImage(db, snid, images, imageEdits).then(function(imageArr) {
                   
                 });
                 

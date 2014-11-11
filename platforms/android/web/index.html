@@ -453,17 +453,24 @@ body {
     <div data-role="content" class='content'>
       <form id="form_sitevisit_edits" method="" action="">
         <fieldset>
-          <label for='sitevisit_title'>Title</label> <input type='text' value=''
-            id='sitevisit_title' required/>
-            <label
-          for="placetypes">Location Types</label>
-        <div id='placetypes'></div>
-        
-             <label for='sitevisit_date'>Date
-            Visited</label> <input type='text' value='' id='sitevisit_date' readonly='true' required/> <label
-            for='sitevisit_summary'>Summary</label>
-            <textarea id="sitevisit_summary" rows="4" cols="12" required></textarea>
-
+          <label for='sitevisit_title'>Title</label> <input type='text' value='' id='sitevisit_title' required> <label for='sitevisit_date'>Date
+              Visited</label> <input type='text' value='' id='sitevisit_date' required /> <label for='sitevisit_summary'>Summary</label>
+            <textarea id="sitevisit_summary" name="sitevisit_summary" required></textarea>
+            
+            <label for='sitevisit_report'>Report</label>
+            <textarea id="sitevisit_report" name="sitevisit_report" required></textarea>
+<br/>
+			<div
+              class="ui-btn ui-icon-plus ui-btn-icon-left ui-corner-all fileinput-button">
+              <span>Image: </span> <input type="file" name="file"
+                id="editImageFile" multiple="multiple">
+            </div>
+            
+            <div id="imagesEdits">
+            <ul data-role="listview" id="editimagefile_list" data-split-icon="delete" data-split-theme="a" data-inset="true">
+   
+</ul>
+            </div>
         </fieldset>
       </form>
       <input type="button" data-inline="true" data-theme="b"
