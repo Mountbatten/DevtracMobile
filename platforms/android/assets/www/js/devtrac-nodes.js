@@ -685,7 +685,7 @@ var devtracnodes = {
             
             devtrac.indexedDB.getImage(db, sitevisits[0]['nid'], sitevisits[0]['nid'], datevisited, sitevisits[0]['nid']).then(function(image, nid, vdate, sid) {
               console.log("Images found to upload");
-              var indx = 0;
+              var indx = localStorage.imageIndex;
               var imageid = [];
               var imagename = [];
               

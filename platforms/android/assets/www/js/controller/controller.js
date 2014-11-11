@@ -2282,6 +2282,8 @@ var controller = {
             }
           }
           
+          localStorage.imageIndex = fObject['field_ftritem_images']['und'].length;
+          
           var sitedate = fObject['field_ftritem_date_visited']['und'][0]['value'];
           var formatedsitedate;
           var sitedatearray = "";
