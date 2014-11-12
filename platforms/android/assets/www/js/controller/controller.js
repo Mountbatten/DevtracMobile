@@ -374,7 +374,7 @@ var controller = {
       
       //add site visit
       $("#page_site_report_type").bind('pagebeforeshow', function(){
-        console.log("before adding "+localStorage.humaninterest + "," + localStorage.roadside+ "," +localStorage.sitevisit);
+        
         var addftritem = $("#sitevisit_add_type"); 
         
         addftritem.find('option')
@@ -385,13 +385,9 @@ var controller = {
         addftritem.append('<option value="'+localStorage.roadside+'">Roadside Observation</option>');
         addftritem.append('<option value="'+localStorage.sitevisit+'">Site Visit</option>');
         
-        addftritem.val("Human Interest Story").selectmenu('refresh');
+        addftritem.val("Human Interest Story").selectmenu().selectmenu('refresh');
       });
       
-      //Restyle map page back button before its displayed. 
-      $("#mappage").bind('pagebeforeshow', function(){
-        //$('#viewlocation_back').trigger("create");
-      });
       
       //apply tinymce b4 this page is displayed
       $("#page_sitevisit_add").bind('pagebeforeshow', function(){
@@ -870,7 +866,7 @@ var controller = {
       
       //handle edit sitevisit click event
       $("#editsitevisit").bind("click", function (event) {
-        controller.buildSelect("placetype", []);
+        //controller.buildSelect("placetype", []);
         var x = new Date();
         var isodate = x.yyyymmdd();
         var timenow = x.getHours()+":"+x.getMinutes()+":"+x.getSeconds();
@@ -2204,15 +2200,24 @@ var controller = {
           maxDate: new Date(endyear, endmonth, endday) 
         });
         
-        controller.buildSelect("oecdobj", []);
+        //check if oecd codes have been filled in before rebuilding
+        if($("#select_oecds").children().length == 0) {
+          controller.buildSelect("oecdobj", []);
+        }else{
+          $.mobile.changePage("#page_sitevisit_add", "slide", true, false);
+        }
         
         $('#sitevisit_add_report').html("Please provide a full report");
         $('#sitevisit_add_public_summary').html("Please Provide a small summary for the public");
         
       }
       else{
-        
-        controller.buildSelect("placetype", []);
+        //check if placetypes have been filled in before rebuilding
+        if($("#location_placetypes").children().length == 0) {
+          controller.buildSelect("placetype", []);
+        }else{
+          $.mobile.changePage("#page_add_location", "slide", true, false);
+        }
         
       }
       controller.resetForm($('#form_sitereporttype'));
@@ -2513,27 +2518,29 @@ var controller = {
             
             console.log("now editing or adding images");
             
-            devtrac.indexedDB.open(function (db) {
-              devtrac.indexedDB.getImage(db, snid).then(function(imagearray) {
-                /*@ imageEdits - Remove deleted images from db 
-                 */
-                var imageEdits = [];
-                imageEdits['names'] = controller.editedImageNames;
-                controller.editedImageNames = [];
-                
-                devtrac.indexedDB.editImage(db, snid, images, imageEdits).then(function(imageArr) {
+            if(images['names'].length > 0) {
+              devtrac.indexedDB.open(function (db) {
+                devtrac.indexedDB.getImage(db, snid).then(function(imagearray) {
+                  /*@ imageEdits - Remove deleted images from db 
+                   */
+                  var imageEdits = [];
+                  imageEdits['names'] = controller.editedImageNames;
+                  controller.editedImageNames = [];
                   
-                });
+                  devtrac.indexedDB.editImage(db, snid, images, imageEdits).then(function(imageArr) {
+                    
+                  });
+                  
+                  /* end remove*/  
+                }).fail(function() {
+                  images['nid'] = snid;
+                  devtrac.indexedDB.addImages(db, images).then(function() {
+                    console.log('Added images');
+                  });
                 
-                /* end remove*/  
-              }).fail(function() {
-                images['nid'] = snid;
-                devtrac.indexedDB.addImages(db, images).then(function() {
-                  console.log('Added images');
                 });
-              
-              });
-            });
+              });    
+            }
           
           $("#sitevisists_details_title").html($("#sitevisit_title").val());
           
@@ -3450,7 +3457,7 @@ var controller = {
      *   
      */
     buildSelect: function (vocabularyname, selectedoptions) {
-      var select = "<div class='ui-field-contain'><select name='select_"+vocabularyname+"' id='select_"+vocabularyname+"' data-theme='b' data-mini='true' required>";
+      var select = "<select name='select_"+vocabularyname+"' id='select_"+vocabularyname+"' data-theme='b' data-mini='true' required>";
       var optgroup = "";
       
       controller.fetchOptions(vocabularyname).then(function(optionsarray) {
@@ -3459,11 +3466,12 @@ var controller = {
           optgroup = optgroup + "<optgroup label=" + optionsarray[x]['hname'] + ">";
           if (optionsarray[x]['children'] != undefined) {
             optgroup =  optgroup + controller.addSelectOptions(optionsarray[x]['children'], '', '') + "</optgroup>";
+            
           }
           
         }
         
-        select = select + optgroup + "</select></div>";
+        select = select + optgroup + "</select>";
         
         controller.createOptgroupElement(select, vocabularyname);
         
@@ -3490,18 +3498,15 @@ var controller = {
     
     //add select element to appropriate page
     createOptgroupElement: function(select, vocabularyname){
-      
+      console.log("inside createoptgrp ");
       var selectGroup = $(select);
       if (vocabularyname.indexOf("place") != -1) {
         if($.mobile.activePage.attr('id') == "page_site_report_type") {
           //create placetypes codes optgroup
-          $('#location_placetypes').empty().append(selectGroup).trigger('create');
-          $('#sitevisists_details_subjects').empty().append(selectGroup).trigger('create');
+          $('#location_placetypes').empty().append(selectGroup);
+          console.log("creating placetypes ");
           $.mobile.changePage("#page_add_location", "slide", true, false);          
-        }else {
-          $('#placetypes').empty().append(selectGroup).trigger('create');
         }
-        
         
       } 
       else {
@@ -3509,12 +3514,13 @@ var controller = {
         
         if($.mobile.activePage.attr('id') == "page_add_actionitems") {
           //create oecd codes optgroup
-          $('#actionitems_oecds').empty().append(selectGroup).trigger('create');
+          $('#actionitems_oecds').empty().append(selectGroup);
           $.mobile.changePage("#page_add_actionitems", "slide", true, false);
         }else
         {
+          console.log("creating oecds ");
           //create oecd codes optgroup
-          $('#select_oecds').empty().append(selectGroup).trigger('create');
+          $('#select_oecds').empty().append(selectGroup);
           $.mobile.changePage("#page_sitevisit_add", "slide", true, false);
           
         }
@@ -3531,7 +3537,6 @@ var controller = {
       var vocabularies = [];
       devtrac.indexedDB.open(function (db) {
         devtrac.indexedDB.getAllTaxonomyItems(db, vocabularyname, function (taxonomies) {
-          
           
           var markers = [];
           for(var a in taxonomies) {//loop thru parents

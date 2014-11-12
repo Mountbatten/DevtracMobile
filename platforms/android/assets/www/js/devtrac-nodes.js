@@ -615,6 +615,7 @@ var devtracnodes = {
                     devtracnodes.updateNodeHelper(ftrid, y, fds, fdn, ftrdate, updateId, function(updates, ftritemid, activeid) {
                       newsitevisits[ftritemid] = sitevisits[0]['title'];
                       updates['fresh_nid'] = ftritemid;
+                      updates['editflag'] = 0; 
                       
                       if(ftritemid != "error") {
                         
@@ -704,6 +705,7 @@ var devtracnodes = {
                     
                     newsitevisits[ftritemid] = sitevisits[0]['title'];
                     updates['fresh_nid'] = ftritemid;
+                    updates['editflag'] = 0;
                     
                     if(ftritemid != "error") {
                       
@@ -737,7 +739,26 @@ var devtracnodes = {
               });
               //no images to upload for this site visit
             }).fail(function(){
-              console.log("No images found to upload");
+              devtracnodes.updateNode(siteid, jsonstring).then(function(updates, ftritemid, sid) {
+                nodeStatus['sitevisits'][sitevisits[0]['nid']]['nid'] = sid;
+                nodeStatus['sitevisits'][sitevisits[0]['nid']]['edit'] = true;
+                    
+                newsitevisits[ftritemid] = sitevisits[0]['title'];
+                sitevisits.splice(0, 1);
+                
+                devtracnodes.uploadsitevisits(db, sitevisits, newsitevisits, nodeStatus, callback);
+                
+              }).fail(function(e){
+                if(e == "Unauthorized: CSRF validation failed" || e == "Unauthorized") {
+                  auth.getToken().then(function(token) {
+                    localStorage.usertoken = token;
+                    devtracnodes.uploadsitevisits(db, sitevisits, newsitevisits, nodeStatus, callback);
+                  });  
+                }else
+                {
+                  callback(e, "error", nodeStatus);
+                }
+              })
               
             });
             
@@ -1096,7 +1117,6 @@ var devtracnodes = {
       var ftritems = false;
       var nodeStatus = nodeStatus;
       
-      if(parseInt($("#sitevisit_count").html()) > 0) {
         //upload site visits road side observations
         devtracnodes.checkSitevisits().then(function(sitevisits) { 
           
@@ -1130,15 +1150,6 @@ var devtracnodes = {
             devtracnodes.syncActionitems(ftritems, nodeStatus);
           }
         });
-        
-      }else{
-        ftritems = true;
-        if(ftritems_locs = true && ftritems == true){
-          devtracnodes.syncActionitems(ftritems, nodeStatus);
-          
-        }
-        
-      }
       
     },
     
@@ -1365,6 +1376,7 @@ var devtracnodes = {
                         
                         var newsiteid = {};
                         newsiteid['fresh_nid'] = ftritemid; 
+                        newsiteid['editflag'] = 0;
                         
                         /*todo*/ 
                         devtrac.indexedDB.editSitevisit(db, parseInt(sitevisits[0]['nid']), newsiteid).then(function() {
@@ -1390,7 +1402,7 @@ var devtracnodes = {
                 //No images found for this site visit so edit and proceed to the next
               }).fail(function(){
             	  console.log("not found images");
-            	  
+            	 updates['editflag'] = 0;
                 /*todo*/ 
                 devtrac.indexedDB.editSitevisit(db, sitevisits[0]['nid'], updates).then(function() {
                   
