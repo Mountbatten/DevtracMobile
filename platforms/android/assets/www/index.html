@@ -271,23 +271,18 @@ body {
       <form class="syncform" id="syncForm" method="" action="">
 
         <ul data-role="listview" id="uploads_listview">
-          <li data-role="list-divider">Upload Status</li>
-          <li data-icon="false"><a data-role="button" data-mini="true"
-            data-icon="" onclick="">Site Visits</a>
+          
+          <li data-icon="false"><a>Site Visits</a>
             <div id="sitevisit_count" class="ui-li-count"></div></li>
-          <li data-icon="false"><a data-role="button" data-mini="true"
-            data-icon="" onclick="">Locations</a>
+          <li data-icon="false"><a>Locations</a>
             <div id="location_count" class="ui-li-count"></div></li>
-          <!-- <li><a data-role="button" data-mini="true" data-icon="arrow-u" onclick="devtracnodes.postComments();">Comments</a><div id="comment_count" class="ui-li-count"></div></li> -->
-          <li data-icon="false"><a data-role="button" data-mini="true"
-            data-icon="" onclick="">Action Items</a>
+          
+          <li data-icon="false"><a>Action Items</a>
             <div id="actionitem_count" class="ui-li-count"></div></li>
-          <li data-icon="false"><a data-role="button" data-mini="true"
-            data-icon="" onclick="">Fieldtrip</a>
+          <li data-icon="false"><a>Fieldtrip</a>
             <div id="fieldtrip_count" class="ui-li-count"></div></li>
 
-          <li><a data-role="button" data-icon=""
-            onclick="devtracnodes.syncAll()"><i
+          <li><a onclick="devtracnodes.syncAll()"><i
               class="fa fa-upload fa-lg"></i>&nbsp&nbsp Sync All</a></li>
 
         </ul>
