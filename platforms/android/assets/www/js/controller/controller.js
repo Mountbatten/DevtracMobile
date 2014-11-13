@@ -385,9 +385,13 @@ var controller = {
         addftritem.append('<option value="'+localStorage.roadside+'">Roadside Observation</option>');
         addftritem.append('<option value="'+localStorage.sitevisit+'">Site Visit</option>');
         
-        addftritem.val("Human Interest Story").selectmenu().selectmenu('refresh');
+        addftritem.val("Human Interest Story").selectmenu('refresh');
       });
       
+      //Restyle map page back button before its displayed. 
+      $("#mappage").bind('pagebeforeshow', function(){
+        //$('#viewlocation_back').trigger("create");
+      });
       
       //apply tinymce b4 this page is displayed
       $("#page_sitevisit_add").bind('pagebeforeshow', function(){
@@ -866,7 +870,7 @@ var controller = {
       
       //handle edit sitevisit click event
       $("#editsitevisit").bind("click", function (event) {
-        //controller.buildSelect("placetype", []);
+        controller.buildSelect("placetype", []);
         var x = new Date();
         var isodate = x.yyyymmdd();
         var timenow = x.getHours()+":"+x.getMinutes()+":"+x.getSeconds();
@@ -2200,24 +2204,15 @@ var controller = {
           maxDate: new Date(endyear, endmonth, endday) 
         });
         
-        //check if oecd codes have been filled in before rebuilding
-        if($("#select_oecds").children().length == 0) {
-          controller.buildSelect("oecdobj", []);
-        }else{
-          $.mobile.changePage("#page_sitevisit_add", "slide", true, false);
-        }
+        controller.buildSelect("oecdobj", []);
         
         $('#sitevisit_add_report').html("Please provide a full report");
         $('#sitevisit_add_public_summary').html("Please Provide a small summary for the public");
         
       }
       else{
-        //check if placetypes have been filled in before rebuilding
-        if($("#location_placetypes").children().length == 0) {
-          controller.buildSelect("placetype", []);
-        }else{
-          $.mobile.changePage("#page_add_location", "slide", true, false);
-        }
+        
+        controller.buildSelect("placetype", []);
         
       }
       controller.resetForm($('#form_sitereporttype'));
@@ -2287,7 +2282,12 @@ var controller = {
             }
           }
           
-          localStorage.imageIndex = fObject['field_ftritem_images']['und'].length;
+          //count images available in this site visit
+          if(fObject['field_ftritem_images'].length > 0){
+            localStorage.imageIndex = fObject['field_ftritem_images']['und'].length; 
+          }else {
+            localStorage.imageIndex = 0;
+          }
           
           var sitedate = fObject['field_ftritem_date_visited']['und'][0]['value'];
           var formatedsitedate;
@@ -2315,19 +2315,20 @@ var controller = {
           var sitevisittype = null;
           $("#sitevisists_details_date").html(formatedsitedate);
           
-          $('#sitevisists_details_location').show();
-          $('#sitevisists_details_location').prev("label").show();
+          
           switch (fObject['taxonomy_vocabulary_7']['und'][0]['tid']) {
             
             case localStorage.sitevisit:
               $("#sitevisists_details_type").html("Site Visit");
               localStorage.reportType = "site";
               console.log("its a site visit "+localStorage.sitevisit);
+              
+              $('#ftritem_location').show();
               break;
             case localStorage.roadside:
               $("#sitevisists_details_type").html("Roadside Observation");
-              $('#sitevisists_details_location').hide();
-              $('#sitevisists_details_location').prev("label").hide();
+              
+              $('#ftritem_location').hide();
               
               localStorage.reportType = "roadside";
               console.log("its a roadside "+localStorage.roadside);
@@ -2337,6 +2338,8 @@ var controller = {
               
               localStorage.reportType = "human";
               console.log("its a human interest "+localStorage.humaninterest);
+              
+              $('#ftritem_location').show();
               break;
             default:
               break
@@ -3466,7 +3469,6 @@ var controller = {
           optgroup = optgroup + "<optgroup label=" + optionsarray[x]['hname'] + ">";
           if (optionsarray[x]['children'] != undefined) {
             optgroup =  optgroup + controller.addSelectOptions(optionsarray[x]['children'], '', '') + "</optgroup>";
-            
           }
           
         }
@@ -3498,15 +3500,18 @@ var controller = {
     
     //add select element to appropriate page
     createOptgroupElement: function(select, vocabularyname){
-      console.log("inside createoptgrp ");
+      
       var selectGroup = $(select);
       if (vocabularyname.indexOf("place") != -1) {
         if($.mobile.activePage.attr('id') == "page_site_report_type") {
           //create placetypes codes optgroup
           $('#location_placetypes').empty().append(selectGroup);
-          console.log("creating placetypes ");
+          $('#sitevisists_details_subjects').empty().append(selectGroup);
           $.mobile.changePage("#page_add_location", "slide", true, false);          
+        }else {
+          $('#placetypes').empty().append(selectGroup).trigger('create');
         }
+        
         
       } 
       else {
@@ -3514,13 +3519,12 @@ var controller = {
         
         if($.mobile.activePage.attr('id') == "page_add_actionitems") {
           //create oecd codes optgroup
-          $('#actionitems_oecds').empty().append(selectGroup);
+          $('#actionitems_oecds').empty().append(selectGroup).trigger('create');
           $.mobile.changePage("#page_add_actionitems", "slide", true, false);
         }else
         {
-          console.log("creating oecds ");
           //create oecd codes optgroup
-          $('#select_oecds').empty().append(selectGroup);
+          $('#select_oecds').empty().append(selectGroup).trigger('create');
           $.mobile.changePage("#page_sitevisit_add", "slide", true, false);
           
         }
@@ -3537,6 +3541,7 @@ var controller = {
       var vocabularies = [];
       devtrac.indexedDB.open(function (db) {
         devtrac.indexedDB.getAllTaxonomyItems(db, vocabularyname, function (taxonomies) {
+          
           
           var markers = [];
           for(var a in taxonomies) {//loop thru parents
