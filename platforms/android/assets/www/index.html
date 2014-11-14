@@ -272,22 +272,17 @@ body {
 
         <ul data-role="listview" id="uploads_listview">
           <li data-role="list-divider">Upload Status</li>
-          <li data-icon="false"><a data-role="button" data-mini="true"
-            data-icon="" onclick="">Site Visits</a>
+          <li data-icon="false"><a>Site Visits</a>
             <div id="sitevisit_count" class="ui-li-count"></div></li>
-          <li data-icon="false"><a data-role="button" data-mini="true"
-            data-icon="" onclick="">Locations</a>
+          <li data-icon="false"><a>Locations</a>
             <div id="location_count" class="ui-li-count"></div></li>
           <!-- <li><a data-role="button" data-mini="true" data-icon="arrow-u" onclick="devtracnodes.postComments();">Comments</a><div id="comment_count" class="ui-li-count"></div></li> -->
-          <li data-icon="false"><a data-role="button" data-mini="true"
-            data-icon="" onclick="">Action Items</a>
+          <li data-icon="false"><a >Action Items</a>
             <div id="actionitem_count" class="ui-li-count"></div></li>
-          <li data-icon="false"><a data-role="button" data-mini="true"
-            data-icon="" onclick="">Fieldtrip</a>
+          <li data-icon="false"><a >Fieldtrip</a>
             <div id="fieldtrip_count" class="ui-li-count"></div></li>
 
-          <li><a data-role="button" data-icon=""
-            onclick="devtracnodes.syncAll()"><i
+          <li><a onclick="devtracnodes.syncAll()"><i
               class="fa fa-upload fa-lg"></i>&nbsp&nbsp Sync All</a></li>
 
         </ul>
@@ -436,6 +431,9 @@ body {
 
   <!-- Edit site visit details -->
   <div data-role="page" id="page_sitevisit_edits">
+  <div data-role="panel" id="navpanel_editsitevisit" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+      
     <div data-role="header" id="header_editsitevisit"></div>
     <!-- /header -->
 
@@ -449,11 +447,25 @@ body {
             <label for='sitevisit_report'>Report</label>
             <textarea id="sitevisit_report" name="sitevisit_report" required></textarea>
 <br/>
-			<div
+
+
+        <div class="ui-grid-b ui-responsive">
+          <div class="ui-block-a">
+            <div
               class="ui-btn ui-icon-plus ui-btn-icon-left ui-corner-all fileinput-button">
-              <span>Image: </span> <input type="file" name="file"
+              <span>Image: </span> <input type="file" name="editImageFile"
                 id="editImageFile" multiple="multiple">
             </div>
+          </div>
+          <div>
+            <b id="orbold">OR</b>
+          </div>
+          <div class="ui-block-b">
+            <a data-role="button" class="takephotoedit">Take Photo</a>
+
+          </div>
+
+        </div>
             
             <div id="imagesEdits">
             <ul data-role="listview" id="editimagefile_list" data-split-icon="delete" data-split-theme="a" data-inset="true">

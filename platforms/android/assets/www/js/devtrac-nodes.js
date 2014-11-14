@@ -588,7 +588,7 @@ var devtracnodes = {
       if(sitevisits.length > 0) {
 
         if(sitevisits[0]['user-added'] == true && sitevisits[0]['taxonomy_vocabulary_7']['und'][0]['tid'] == localStorage.roadside) {
-          nodeStatus['sitevisits'][sitevisits[r]['nid']] = {};
+          nodeStatus['sitevisits'][sitevisits[0]['nid']] = {};
           
           devtracnodes.getSitevisitString(sitevisits[0]).then(function(jsonstring, active_sitereport, date, siteid) {
             devtracnodes.postNode(jsonstring, active_sitereport, date, siteid).then(function(updates, x, y, z, active_ftritem, datevisited) {

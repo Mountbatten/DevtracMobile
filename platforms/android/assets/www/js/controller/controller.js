@@ -54,7 +54,7 @@ var controller = {
       $("#header_addlocation").html(header({id: "addlocation", title: "Locations"})); 
       $("#header_addsitereport").html(header({id: "addsitereport", title: "Add Site Visit"}));
       $("#header_actionitemdetails").html(header({id: "actionitemdetails", title: "Action Item"}));
-//      /$("#header_qtnr").html(header({notes: '', id: "qtnr", title: "Questionnaire"}));
+      $("#header_editsitevisit").html(header({id: "editsitevisit", title: "Edit Site Visit"}));
       $("#header_settings").html(header({id: "settings", title: "Settings"}));
       $("#header_download").html(header({id: "download", title: "Download Nodes"}));
 
@@ -926,7 +926,7 @@ var controller = {
                   }
                   
                   listitem = ' <li class="original_image"><a href="#">'+
-                  '<img src="'+ base64_source +'" style="width: 80px; height: 80px;">'+
+                  '<img src="'+base64_initials + base64_source +'" style="width: 80px; height: 80px;">'+
                   '<h2><div style="white-space:normal; word-wrap:break-word; overflow-wrap: break-word;">'+imagearray['names'][x]+'</div></h2></a>'+
                   '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
                   '</li>';
@@ -977,9 +977,17 @@ var controller = {
         
       });
       
-      //capture photo
+      //capture photo from all other pages of the app
       $(".takephoto").bind("click", function (event, ui) {
         controller.capturePhoto();
+        localStorage.editsitevisitimages = "false";
+      });
+      
+    //capture photo from site visit edit page
+      $(".takephotoedit").bind("click", function (event, ui) {
+        console.log("clicked edit photo");
+        controller.capturePhoto();
+        localStorage.editsitevisitimages = "true";
       });
       
       //save url dialog
@@ -1449,8 +1457,8 @@ var controller = {
     },
     
     //camera functions
-    
     onPhotoDataSuccess: function(imageData) {
+      
       var currentdate = new Date(); 
       var datetime = currentdate.getDate()
       + (currentdate.getMonth()+1)
@@ -1459,10 +1467,11 @@ var controller = {
       + currentdate.getMinutes()
       + currentdate.getSeconds();
       
+      console.log("image data is "+imageData);
+      
       var imagename = "img_"+datetime+".jpeg";
       // Get image handle
-      console.log("its a "+localStorage.ftritemtype);
-      var reporttype = localStorage.ftritemtype;
+      var reporttype = localStorage.reportType;
       if(reporttype.indexOf('oa') != -1) 
       {
         controller.filenames.push(imagename);
@@ -1471,7 +1480,34 @@ var controller = {
         
         $("#uploadPreview").append('<div>'+imagename+'</div>');
         
-      }else
+        //if we are adding images from edited site visit
+      }else if(localStorage.editsitevisitimages == "true"){
+        console.log("edit site photo");
+        var ftritem_type = localStorage.reportType;
+        var listitem = "";
+        
+        if(ftritem_type.indexOf("oa") != -1) {
+          controller.filenames.push(imagename);
+          controller.base64Images.push(imageData);
+          controller.imageSource.push(false);
+          
+          
+        }else {
+          controller.fnames.push(imagename);
+          controller.b64Images.push(imageData);
+          controller.imageSrc.push(false);
+          
+        }
+        
+        listitem = ' <li><a href="#">'+
+        '<img src="'+"data:image/jpeg;base64,"+ imageData +'" style="width: 80px; height: 80px;">'+
+        '<h2><div style="white-space:normal; word-wrap:break-word; overflow-wrap: break-word;">'+imagename+'</div></h2></a>'+
+        '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
+        '</li>';
+        
+        controller.addImageEdits(listitem);
+      }
+      else
       {
         controller.fnames.push(imagename);
         controller.b64Images.push(imageData);
@@ -2248,7 +2284,7 @@ var controller = {
       owlhandler.populateOwl(snid);
       
       localStorage.sitevisitname = $(anchor).children('.heada1').html();
-      
+      onsitevisitclick:
       var form = $("#form_sitevisists_details");
       
       var actionitemList = $('#list_actionitems');
@@ -2283,7 +2319,7 @@ var controller = {
           }
           
           //count images available in this site visit
-          if(fObject['field_ftritem_images'].length > 0){
+          if(fObject['field_ftritem_images'] != undefined && fObject['field_ftritem_images'].length > 0){
             localStorage.imageIndex = fObject['field_ftritem_images']['und'].length; 
           }else {
             localStorage.imageIndex = 0;
@@ -3315,8 +3351,6 @@ var controller = {
               controller.base64Images.push(data.content);
               controller.imageSource.push(true);
               
-              console.log("Image path is "+data.filepath);
-              
               $("#uploadPreview").append('<div>'+data.name +'</div>');
               
             }, function(error){
@@ -3329,8 +3363,6 @@ var controller = {
               controller.fnames.push(data.name);
               controller.b64Images.push(data.content);
               controller.imageSrc.push(true);
-              
-              console.log("Image path is "+data.filepath);
               
               $("#imagePreview").append('<div>'+data.name+'</div>');
             }, function(error) {
