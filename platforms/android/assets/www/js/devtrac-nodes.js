@@ -543,7 +543,7 @@ var devtracnodes = {
       var d = $.Deferred();
       
       //if device runs kitkat android 4.4 use plugin to access image files
-      if(images['kitkat'][index]) {
+      if(images['kitkat'][index] == "has") {
         var parsedImage = images['base64s'][index];
       }else{
         var parsedImage = images['base64s'][index].substring(images['base64s'][index].indexOf(",")+1);  

@@ -870,7 +870,7 @@ var controller = {
       
       //handle edit sitevisit click event
       $("#editsitevisit").bind("click", function (event) {
-        controller.buildSelect("placetype", []);
+        
         var x = new Date();
         var isodate = x.yyyymmdd();
         var timenow = x.getHours()+":"+x.getMinutes()+":"+x.getSeconds();
@@ -902,7 +902,6 @@ var controller = {
               datetimenow = isodate +"T" + timenow;
             }
             
-            
             $("#sitevisit_date").val(datetimenow);
             
             $("#sitevisit_summary").html(sitevisitObject['field_ftritem_public_summary']['und'][0]['value']);
@@ -912,21 +911,25 @@ var controller = {
             localStorage.sitevisit_report = sitevisitObject['field_ftritem_narrative']['und'][0]['value'];
             
             devtrac.indexedDB.getImage(db, snid).then(function(imagearray) {
+              
               var base64_initials = "data:image/jpeg;base64,";
               var base64_source = "";
               $("#editimagefile_list").empty();
               
-              for(var x in imagearray['base64s']) {
+              for(var x in imagearray['names']) {
                 //check if this image exists before creating html list item
-                if(imagearray['base64s'][x].length > 0 && imagearray['base64s'][x] != "") {
-                  if(imagearray['kitkat'][0]) {
+                if(imagearray['base64s'][x] != "") {
+                  console.log("kitkat is "+imagearray['kitkat'][x]);
+                  if(imagearray['kitkat'][x] == "hasnot") {
+                    
                     base64_source = base64_initials+imagearray['base64s'][x];
                   }else {
                     base64_source = imagearray['base64s'][x];
+                    
                   }
                   
                   listitem = ' <li class="original_image"><a href="#">'+
-                  '<img src="'+base64_initials + base64_source +'" style="width: 80px; height: 80px;">'+
+                  '<img src="'+ base64_source +'" style="width: 80px; height: 80px;">'+
                   '<h2><div style="white-space:normal; word-wrap:break-word; overflow-wrap: break-word;">'+imagearray['names'][x]+'</div></h2></a>'+
                   '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
                   '</li>';
@@ -938,6 +941,7 @@ var controller = {
               }
               
             }).fail(function(){
+              
               $("#editimagefile_list").empty(); 
             });
             
@@ -963,18 +967,18 @@ var controller = {
             
             var savesitevisitedits = $('<input type="button" data-inline="true" data-theme="b" id="save_fieldtrip_edits" onclick="controller.onFieldtripsave();" value="Save" />');
             
-            var cancelsitevisitedits = $('<a href="#" data-role="button" data-inline="true" data-rel="back" data-theme="a" id="cancel_fieldtrip_edits">Cancel</a>');
+            var cancelsitevisitedits = $('<a href="#page_fieldtrip_details" data-role="button" data-inline="true" data-theme="a" id="cancel_fieldtrip_edits">Cancel</a>');
             
             fieldset.append(
                 titlelabel).append(
                     titletextffield).append(
                         savesitevisitedits).append(
                             cancelsitevisitedits);
-            
+
             editform.append(fieldset).trigger('create');
           });
         });
-        
+
       });
       
       //capture photo from all other pages of the app
@@ -985,7 +989,7 @@ var controller = {
       
     //capture photo from site visit edit page
       $(".takephotoedit").bind("click", function (event, ui) {
-        console.log("clicked edit photo");
+        
         controller.capturePhoto();
         localStorage.editsitevisitimages = "true";
       });
@@ -1467,8 +1471,6 @@ var controller = {
       + currentdate.getMinutes()
       + currentdate.getSeconds();
       
-      console.log("image data is "+imageData);
-      
       var imagename = "img_"+datetime+".jpeg";
       // Get image handle
       var reporttype = localStorage.reportType;
@@ -1476,7 +1478,7 @@ var controller = {
       {
         controller.filenames.push(imagename);
         controller.base64Images.push(imageData);
-        controller.imageSource.push(false);
+        controller.imageSource.push("hasnot");
         
         $("#uploadPreview").append('<div>'+imagename+'</div>');
         
@@ -1489,13 +1491,13 @@ var controller = {
         if(ftritem_type.indexOf("oa") != -1) {
           controller.filenames.push(imagename);
           controller.base64Images.push(imageData);
-          controller.imageSource.push(false);
+          controller.imageSource.push("hasnot");
           
           
         }else {
           controller.fnames.push(imagename);
           controller.b64Images.push(imageData);
-          controller.imageSrc.push(false);
+          controller.imageSrc.push("hasnot");
           
         }
         
@@ -1511,7 +1513,7 @@ var controller = {
       {
         controller.fnames.push(imagename);
         controller.b64Images.push(imageData);
-        controller.imageSrc.push(false);
+        controller.imageSrc.push("hasnot");
         
         $("#imagePreview").append('<div>'+imagename+'</div>');
       }
@@ -1525,10 +1527,9 @@ var controller = {
         destinationType: controller.destinationType.DATA_URL });
     },
     
-    // Called if something bad happens.
+    // Called if something bad happens after camera photo
     //
     onFail: function(message) {
-      console.log("camera error "+message);
       
     },
     
@@ -1542,8 +1543,6 @@ var controller = {
         navigator.geolocation.clearWatch(controller.watchid);
         controller.watchID = null;
         controller.watchid = null;
-      }else{
-        console.log("No watch to clear");
       }
     },
     
@@ -1551,8 +1550,7 @@ var controller = {
       //open panel on the current page
       var page = $(':mobile-pagecontainer').pagecontainer('getActivePage')[0].id;
       var mypanel = $("#"+page).children(":first-child");
-      
-      console.log("we are on "+page+" "+mypanel.attr("id"));
+
       if( mypanel.hasClass("ui-panel-open") == true ) {
         mypanel.panel().panel("close");
       }else{
@@ -1715,7 +1713,7 @@ var controller = {
           controller.filenames.push(n);
           controller.base64Images.push(image.src);
           controller.filesizes.push(~~(file.size/1024));
-          controller.imageSource.push(false);
+          controller.imageSource.push("has");
           
           $("#uploadPreview").append('<div>'+n+" "+~~(file.size/1024)+'kb</div>');
           
@@ -1724,7 +1722,7 @@ var controller = {
           controller.fnames.push(n);
           controller.b64Images.push(image.src);
           controller.fsizes.push(~~(file.size/1024));
-          controller.imageSrc.push(false);
+          controller.imageSrc.push("has");
           
           $("#imagePreview").append('<div>'+n+" "+~~(file.size/1024)+'kb</div>');
         }
@@ -1752,8 +1750,6 @@ var controller = {
       }
       
       var li_class = $(anchor_instance).parent('li').attr("class");
-      console.log("class is "+li_class);
-      
       if(li_class.indexOf("original_image") != -1) {
         
         controller.editedImageNames.push($(anchor_instance).prev().children('h2').children('div:first-child').text());
@@ -1901,7 +1897,7 @@ var controller = {
     
     //load field trip details from the database if its one and show list if there's more.
     loadFieldTripList: function () {
-      console.log("inside fieldtrip list");
+      
       devtrac.indexedDB.open(function (db) {
         
         devtrac.indexedDB.getAllFieldtripItems(db, function (data) {
@@ -1909,7 +1905,7 @@ var controller = {
           fieldtripList.empty();
           
           if (data.length > 1) {
-            console.log("many fieldtrips");
+            
             //set home screen to be the list of fieldtrips
             $(".settings_panel_home").attr("href","#home_page");
             
@@ -2218,7 +2214,7 @@ var controller = {
       
       localStorage.ftritem = $("#sitevisit_add_type :selected").text();
       localStorage.ftritemtype = $("#sitevisit_add_type :selected").val();
-      console.log("report id is "+localStorage.ftritemtype);
+      
       
       var reportcategory = localStorage.ftritem;
       var reporttype = localStorage.ftritem;
@@ -2297,7 +2293,7 @@ var controller = {
           
           if(fObject['field_ftritem_place'] != undefined && fObject['field_ftritem_place']['und'] != undefined) {
             localStorage.pnid = fObject['field_ftritem_place']['und'][0]['target_id'];
-            console.log("this ftritem has a place "+fObject['field_ftritem_place']['und'][0]['target_id']);
+            //console.log("this ftritem has a place "+fObject['field_ftritem_place']['und'][0]['target_id']);
             
             if(fObject['user-added'] == true) {
               localStorage.locationtype = "user";
@@ -2527,17 +2523,18 @@ var controller = {
         }
         
         devtrac.indexedDB.open(function (db) {
-          //console.log("siite visit is "+localStorage.snid);
           
           devtrac.indexedDB.editSitevisit(db, snid, updates).then(function () {
             
             var images = [];
+            var rtype = localStorage.reportType;
             
-            if(localStorage.reportType == "roadside") {
-              
+            if(rtype == "roadside") {
+
               images['base64s'] = controller.base64Images;
               images['names'] = controller.filenames;
               images['kitkat'] = controller.imageSource;
+              images['nid'] = snid;
               
               controller.base64Images = [];
               controller.filenames = []
@@ -2548,18 +2545,18 @@ var controller = {
               images['base64s'] = controller.b64Images;
               images['names'] = controller.fnames;
               images['kitkat'] = controller.imageSrc;
+              images['nid'] = snid;
               
               controller.b64Images = [];
               controller.fnames = [];
               controller.imageSrc = [];
-              
+
             }
             
-            console.log("now editing or adding images");
-            
-            if(images['names'].length > 0) {
+            if(images['names'].length > 0 || controller.editedImageNames.length > 0) {
               devtrac.indexedDB.open(function (db) {
                 devtrac.indexedDB.getImage(db, snid).then(function(imagearray) {
+                  
                   /*@ imageEdits - Remove deleted images from db 
                    */
                   var imageEdits = [];
@@ -2570,15 +2567,16 @@ var controller = {
                     
                   });
                   
-                  /* end remove*/  
                 }).fail(function() {
-                  images['nid'] = snid;
+                  
                   devtrac.indexedDB.addImages(db, images).then(function() {
                     console.log('Added images');
                   });
                 
                 });
               });    
+            }else{
+              controller.loadingMsg("No Images Added", 2000)
             }
           
           $("#sitevisists_details_title").html($("#sitevisit_title").val());
@@ -2647,14 +2645,12 @@ var controller = {
       
       if(prt.indexOf("<p>&nbsp;</p>") != -1) {
         summaryvalue =  prt.replace(/<p>&nbsp;<\/p>/g,'');
-        console.log("summary val is unclean "+summaryvalue);
+        
         
       }else{
-        console.log("summary val is clean "+prt);
+        
         summaryvalue = prt;
       }
-      
-      console.log("saved follow up task "+summaryvalue);
       
       if ($("#form_add_actionitems").valid() && summaryvalue.length > 0) {
         //save added action items
@@ -2905,7 +2901,6 @@ var controller = {
           
         });
         
-        console.log("getting action comments");
         devtrac.indexedDB.getActionItemComments(db, function (comments) {
           console.log("we have the following comments "+comments.length);
           for (var i in comments) {
@@ -3349,7 +3344,7 @@ var controller = {
               
               controller.filenames.push(data.name);
               controller.base64Images.push(data.content);
-              controller.imageSource.push(true);
+              controller.imageSource.push("hasnot");
               
               $("#uploadPreview").append('<div>'+data.name +'</div>');
               
@@ -3362,7 +3357,7 @@ var controller = {
             filechooser.open( {}, function(data){
               controller.fnames.push(data.name);
               controller.b64Images.push(data.content);
-              controller.imageSrc.push(true);
+              controller.imageSrc.push("hasnot");
               
               $("#imagePreview").append('<div>'+data.name+'</div>');
             }, function(error) {
@@ -3371,30 +3366,42 @@ var controller = {
             
           });
           
+          //handle file chooser for edited site visits
           $('#editImageFile').bind('click', function(e) {
-            console.log("here we r");
+            
             if(controller.checkCordova() != undefined) {
+              var currentdate = new Date(); 
+              var datetime = currentdate.getDate()
+              + (currentdate.getMonth()+1)
+              + currentdate.getFullYear() + "_"  
+              + currentdate.getHours()
+              + currentdate.getMinutes()
+              + currentdate.getSeconds();
+              
+              var imagename = "img_"+datetime+".jpeg";
               
               filechooser.open( {}, function(data){
                 var ftritem_type = localStorage.reportType;
                 var listitem = "";
+                var imagedata = data.content;
                 
                 if(ftritem_type.indexOf("oa") != -1) {
-                  controller.filenames.push(data.name);
-                  controller.base64Images.push(data.content);
-                  controller.imageSource.push(true);
-                  
+                  controller.filenames.push(imagename);
+                  controller.base64Images.push(imagedata);
+                  controller.imageSource.push("hasnot");
                   
                 }else {
-                  controller.fnames.push(data.name);
-                  controller.b64Images.push(data.content);
-                  controller.imageSrc.push(true);
+                  controller.fnames.push(imagename);
+                  controller.b64Images.push(imagedata);
+                  controller.imageSrc.push("hasnot");
                   
                 }
                 
+                console.log("this image hasnot");
+                
                 listitem = ' <li><a href="#">'+
                 '<img src="'+ data.filepath +'" style="width: 80px; height: 80px;">'+
-                '<h2><div style="white-space:normal; word-wrap:break-word; overflow-wrap: break-word;">'+data.name+'</div></h2></a>'+
+                '<h2><div style="white-space:normal; word-wrap:break-word; overflow-wrap: break-word;">'+imagename+'</div></h2></a>'+
                 '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
                 '</li>';
                 
@@ -3405,7 +3412,6 @@ var controller = {
               });
               
             }else {
-              console.log("we have clicked");
               
               var ftritem_type = localStorage.reportType;
               

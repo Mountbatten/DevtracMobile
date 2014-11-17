@@ -660,12 +660,16 @@ devtrac.indexedDB.getImage = function(db, inid, newnid, vd, siteid) {
   var store = trans.objectStore("images");
   var image = null;
   
+  console.log("Searching for snid "+inid);
+  
   var index = store.index("nid");
   index.get(inid).onsuccess = function(event) {
     image = event.target.result;
     if(image != undefined){
+      console.log("Found images");
       d.resolve(image, newnid, vd, siteid);  
     }else{
+      console.log("Not Found images");
       d.reject();      
     }
     
@@ -711,16 +715,21 @@ devtrac.indexedDB.editImage = function(db, inid, updates, newImages) {
             if(data['names'][index] == updates['names'][index2]) {
               updates['names'].splice(index2, 1);
               updates['base64s'].splice(index2, 1);
+              updates['kitkat'].splice(index2, 1);
               
             }
           }
         }
         
         for(var mark in updates['names']){
+          console.log("saving images "+updates['names'][mark]);
+          
           data['names'].push(updates['names'][mark]);
           data['base64s'].push(updates['base64s'][mark]);
           if(updates['base64s'].indexOf('data') != -1){
-            data['kitkat'].push(false);
+            data['kitkat'].push("has");
+          }else{
+            data['kitkat'].push("hasnot");
           }
         }
       }
