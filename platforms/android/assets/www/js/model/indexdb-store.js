@@ -699,9 +699,9 @@ devtrac.indexedDB.editImage = function(db, inid, updates, newImages) {
       for(var indx in data['names']) {
         for(var indx2 in newImages['names']) {
           if(data['names'][indx] == newImages['names'][indx2]) {
-            data['names'][indx] = "";
-            data['base64s'][indx] = "";
-            data['kitkat'][indx] = "";
+            data['names'].splice(indx, 1);
+            data['base64s'].splice(indx, 1);
+            data['kitkat'].splice(indx, 1);
             
           }
         }

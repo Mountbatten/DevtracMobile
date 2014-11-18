@@ -1960,7 +1960,6 @@ var controller = {
                 count = count + 1;
               }
               
-              //localStorage.pnid = fObject['field_fieldtrip_places']['und'][0]['target_id'];
               localStorage.ftitle = fObject['title'];
               localStorage.fnid = fObject['nid'];
               
@@ -2421,6 +2420,9 @@ var controller = {
         });
         
         devtrac.indexedDB.getAllActionitems(db, function (actionitem) {
+          //if there are no actionitems hide the filter
+          $("#list_actionitems").prev("form.ui-filterable").hide();
+          
           var actionitemcount = 0;
           for (var i in actionitem) {
             if(actionitem[i]['user-added'] == true && actionitem[i]['submit'] == 0) {
@@ -2431,6 +2433,9 @@ var controller = {
               var sitevisitid = siteid.substring(siteid.indexOf('(')+1, siteid.length-1);
               
               if (actionitem[i]['field_actionitem_ftreportitem']['und'][0]['target_id'] == snid || sitevisitid == snid) {
+                //if there are actionitems show the filter
+                $("#list_actionitems").prev("form.ui-filterable").show();
+                
                 var aItem = actionitem[i];
                 var li = $("<li></li>");
                 var a = ""; 
@@ -2748,6 +2753,9 @@ var controller = {
             }
             devtrac.indexedDB.addActionItemsData(db, updates);
             
+            //Show the filter
+            $("#list_actionitems").prev("form.ui-filterable").show();
+            
             var actionitemList = $('#list_actionitems');
             
             var li = $("<li></li>");
@@ -2902,9 +2910,14 @@ var controller = {
         });
         
         devtrac.indexedDB.getActionItemComments(db, function (comments) {
-          console.log("we have the following comments "+comments.length);
+          //By default hide the comments filter
+          $("#list_comments").prev("form.ui-filterable").hide();
+          
           for (var i in comments) {
             if (comments[i]['nid'] == localStorage.anid) {
+              //If a matching comment is found for this action item show the filter
+              $("#list_comments").prev("form.ui-filterable").show();
+              
               var aItem = comments[i];
               
               var li = $("<li></li>");
@@ -3295,6 +3308,9 @@ var controller = {
         
         devtrac.indexedDB.open(function (db) {
           devtrac.indexedDB.addCommentsData(db, comment).then(function() {
+            //Show the comments filter
+            $("#list_comments").prev("form.ui-filterable").show();
+            
             var li = $("<li></li>");
             var a = $("<a href='#' id='" + anid + "' onclick=''></a>");
             var h1 = $("<h1 class='heada2'>" + $('#actionitem_comment').val() + "</h1>");
