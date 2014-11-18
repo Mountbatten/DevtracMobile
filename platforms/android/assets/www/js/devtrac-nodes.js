@@ -500,47 +500,63 @@ var devtracnodes = {
     imagehelper: function (nid, index, fds, fdn, imagearr, sid_date, sid, ftritemType, upNodes, callback) {
       var imagestring = "";
       
-      devtracnodes.postImageFile(imagearr, index, nid).then(function (fd, imagename, ftrid) {
-        if(ftritemType.indexOf('road') != -1) {
-          upNodes['roadside'][imagearr['nid']][imagearr['names'][index]] = fd;
-        }else {
-          upNodes['sitevisits'][imagearr['nid']][imagearr['names'][index]] = fd;  
-        }
+      if(imagearr['base64s'][index] != undefined) {
+        devtracnodes.postImageFile(imagearr, index, nid).then(function (fd, imagename, ftrid) {
+          if(ftritemType.indexOf('road') != -1) {
+            upNodes['roadside'][imagearr['nid']][imagearr['names'][index]] = fd;
+          }else {
+            upNodes['sitevisits'][imagearr['nid']][imagearr['names'][index]] = fd;  
+          }
+          
+          index = parseInt(index, 10) + 1;
+          fds.push(fd);
+          fdn.push(imagename);
+          
+          if(parseInt(index, 10) === parseInt(imagearr['base64s'].length, 10)) {
+            callback(fds, fdn, ftrid, sid_date, sid, upNodes);  
+          }else {
+            devtracnodes.imagehelper(nid, index, fds, fdn, imagearr, sid_date, sid, ftritemType, upNodes, callback);
+          }
+          
+        }).fail(function(e) {
+          if(e == "Could not create destination directory") {
+            var newsitevisits = [];
+            devtracnodes.uploadsitevisits(db, sitevisits, newsitevisits, function(newsitevisits) {
+              $.unblockUI({ 
+                onUnblock: function() {
+                  document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+                }
+              
+              });
+            });
+            
+          }else{
+            
+            callback(e, "error", upNodes);
+            
+          }
+        });
+      }else {
         
-        index = index + 1;
-        fds.push(fd);
-        fdn.push(imagename);
+        console.log("index is "+index+" base64s is "+imagearr['base64s'].length);
         
-        if(parseInt(index, 10) === parseInt(imagearr['base64s'].length, 10)) {
+        if(parseInt(index, 10) == parseInt(imagearr['base64s'].length, 10)) {
           callback(fds, fdn, ftrid, sid_date, sid, upNodes);  
         }else {
+          index = parseInt(index, 10) + 1;
           devtracnodes.imagehelper(nid, index, fds, fdn, imagearr, sid_date, sid, ftritemType, upNodes, callback);
         }
-        
-      }).fail(function(e) {
-        if(e == "Could not create destination directory") {
-          var newsitevisits = [];
-          devtracnodes.uploadsitevisits(db, sitevisits, newsitevisits, function(newsitevisits) {
-            $.unblockUI({ 
-              onUnblock: function() {
-                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
-              }
-            
-            });
-          });
-          
-        }else{
-          
-          callback(e, "error", upNodes);
-          
-        }
-      });
+      }
+   
       
     },
     
     //create node
     postImageFile: function(images, index, nid) {
       var d = $.Deferred();
+      console.log("kitkat is "+images['kitkat'][index]);
+      console.log("image base64 is "+images['base64s'][index]);
+      console.log("image name is "+images['names'][index]);
       
       //if device runs kitkat android 4.4 use plugin to access image files
       if(images['kitkat'][index] == "has") {
@@ -1853,12 +1869,23 @@ var devtracnodes = {
         
       }else if(aObj.hasOwnProperty('uid')) {
         
-        nodestring = nodestring + 'node[uid]='+aObj['uid'];
+        nodestring = nodestring + 'node[uid]='+aObj['uid']+'&';
         delete aObj['uid'];
         
         devtracnodes.getActionItemString(aObj, nodestring, callback);
         
-      }else{
+      }else if(aObj.hasOwnProperty('field_action_items_tags')) {
+        var tags = aObj['field_action_items_tags'];
+        
+        var clean_tagstring = tags.replace(/,\s*$/, "");
+        
+        nodestring = nodestring + 'node[field_action_items_tags][und]='+clean_tagstring;
+        delete aObj['field_action_items_tags'];
+        
+        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        
+      }
+      else{
         console.log("actionitem callback "+nodestring);
         callback(nodestring, aObj['nid']);  
       }

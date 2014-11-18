@@ -2698,6 +2698,10 @@ var controller = {
         updates['field_actionitem_severity']['und'] = [];
         updates['field_actionitem_severity']['und'][0] = {};
         
+        updates['field_action_items_tags'] = {};
+        updates['field_action_items_tags']['und'] = [];
+        updates['field_action_items_tags']['und'][0] = {};
+        
         updates['field_actionitem_status'] = {};
         updates['field_actionitem_status']['und'] = [];
         updates['field_actionitem_status']['und'][0] = {};
@@ -2725,6 +2729,8 @@ var controller = {
         
         updates['field_actionitem_ftreportitem']['und'][0]['target_id'] = localStorage.currentsnid;
         updates['field_actionitem_resp_place']['und'][0]['target_id'] = localStorage.pnid;
+        
+        updates['field_action_items_tags'] = $("#actionitem_tags").val();
         
         var locationtype = localStorage.locationtype;
         if(locationtype.indexOf("user") != -1) {

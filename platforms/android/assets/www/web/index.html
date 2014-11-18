@@ -439,31 +439,53 @@ body {
 
   <!-- Edit site visit details -->
   <div data-role="page" id="page_sitevisit_edits">
-    <div data-role="header" id="header_editsitevisit">
-      <!-- <h3 title="Edit Site Visit">Edit Site Visit</h3> -->
-    </div>
+  <div data-role="panel" id="navpanel_editsitevisit" data-theme="b"
+      data-position="left" class="leftmenu"></div>
+      
+    <div data-role="header" id="header_editsitevisit"></div>
     <!-- /header -->
 
     <div data-role="content" class='content'>
       <form id="form_sitevisit_edits" method="" action="">
         <fieldset>
-          <label for='sitevisit_title'>Title</label> <input type='text' value=''
-            id='sitevisit_title' required/>
-            <label
-          for="placetypes">Location Types</label>
-        <div id='placetypes'></div>
-        
-             <label for='sitevisit_date'>Date
-            Visited</label> <input type='text' value='' id='sitevisit_date' readonly='true' required/> <label
-            for='sitevisit_summary'>Summary</label>
-            <textarea id="sitevisit_summary" rows="4" cols="12" required></textarea>
+          <label for='sitevisit_title'>Title</label> <input type='text' value='' id='sitevisit_title' required> <label for='sitevisit_date'>Date
+              Visited</label> <input type='text' value='' id='sitevisit_date' required /> <label for='sitevisit_summary'>Summary</label>
+            <textarea id="sitevisit_summary" name="sitevisit_summary" required></textarea>
+            
+            <label for='sitevisit_report'>Report</label>
+            <textarea id="sitevisit_report" name="sitevisit_report" required></textarea>
+<br/>
 
+
+        <div class="ui-grid-b ui-responsive">
+          <div class="ui-block-a">
+            <div
+              class="ui-btn ui-icon-plus ui-btn-icon-left ui-corner-all fileinput-button">
+              <span>Image: </span> <input type="file" name="editImageFile"
+                id="editImageFile" multiple="multiple">
+            </div>
+          </div>
+          <div>
+            <b id="orbold">OR</b>
+          </div>
+          <div class="ui-block-b">
+            <a data-role="button" class="takephotoedit">Take Photo</a>
+
+          </div>
+
+        </div>
+            
+            <div id="imagesEdits">
+            <ul data-role="listview" id="editimagefile_list" data-split-icon="delete" data-split-theme="a" data-inset="true">
+   
+</ul>
+            </div>
         </fieldset>
       </form>
       <input type="button" data-inline="true" data-theme="b"
         id="save_site_visit_edits" onclick="controller.onSitevisitedit();"
-        value="Save" /> <a href="#page_sitevisits_details" data-role="button" data-inline="true"
-        data-theme="a" id="cancel_site_visit_edits">Cancel</a>
+        value="Save" /> <a href="#page_sitevisits_details" data-role="button"
+        data-inline="true" data-theme="a" id="cancel_site_visit_edits">Cancel</a>
 
     </div>
     <!-- /content -->
@@ -584,7 +606,7 @@ body {
           name='actionitem_followuptask' required></textarea>
 
         <label for="actionitem_tags">Tags</label> <input type='text' value=''
-          id='actionitem_tags' /> <input data-inline="true" type="button"
+          id='actionitem_tags' placeholder="Comma separated values without spaces"/> <input data-inline="true" type="button"
           onclick="controller.onSaveactionitem();" value='Save' data-theme='b'
           id='action_item_save' /><input type="button" onclick=""
           value='Cancel' data-theme='b' data-inline="true"
