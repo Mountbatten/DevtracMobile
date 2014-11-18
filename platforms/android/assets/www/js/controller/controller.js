@@ -2235,15 +2235,22 @@ var controller = {
           maxDate: new Date(endyear, endmonth, endday) 
         });
         
-        controller.buildSelect("oecdobj", []);
+        if($('#select_oecds').children().length == 0) {
+          controller.buildSelect("oecdobj", []);  
+        }else{
+          $.mobile.changePage("#page_sitevisit_add", "slide", true, false);
+        }
         
         $('#sitevisit_add_report').html("Please provide a full report");
         $('#sitevisit_add_public_summary').html("Please Provide a small summary for the public");
         
       }
       else{
-        
-        controller.buildSelect("placetype", []);
+        if($('#location_placetypes').children().length == 0) {
+          controller.buildSelect("placetype", []);  
+        }else{
+          $.mobile.changePage("#page_add_location", "slide", true, false);
+        }
         
       }
       controller.resetForm($('#form_sitereporttype'));
