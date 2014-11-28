@@ -6,7 +6,7 @@ devtrac.indexedDB.db = null;
 
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 1;
+  var version = 3;
   
   var request = indexedDB.open("b12", version);
   
@@ -21,7 +21,7 @@ devtrac.indexedDB.open = function(callback) {
 //creating an object store
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 1;
+  var version = 3;
   
   var request = indexedDB.open("b12", version);
   
@@ -968,6 +968,9 @@ devtrac.indexedDB.editFieldtrip = function(db, fnid, updates) {
     if(updates['editflag'] != undefined){
       data.editflag = updates['editflag'];  
     }
+    if(updates['submit'] != undefined){
+      data.submit = updates['submit'];  
+    }
     
     // update the value(s) in the object that you want to change
     // Put this updated object back into the database.
@@ -1059,8 +1062,11 @@ devtrac.indexedDB.editPlace = function(db, pnid, updates) {
       }
     }
     
+    var trans2 = db.transaction(["placesitemsobj"], "readwrite");
+    var store2 = trans2.objectStore("placesitemsobj");
+    
     // Put this updated object back into the database.
-    var requestUpdate = store.put(data);
+    var requestUpdate = store2.put(data);
     requestUpdate.onerror = function(event) {
       // Do something with the error
       console.log("Place update failed");
@@ -1123,18 +1129,18 @@ devtrac.indexedDB.editSitevisit = function(db, snid, updates) {
       }
     }
     
+    var trans2 = db.transaction(["sitevisit"], "readwrite");
+    var store2 = trans2.objectStore("sitevisit");
+    
     // Put this updated object back into the database.
-    var requestUpdate = store.put(data);
+    var requestUpdate = store2.put(data);
     requestUpdate.onerror = function(event) {
       // Do something with the error
       console.log("Site visit update failed");
       d.reject();
     };
     requestUpdate.onsuccess = function(event) {
-      // Success - the data is updated!
-      //console.log("Site visit update success");
       
-      //store['delete'](snid);
       d.resolve();
     };
   };

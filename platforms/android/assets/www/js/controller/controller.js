@@ -47,8 +47,7 @@ var controller = {
       $("#header_login").html(header({id: "login", title: "Devtrac Mobile"}));
       $("#header_home").html(header({id: "home", title: "Home"}));
       $("#header_sync").html(header({id: "sync", title: "Sync Nodes"}));
-      $("#header_sitereports").html(header({extra_buttons: '<div id="sitenav" data-role="navbar" data-theme="a">'+
-        '<ul><li><a id="addquestionnaire"><i class="fa fa-list-alt fa-lg"></i>&nbsp&nbsp Questionnaire</a></li><li><a href="#mappage" class="panel_map" onclick="var state=false; var mapit = true; mapctlr.initMap(null, null, state, mapit);"><i class="fa fa-map-marker fa-lg"></i>&nbsp&nbsp Map</a></li></ul></div>', id: "sitereport", title: "Site Report"}));
+      $("#header_sitereports").prepend(header({id: "sitereport", title: "Site Report"}));
       $("#header_location").html(header({id: "location", title: "Locations"}));
       $("#header_about").html(header({id: "about", title: "About"}));
       $("#header_addlocation").html(header({id: "addlocation", title: "Locations"})); 
@@ -500,9 +499,11 @@ var controller = {
       });
       
       //initialise navbar for site visit details
-      $("#page_sitevisits_details").bind('pageinit', function(){
-        $("#sitenav").trigger('create');    
-        $("#sitenav").navbar();
+      $(document).on('pagebeforecreate', '#page_sitevisits_details', function() {
+        $("#sitenav").html('<ul>' +
+            '<li><a href="#page_add_questionnaire"><i class="fa fa-list-alt fa-lg"></i>&nbsp&nbsp Questionnaire</a></li>' +
+            '<li><a href="#mappage" class="panel_map" onclick="var state=false; var mapit = true; mapctlr.initMap(null, null, state, mapit);"><i class="fa fa-map-marker fa-lg"></i>&nbsp&nbsp Map</a></li>' +
+            '</ul>');
       });
       
       //empty image arrays on cancel of site visit edits
@@ -588,26 +589,8 @@ var controller = {
       
       //count nodes for upload before uploads page is shown
       $("#syncall_page").bind('pagebeforeshow', function(){
-        //$("#uploads_listview").listview().listview('refresh');
-        devtrac.indexedDB.open(function (db) {
-          
-          devtracnodes.countSitevisits(db).then(function(scount){
-            $("#sitevisit_count").html(scount);
-            
-            devtracnodes.countLocations(db).then(function(items) {
-              $("#location_count").html(items);
-            }).fail(function(lcount){
-              $("#location_count").html(lcount);
-            });
-            
-            devtracnodes.checkActionitems(db).then(function(actionitems, items) {
-              $("#actionitem_count").html(items);
-            }).fail(function(acount){
-              $("#actionitem_count").html(acount);
-            });
-          });
-        });
-        
+
+        controller.countAllNodes();
       });
       
       // on cancel action item click
@@ -628,13 +611,6 @@ var controller = {
         $('#viewlocation_back').show();
         
       });
-      
-      //On Questionnaire button click
-      $('#addquestionnaire').bind('click', function () { 
-        
-        $.mobile.changePage("#page_add_questionnaire", "slide", true, false);
-        
-      }); 
       
       //redownload the devtrac data
       $('.refresh-button').bind('click', function () {
@@ -1643,6 +1619,28 @@ var controller = {
       }
     },
     
+    //count nodes to be uploaded in the database and update counters on uploads page
+    countAllNodes: function(){
+      devtrac.indexedDB.open(function (db) {
+        
+        devtracnodes.countSitevisits(db).then(function(scount){
+          $("#sitevisit_count").html(scount);
+          
+          devtracnodes.countLocations(db).then(function(items) {
+            $("#location_count").html(items);
+          }).fail(function(lcount){
+            $("#location_count").html(lcount);
+          });
+          
+          devtracnodes.checkActionitems(db).then(function(actionitems, items) {
+            $("#actionitem_count").html(items);
+          }).fail(function(acount){
+            $("#actionitem_count").html(acount);
+          });
+        });
+      });  
+    },
+    
     //edit location
     editlocations: function(anchor){
       var pnidarray = $(anchor).prev("a").attr("id");
@@ -2204,6 +2202,17 @@ var controller = {
             }
           }
           sitevisitList.listview('refresh');
+          
+          var sitevisit_list = sitevisitList.children().length;
+          if(sitevisit_list == 0) {
+            
+            $("#list_sitevisits").prev("form.ui-filterable").hide();
+            
+          }else {
+            
+            $("#list_sitevisits").prev("form.ui-filterable").show();
+            
+          }
         });
       });
     },
@@ -3091,7 +3100,7 @@ var controller = {
       
       updates['user-added'] = true;
       updates['nid'] = 1;
-      
+      updates['fresh_nid'] = "";
       updates['title'] = ftritemtype+" at "+title;
       updates['status'] = 1;
       updates['type'] = 'ftritem';
