@@ -202,6 +202,13 @@ module.exports = [
         "clobbers": [
             "FileChooser"
         ]
+    },
+    {
+        "file": "plugins/com.phonegap.plugins.barcodescanner/www/barcodescanner.js",
+        "id": "com.phonegap.plugins.barcodescanner.BarcodeScanner",
+        "clobbers": [
+            "cordova.plugins.barcodeScanner"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -212,7 +219,8 @@ module.exports.metadata =
     "org.apache.cordova.file": "1.3.1",
     "org.apache.cordova.geolocation": "0.3.10",
     "org.apache.cordova.network-information": "0.2.13",
-    "com.cesidiodibenedetto.filechooser": "1.0.0"
+    "com.cesidiodibenedetto.filechooser": "1.0.0",
+    "com.phonegap.plugins.barcodescanner": "2.0.1"
 }
 // BOTTOM OF METADATA
 });
