@@ -59,6 +59,24 @@ var controller = {
 
       $(window).bind('orientationchange pageshow pagechange resize', mapctlr.resizeMapIfVisible);
       
+      //Bind to window orientation change after the qr codes are scanned. 
+      $(window).on("orientationchange", function(){
+        console.log("the orientation has changed "+localStorage.qrcodes);
+        var qrcode_status = localStorage.qrcodes;
+        if(qrcode_status == "on"){
+          var orientation = window.orientation;
+          var new_orientation = (orientation) ? 0 : 180 + orientation;
+          $('body').css({
+              "-webkit-transform": "rotate(" + new_orientation + "deg)"
+          });
+          
+          localStorage.qrcodes = "off";
+          
+          console.log("the orientation has changed");
+        }
+        
+      });
+      
       //return date in ISO format
       Date.prototype.yyyymmdd = function() {         
         
@@ -3384,22 +3402,27 @@ var controller = {
     // device ready event handler
     onDeviceReady: function () {
       if(controller.checkCordova() != undefined) {
+
+        //start qr scan
+        $('#qr_code').bind('click', function(){
+          cordova.plugins.barcodeScanner.scan(
+              function (result) {
+                  alert("We got a barcode\n" +
+                        "Result: " + result.text + "\n" +
+                        "Format: " + result.format + "\n" +
+                        "Cancelled: " + result.cancelled);
+                  
+                  localStorage.qrcodes = "on";
+                  $( window ).orientationchange();
+              }, 
+              function (error) {
+                  alert("Scanning failed: " + error);
+              }
+           );
+        });
+        
         //if device runs kitkat android 4.4 use plugin to access image files
         if( device.platform.toLowerCase() === 'android' && device.version.indexOf( '4.4' ) === 0 ) {
-          //start qr scan
-          $('#qr_code').bind('click', function(){
-            cordova.plugins.barcodeScanner.scan(
-                function (result) {
-                    alert("We got a barcode\n" +
-                          "Result: " + result.text + "\n" +
-                          "Format: " + result.format + "\n" +
-                          "Cancelled: " + result.cancelled);
-                }, 
-                function (error) {
-                    alert("Scanning failed: " + error);
-                }
-             );
-          });
           
           $('#roadsidefile').click( function(e) {
             filechooser.open( {}, function(data){
