@@ -88,4 +88,22 @@ body .ui-li .ui-li-desc {
   margin-left: 28px;
 }
 
+#qr_code {
+    width: 200px !important;
+    height: 200px !important;
+    border-radius: 50% !important;
+    background:url(../images/scan2.png) center center no-repeat;
+    left: 10%;
+    top: 30%;
+}
+
+#qr_code span span {
+    height: 100px !important;  
+    line-height: 70px;
+}
+
+#custom-menu { 
+  left: 85%;
+  top: 75%;
+}
  
