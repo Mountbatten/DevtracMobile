@@ -940,30 +940,18 @@ var devtracnodes = {
         });
         
       }else if(controller.sizeme(actionitems) > 0) {
-        var count = 0;
-        for(var actionitem in actionitems) {
-          
-          if(controller.sizeme(actionitems[actionitem]) > 0) {
-            var updates = {};
-            updates['nid'] = actionitems[actionitem]['nid'];
-            updates['submit'] = 1;
-            
-            devtrac.indexedDB.open(function (db) {
-              devtrac.indexedDB.editActionitem(db, parseInt(actionitem), updates).then(function() {
-                controller.countAllNodes();
-                count = count + 1;
-                if(count == controller.sizeme(actionitems)) {
-                  syncData['actionitems'] = [];
-                  devtracnodes.updateSyncData(syncData)
-                }
-              });           
+        devtracnodes.getNodeUpdates('actionitems', actionitems, function(actionitemData) {
+          devtrac.indexedDB.open(function (db) {
+          devtracnodes.clearUploadedActionitems(db, actionitemData['ids'], actionitemData['updates'], function() {
+
+              syncData['actionitems'] = [];
+              devtracnodes.updateSyncData(syncData)
+              
             }); 
-          }else {
-            controller.loadingMsg("Actionitems Sync Error; Please re-upload.", 2000);
-            devtracnodes.updateSyncData(syncData); 
-          }   
-          
-        } 
+          });
+
+        });
+        
       }else if(controller.sizeme(fieldtrips) > 0) {
         for(var fieldtrip in fieldtrips) {
         if(controller.sizeme(fieldtrips[fieldtrip]) > 0) {
@@ -1077,6 +1065,27 @@ var devtracnodes = {
       }
       
     },
+
+    //mark uploaded actionitems as completed in the dB
+    clearUploadedActionitems: function(db, actionIds, updates, callback) {
+      if(actionIds.length > 0) {
+          
+            updates['submit'] = 1;
+            updates['fresh_nid'] = updates['nid'][0]['nid'];
+            devtrac.indexedDB.editActionitem(db, parseInt(actionIds[0]), updates).then(function() {
+              actionIds.splice(0, 1);
+              updates['nid'].splice(0, 1);
+              controller.countAllNodes();
+              
+              devtracnodes.clearUploadedActionitems(db, actionIds, updates, callback);
+            });   
+
+         
+      }else {
+        callback();
+      }
+      
+    },
     
     //Get node updates
     getNodeUpdates: function(nodeType, nodeObject, callback) {
@@ -1149,38 +1158,27 @@ var devtracnodes = {
         
         callback(nodeUpdates);
         
-      }else if(nodetype == 'actionitem'){
-        var count = 0;
-        for(var actionitem in actionitems) {
-          count = count + 1;
-          if(controller.sizeme(actionitems[actionitem]) > 0) {
-            var updates = {};
-            updates['nid'] = actionitems[actionitem]['nid'];
-            updates['submit'] = 1;
-            
-            devtrac.indexedDB.open(function (db) {
-              devtrac.indexedDB.editActionitem(db, parseInt(actionitem), updates).then(function() {
-                controller.countAllNodes();
-                
-                $.unblockUI({ 
-                  onUnblock: function() {
-                    document.removeEventListener("backbutton", controller.onBackKeyDown, false);
-                  }
-                
-                });
-                
-              });           
-            }); 
-          }else {
+      }else if(nodeType == 'actionitems') {
+        
+        var action_ids = [];
+        updates['nid'] = [];
+        
+        for(var actionitem in nodeObject) {
+          if(nodeObject[actionitem]['nid'] != "") {
+            action_ids.push(actionitem);
+            updates['nid'].push(nodeObject[actionitem]);  
+          } else {
             controller.loadingMsg("Actionitems Sync Error; Please re-upload.", 2000);
-          }   
-          
-          if(count == controller.sizeme(actionitems)){
-            syncData['actionitems'] = [];
-            devtracnodes.updateSyncData(syncData)
           }
         }
+        
+        nodeUpdates['ids'] = action_ids;
+        nodeUpdates['updates'] = updates;
+        
+        callback(nodeUpdates);
+        
       }
+      
     },
     
     sanitizeSitevisits: function(sitevisitObject){
@@ -1948,12 +1946,17 @@ var devtracnodes = {
       }else if(aObj.hasOwnProperty('field_action_items_tags')) {
         var tags = aObj['field_action_items_tags'];
         
-        var clean_tagstring = tags.replace(/,\s*$/, "");
-        
-        nodestring = nodestring + 'node[field_action_items_tags][und]='+clean_tagstring;
-        delete aObj['field_action_items_tags'];
-        
-        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        if(tags.length > 0) {
+          var clean_tagstring = tags.replace(/,\s*$/, "");
+          
+          nodestring = nodestring + 'node[field_action_items_tags][und]='+clean_tagstring;
+          delete aObj['field_action_items_tags'];
+          
+          devtracnodes.getActionItemString(aObj, nodestring, callback);  
+        }else {
+          delete aObj['field_action_items_tags'];
+          devtracnodes.getActionItemString(aObj, nodestring, callback);
+        }
         
       }
       else{

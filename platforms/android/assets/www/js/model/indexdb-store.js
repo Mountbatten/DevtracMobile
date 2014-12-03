@@ -1008,7 +1008,7 @@ devtrac.indexedDB.editActionitem = function(db, anid, updates) {
     // Get the old value that we want to update
     var data = request.result;
     data.submit = updates['submit'];
-    data['fresh_nid'] = updates['nid'];
+    data['fresh_nid'] = updates['fresh_nid'];
     
     // Put this updated object back into the database.
     var requestUpdate = store.put(data);
