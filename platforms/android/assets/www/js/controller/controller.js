@@ -36,9 +36,8 @@ var controller = {
       
     },
     
-    // Application Constructor
+    //Application Constructor
     initialize: function () {
-      
       //initialise section for templates
       var leftMenu = Handlebars.compile($("#leftmenu-tpl").html()); 
       $(".leftmenu").html(leftMenu());
@@ -1786,6 +1785,12 @@ var controller = {
     //cordova offline event
     onOffline: function() {
       controller.connectionStatus = false;
+      $.unblockUI({ 
+        onUnblock: function() {
+          document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+        }
+      
+      });
       controller.loadingMsg("You are offline. Connect to Upload and Download your Data", 2000);
       
     },
@@ -2714,10 +2719,6 @@ var controller = {
         updates['field_actionitem_severity']['und'] = [];
         updates['field_actionitem_severity']['und'][0] = {};
         
-        updates['field_action_items_tags'] = {};
-        updates['field_action_items_tags']['und'] = [];
-        updates['field_action_items_tags']['und'][0] = {};
-        
         updates['field_actionitem_status'] = {};
         updates['field_actionitem_status']['und'] = [];
         updates['field_actionitem_status']['und'][0] = {};
@@ -2741,12 +2742,16 @@ var controller = {
         updates['field_actionitem_severity']['und'][0]['value'] = $("#actionitem_priority").val();
         updates['field_actionitem_responsible']['und'][0]['target_id'] = localStorage.realname+" ("+localStorage.uid+")";
         updates['taxonomy_vocabulary_8']['und'][0]['tid'] = $("#select_oecdobj :selected").val();
-        //updates['taxonomy_vocabulary_6']['und'][0]['tid'] = '32';
         
         updates['field_actionitem_ftreportitem']['und'][0]['target_id'] = localStorage.currentsnid;
         updates['field_actionitem_resp_place']['und'][0]['target_id'] = localStorage.pnid;
         
-        updates['field_action_items_tags'] = $("#actionitem_tags").val();
+        var tags = $("#actionitem_tags").val();
+        if(tags.length > 0) {
+          updates['field_action_items_tags'] = tags;  
+        }else {
+          updates['field_action_items_tags'] = "";
+        }
         
         var locationtype = localStorage.locationtype;
         if(locationtype.indexOf("user") != -1) {
@@ -3492,8 +3497,15 @@ var controller = {
       //notify if network connection is down
       if(navigator.network.connection.type == Connection.NONE) {
         controller.loadingMsg("Sorry, you are offline", 2000);
+        $.unblockUI({ 
+          onUnblock: function() {
+            document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+          }
+        
+        });
         
         controller.connectionStatus = false;
+        
       } else {
         controller.connectionStatus = true;
       }
