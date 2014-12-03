@@ -91,6 +91,40 @@ body {
 -->
 
 
+   <!-- Page Loading  -->
+  <div data-role="page" id="page_loading">
+
+    <div data-role="content" class='content'>
+
+    <div id="loader"></div>
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+<!-- Page Scan or Login  -->
+  <div data-role="page" id="page_scanner">
+  <div data-role="header" id="header_login">
+  
+  </div>
+    <div data-role="content" class='content'>
+
+    <ul data-role="listview" id="list_sitevisits" data-inset="true">
+    <li data-icon="false" id="qr_code"><a><i class="fa fa-rocket fa-fw"></i> &nbsp Scan QR Code</a>
+    </li>
+    
+    <li data-icon="false" id="alt_login"><a href="#page_login"><i class="fa fa-key fa-fw"></i> &nbsp Login</a>
+    </li>
+    </ul>
+    
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+
+
   <!-- Page Login  -->
   <div data-role="page" id="page_login">
 
@@ -927,7 +961,6 @@ body {
 
   <script src="libs/jquery-1.7.2.min.js"></script>
   <script type="text/javascript" src="libs/tinymce/tinymce.min.js"></script>
-
 
   <script type="text/javascript">
       //Attempt to fix transition flicker

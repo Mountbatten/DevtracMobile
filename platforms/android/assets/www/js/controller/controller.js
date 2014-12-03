@@ -195,6 +195,9 @@ var controller = {
             $("#page_login_pass").val(window.localStorage.getItem("passw"));  
           }
           
+          //move to login page
+          $.mobile.changePage($("#page_scanner"), {changeHash: false});
+          
         });
         
       }else
@@ -310,7 +313,7 @@ var controller = {
     
     //Bind any events that are required on startup
     bindEvents: function () {
-      
+
       $(".menulistview").listview().listview('refresh');
       
       if($(".seturlselect option:selected").val() == "custom") {
@@ -678,6 +681,15 @@ var controller = {
         
       });
       
+      //hide first page after loading
+      $( "#page_fieldtrip_details" ).bind("pagebeforeshow", function (e, ui) {
+        
+        if (typeof ui.prevPage[0] !== "undefined" && ui.prevPage[0].id == "page_loading") {
+          console.log("page id "+ui.prevPage[0].id);
+          
+          $(ui.prevPage).remove();
+        }
+      });
       
       //validate field to set urls for annonymous users
       var form = $("#urlForm");
@@ -2084,8 +2096,6 @@ var controller = {
               
               $.mobile.changePage($("#page_fieldtrip_details"), {changeHash: false});
               
-              //$("body").pagecontainer("change", $("#page_fieldtrip_details"), {changeHash: false});
-              
               $.unblockUI({ 
                 onUnblock: function() {
                   document.removeEventListener("backbutton", controller.onBackKeyDown, false);
@@ -3381,6 +3391,20 @@ var controller = {
       if(controller.checkCordova() != undefined) {
         //if device runs kitkat android 4.4 use plugin to access image files
         if( device.platform.toLowerCase() === 'android' && device.version.indexOf( '4.4' ) === 0 ) {
+          //start qr scan
+          $('#qr_code').bind('click', function(){
+            cordova.plugins.barcodeScanner.scan(
+                function (result) {
+                    alert("We got a barcode\n" +
+                          "Result: " + result.text + "\n" +
+                          "Format: " + result.format + "\n" +
+                          "Cancelled: " + result.cancelled);
+                }, 
+                function (error) {
+                    alert("Scanning failed: " + error);
+                }
+             );
+          });
           
           $('#roadsidefile').click( function(e) {
             filechooser.open( {}, function(data){

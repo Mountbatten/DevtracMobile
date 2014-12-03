@@ -27,4 +27,7 @@
     <feature name="FileChooser">
         <param name="android-package" value="com.cesidiodibenedetto.filechooser.FileChooser" />
     </feature>
+    <feature name="BarcodeScanner">
+        <param name="android-package" value="com.phonegap.plugins.barcodescanner.BarcodeScanner" />
+    </feature>
 </widget>
