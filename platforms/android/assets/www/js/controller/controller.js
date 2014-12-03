@@ -123,6 +123,7 @@ var controller = {
           $("#barsbutton_login").show();
           
           devtracnodes.countFieldtrips().then(function(){
+            
             devtracnodes.countOecds().then(function() {
               
               //load field trip details from the database if its one and the list if there's more.
@@ -195,15 +196,20 @@ var controller = {
             $("#page_login_pass").val(window.localStorage.getItem("passw"));  
           }
           
+          if(controller.checkCordova() != undefined) {
+          //move to scanner page
+            $.mobile.changePage($("#page_scanner"), {changeHash: false});  
+          }else {
           //move to login page
-          $.mobile.changePage($("#page_scanner"), {changeHash: false});
+            $.mobile.changePage($("#page_login"), {changeHash: false});
+          }
           
         });
         
       }else
       {
         
-        if(window.localStorage.getItem("username") != null && window.localStorage.getItem("pass") != null){
+        if(window.localStorage.getItem("username") != null && window.localStorage.getItem("pass") != null) {
           controller.loadingMsg("You are offline, cannot upload data. Now using offline data", 6000);
           
           $("#barsbutton_login").hide();
@@ -1912,7 +1918,7 @@ var controller = {
     
     //load field trip details from the database if its one and show list if there's more.
     loadFieldTripList: function () {
-      
+      console.log('loading field trip list');
       devtrac.indexedDB.open(function (db) {
         
         devtrac.indexedDB.getAllFieldtripItems(db, function (data) {
@@ -2048,11 +2054,11 @@ var controller = {
                   //if there are no site visitss hide the filter
                   if(sitevisit.length == 0) {
                     
-                    $("#list_sitevisits").prev("form.ui-filterable").hide();
+                    sitevisitList.prev("form.ui-filterable").hide();
                     
                   }else {
                     
-                    $("#list_sitevisits").prev("form.ui-filterable").show();
+                    sitevisitList.prev("form.ui-filterable").show();
                     
                   }
                   
