@@ -928,7 +928,7 @@ var controller = {
                   '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
                   '</li>';
                   
-                  controller.addImageEdits(listitem);
+                  controller.addImageEdits('edit',listitem);
                   
                 }
                 
@@ -1468,16 +1468,7 @@ var controller = {
       var imagename = "img_"+datetime+".jpeg";
       // Get image handle
       var reporttype = localStorage.reportType;
-      if(reporttype.indexOf('oa') != -1) 
-      {
-        controller.filenames.push(imagename);
-        controller.base64Images.push(imageData);
-        controller.imageSource.push("hasnot");
-        
-        $("#uploadPreview").append('<div>'+imagename+'</div>');
-        
-        //if we are adding images from edited site visit
-      }else if(localStorage.editsitevisitimages == "true"){
+      if(localStorage.editsitevisitimages == "true") {
         console.log("edit site photo");
         var ftritem_type = localStorage.reportType;
         var listitem = "";
@@ -1501,15 +1492,27 @@ var controller = {
         '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
         '</li>';
         
-        controller.addImageEdits(listitem);
+        controller.addImageEdits('edit',listitem);
       }
       else
       {
-        controller.fnames.push(imagename);
-        controller.b64Images.push(imageData);
-        controller.imageSrc.push("hasnot");
+        if(reporttype.indexOf('oa') != -1) 
+        {
+          controller.filenames.push(imagename);
+          controller.base64Images.push(imageData);
+          controller.imageSource.push("hasnot");
+          
+          $("#uploadPreview").append('<div>'+imagename+'</div>');
+          
+          //if we are adding images from edited site visit
+        }else {
+          controller.fnames.push(imagename);
+          controller.b64Images.push(imageData);
+          controller.imageSrc.push("hasnot");
+          
+          $("#imagePreview").append('<div>'+imagename+'</div>'); 
+        }
         
-        $("#imagePreview").append('<div>'+imagename+'</div>');
       }
     },
     
@@ -1713,6 +1716,22 @@ var controller = {
         s = ~~(file.size/1024) +'KB';
         
         if(status == 'edit') {
+          if(ftritemtype == "roadside")
+          {
+            controller.filenames.push(n);
+            controller.base64Images.push(image.src);
+            controller.filesizes.push(~~(file.size/1024));
+            controller.imageSource.push("has");
+            
+          }else
+          {
+            controller.fnames.push(n);
+            controller.b64Images.push(image.src);
+            controller.fsizes.push(~~(file.size/1024));
+            controller.imageSrc.push("has");
+           
+          }
+          
           var listitem = "";
           
           listitem = ' <li><a href="#">'+
@@ -1721,26 +1740,26 @@ var controller = {
           '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
           '</li>';
           
-          controller.addImageEdits(listitem);
-        }
-        
-        if(ftritemtype == "roadside")
-        {
-          controller.filenames.push(n);
-          controller.base64Images.push(image.src);
-          controller.filesizes.push(~~(file.size/1024));
-          controller.imageSource.push("has");
-          
-          $("#uploadPreview").append('<div>'+n+" "+~~(file.size/1024)+'kb</div>');
-          
-        }else
-        {
-          controller.fnames.push(n);
-          controller.b64Images.push(image.src);
-          controller.fsizes.push(~~(file.size/1024));
-          controller.imageSrc.push("has");
-          
-          $("#imagePreview").append('<div>'+n+" "+~~(file.size/1024)+'kb</div>');
+          controller.addImageEdits('edit',listitem);
+        }else {
+          if(ftritemtype == "roadside")
+          {
+            controller.filenames.push(n);
+            controller.base64Images.push(image.src);
+            controller.filesizes.push(~~(file.size/1024));
+            controller.imageSource.push("has");
+            
+            $("#uploadPreview").append('<div>'+n+" "+~~(file.size/1024)+'kb</div>');
+            
+          }else
+          {
+            controller.fnames.push(n);
+            controller.b64Images.push(image.src);
+            controller.fsizes.push(~~(file.size/1024));
+            controller.imageSrc.push("has");
+            
+            $("#imagePreview").append('<div>'+n+" "+~~(file.size/1024)+'kb</div>');
+          } 
         }
         
       };
@@ -1748,9 +1767,14 @@ var controller = {
     },
     
     //Add image item to edit site visits images list
-    addImageEdits: function(data) {
-      $("#editimagefile_list").append(data);
-      $("#editimagefile_list").listview().listview('refresh');
+    addImageEdits: function(imagetype, data) {
+      if(imagetype == 'edit'){
+        $("#editimagefile_list").append(data);
+        $("#editimagefile_list").listview().listview('refresh');  
+      }else {
+        
+      }
+      
       
     },
     
@@ -3510,8 +3534,6 @@ var controller = {
           
           //handle file chooser for edited site visits
           $('#editImageFile').bind('click', function(e) {
-            
-            if(controller.checkCordova() != undefined) {
               var currentdate = new Date(); 
               var datetime = currentdate.getDate()
               + (currentdate.getMonth()+1)
@@ -3547,31 +3569,11 @@ var controller = {
                 '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
                 '</li>';
                 
-                controller.addImageEdits(listitem);
+                controller.addImageEdits('edit',listitem);
                 
               }, function(error) {
                 alert(error);
               });
-              
-            }else {
-              
-              var ftritem_type = localStorage.reportType;
-              
-              if(ftritem_type.indexOf("oa") != -1) {
-                
-                if(this.disabled) return alert('File upload not supported!');
-                var F = this.files;
-                if(F && F[0]) for(var i=0; i<F.length; i++) controller.readImage( F[i], "roadside" );
-                
-                
-              }else {
-                if(this.disabled) return alert('File upload not supported!');
-                var F = this.files;
-                if(F && F[0]) for(var i=0; i<F.length; i++) controller.readImage( F[i], "other" );
-                
-              }
-              
-            }
             
           });
           

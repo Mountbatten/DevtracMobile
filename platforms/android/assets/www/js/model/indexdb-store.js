@@ -721,16 +721,13 @@ devtrac.indexedDB.editImage = function(db, inid, updates, newImages) {
           }
         }
         
-        for(var mark in updates['names']){
+        for(var mark in updates['names']) {
           console.log("saving images "+updates['names'][mark]);
           
           data['names'].push(updates['names'][mark]);
           data['base64s'].push(updates['base64s'][mark]);
-          if(updates['base64s'].indexOf('data') != -1){
-            data['kitkat'].push("has");
-          }else{
-            data['kitkat'].push("hasnot");
-          }
+          data['kitkat'].push(updates['kitkat'][mark]);
+          
         }
       }
       if(key == "title"){
