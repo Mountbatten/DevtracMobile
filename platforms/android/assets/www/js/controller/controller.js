@@ -363,6 +363,10 @@ var controller = {
       
       //stop gps
       $("#cancel_addlocation").on('click', function(){
+        controller.fnames = [];
+        controller.b64Images = [];
+        controller.fsizes = [];
+        controller.imageSrc = [];
         
         controller.clearWatch();
         
@@ -2278,6 +2282,20 @@ var controller = {
     
     //handle submit of site report type
     submitSitereporttype: function() {
+      //empty roadside images
+      controller.filenames = [];
+      controller.base64Images = [];
+      controller.filesizes = [];
+      controller.imageSource = [];
+     
+      //empty other site visit images
+      controller.fnames = [];
+      controller.b64Images = [];
+      controller.fsizes = [];
+      controller.imageSrc = [];
+      
+      //clear images list for human interest stories and site visits
+      $("#imagePreview_list").empty();
       
       localStorage.ftritem = $("#sitevisit_add_type :selected").text();
       localStorage.ftritemtype = $("#sitevisit_add_type :selected").val();
