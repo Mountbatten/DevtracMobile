@@ -240,7 +240,7 @@ var devtracnodes = {
             if(ftritems[ftritem]['fresh_nid'] != undefined) {
               fresh_nid = ftritems[ftritem]['fresh_nid'];
             }
-            if((ftritems[ftritem]['submit'] == 0 && ftritems[ftritem]['user-added'] == true && ftritems[ftritem]['taxonomy_vocabulary_7']['und'][0]['tid'] == localStorage.roadside) || ftritems[ftritem]['editflag'] == 1 || (fresh_nid.length == 0 && ftritems[ftritem]['user-added'] == true)) {              
+            if((ftritems[ftritem]['submit'] == 0 && ftritems[ftritem]['user-added'] == true && ftritems[ftritem]['taxonomy_vocabulary_7']['und'][0]['tid'] == localStorage.roadside) || ftritems[ftritem]['editflag'] == 1) {              
               sitevisits.push(ftritems[ftritem]);
             }
             
