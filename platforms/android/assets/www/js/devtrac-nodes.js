@@ -1789,10 +1789,10 @@ var devtracnodes = {
               nodestring = nodestring + 'node['+p+'][und][0][geom]='+pObj[p]['und'][0]['geom']+'&';
               break;
             case 'taxonomy_vocabulary_6':
-              nodestring = nodestring + 'node['+p+'][und][0][tid]='+pObj[p]['und'][0]['tid']+'&';
+              nodestring = nodestring + 'node['+p+'][und][tid]='+pObj[p]['und'][0]['tid']+'&';
               break;
             case 'taxonomy_vocabulary_1':
-              nodestring = nodestring + 'node['+p+'][und][0][tid]='+pObj[p]['und'][0]['tid']+'&';
+              nodestring = nodestring + 'node['+p+'][und][tid]='+pObj[p]['und'][0]['tid']+'&';
               break;
             default :
               break
