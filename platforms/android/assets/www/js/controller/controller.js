@@ -1475,6 +1475,7 @@ var controller = {
     
     //camera functions
     onPhotoDataSuccess: function(imageData) {
+      console.log("the image data is here");
       
       var currentdate = new Date(); 
       var datetime = currentdate.getDate()
@@ -1486,11 +1487,13 @@ var controller = {
       
       var editedImages = localStorage.editsitevisitimages;
       var imagename = "img_"+datetime+".jpeg";
+      
       // Get image handle
-      var reporttype = localStorage.reportType;
+      var ftritem_type = localStorage.ftritem;
+      
       if(editedImages == "true") {
         console.log("edit site photo");
-        var ftritem_type = localStorage.reportType;
+        
         var listitem = "";
         
         if(ftritem_type.indexOf("oa") != -1) {
@@ -1524,7 +1527,7 @@ var controller = {
         '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
         '</li>';
         
-        if(reporttype.indexOf('oa') != -1) 
+        if(ftritem_type.indexOf('oa') != -1) 
         {
           controller.filenames.push(imagename);
           controller.base64Images.push(imageData);
