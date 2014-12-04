@@ -196,13 +196,8 @@ var controller = {
             $("#page_login_pass").val(window.localStorage.getItem("passw"));  
           }
           
-          if(controller.checkCordova() != undefined) {
-          //move to scanner page
-            $.mobile.changePage($("#page_scanner"), {changeHash: false});  
-          }else {
-          //move to login page
-            $.mobile.changePage($("#page_login"), {changeHash: false});
-          }
+          //move to manual and qr code login page
+          $.mobile.changePage($("#page_scanner"), {changeHash: false});
           
         });
         
@@ -324,7 +319,7 @@ var controller = {
       
       if($(".seturlselect option:selected").val() == "custom") {
         $(".myurl").show();  
-      }else{
+      }else {
         $(".myurl").hide();
       }
       
@@ -552,6 +547,9 @@ var controller = {
           el.val('demo').selectmenu('refresh');
           
         }else if(url.indexOf("local") != -1 || url.indexOf("10.0.2") != -1 || url.indexOf("192.168") != -1) {
+          
+          $(".myurl").show();  
+          
           //show custom url in the textfield
           $(".myurl").val(localStorage.appurl);
           
@@ -580,6 +578,9 @@ var controller = {
           el.val('manual').selectmenu('refresh');
           
         }else if(url.indexOf("dt13") != -1 || url.indexOf("local") != -1 || url.indexOf("10.0.2") != -1 || url.indexOf("192.168") != -1) {
+          
+          $(".myurl").show();  
+          
           //show custom url in the textfield
           $(".myurl").val(localStorage.appurl);
           
@@ -3395,22 +3396,90 @@ var controller = {
     // device ready event handler
     onDeviceReady: function () {
       if(controller.checkCordova() != undefined) {
+        //start qr scan
+        $('#qr_code').bind('click', function(){
+          cordova.plugins.barcodeScanner.scan(
+              function (result) {
+                
+              var jsonObject = JSON.parse(result.text);
+              var loginValues = {};
+              
+              for(var item in jsonObject) {
+                loginValues[item] = jsonObject[item];
+              }
+              
+              localStorage.appurl = loginValues['url'];
+              auth.login(loginValues['name'], loginValues['key']).then(function() {
+                
+                devtracnodes.countFieldtrips().then(function(){
+                  devtracnodes.countOecds().then(function() {
+                    
+                    //load field trip details from the database if its one and the list if there's more.
+                    controller.loadFieldTripList();                    
+                  }).fail(function() {
+                    //download all devtrac data for user.
+                    controller.fetchAllData().then(function(){
+                      devtracnodes.countOecds().then(function() {
+                        
+                        //load field trip details from the database if its one and the list if there's more.
+                        controller.loadFieldTripList();                    
+                      }).fail(function() {
+
+                        controller.loadingMsg("Subjects were not found", 2000);
+                        
+                        
+                        setTimeout(function() {
+                          auth.logout();
+                          
+                        }, 2000);
+                        
+                      });
+                    }).fail(function(error) {
+                      auth.logout();
+                      controller.loadingMsg(error,5000);
+                      
+                    });
+                    
+                  });
+                  
+                }).fail(function() {
+                  //download all devtrac data for user.
+                  controller.fetchAllData().then(function(){
+                    
+                    devtracnodes.countOecds().then(function() {
+                      
+                      //load field trip details from the database if its one and the list if there's more.
+                      controller.loadFieldTripList();                    
+                    }).fail(function() {
+                      
+                      controller.loadingMsg("Subjects were not found", 2000);
+                      
+                      setTimeout(function() {
+                        auth.logout();
+                        
+                      }, 2000);
+                      
+                    });
+                  }).fail(function(error) {
+                    auth.logout();
+                    controller.loadingMsg(error,5000);
+                    
+                  });
+                  
+                });
+              }).fail(function() {
+
+              });
+              
+              }, 
+              function (error) {
+                  alert("Scanning failed: " + error);
+              }
+           );
+        });
+        
         //if device runs kitkat android 4.4 use plugin to access image files
         if( device.platform.toLowerCase() === 'android' && device.version.indexOf( '4.4' ) === 0 ) {
-          //start qr scan
-          $('#qr_code').bind('click', function(){
-            cordova.plugins.barcodeScanner.scan(
-                function (result) {
-                    alert("We got a barcode\n" +
-                          "Result: " + result.text + "\n" +
-                          "Format: " + result.format + "\n" +
-                          "Cancelled: " + result.cancelled);
-                }, 
-                function (error) {
-                    alert("Scanning failed: " + error);
-                }
-             );
-          });
           
           $('#roadsidefile').click( function(e) {
             filechooser.open( {}, function(data){
