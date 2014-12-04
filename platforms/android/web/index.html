@@ -788,7 +788,11 @@ body {
 </div>
 
         <br>
-        <div id="imagePreview"></div>
+        
+        <div id="imagePreviews">
+        <ul data-role="listview" id="imagePreview_list" data-split-icon="delete" data-split-theme="a" data-inset="true"></ul>
+        </div>
+        
         <div id="uploaderror" style="color: red"></div>
         <input type='button' onclick="controller.onSavelocation();" value='Save'
           id='location_item_save' data-inline="true" data-theme='b' /> <a id="cancel_addlocation"

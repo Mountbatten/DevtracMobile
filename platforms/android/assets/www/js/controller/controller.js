@@ -854,7 +854,7 @@ var controller = {
         
       });
       
-      //read image from roadside visit
+      //read image from site visit and human interest story
       $('#sitevisitfile').on('change', function(event, ui) {
         if(this.disabled) return alert('File upload not supported!');
         var F = this.files;
@@ -1757,8 +1757,18 @@ var controller = {
             controller.b64Images.push(image.src);
             controller.fsizes.push(~~(file.size/1024));
             controller.imageSrc.push("has");
+          
+            var listitem = "";
             
-            $("#imagePreview").append('<div>'+n+" "+~~(file.size/1024)+'kb</div>');
+            listitem = ' <li><a href="#">'+
+            '<img src="'+ image.src +'" style="width: 80px; height: 80px;">'+
+            '<h2><div style="white-space:normal; word-wrap:break-word; overflow-wrap: break-word;">'+n+'</div></h2></a>'+
+            '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
+            '</li>';
+            
+            controller.addImageEdits('other',listitem);
+            
+//            $("#imagePreview").append('<div>'+n+" "+~~(file.size/1024)+'kb</div>');
           } 
         }
         
@@ -1771,7 +1781,10 @@ var controller = {
       if(imagetype == 'edit'){
         $("#editimagefile_list").append(data);
         $("#editimagefile_list").listview().listview('refresh');  
-      }else {
+      }else if(imagetype == 'other'){
+        $("#imagePreview_list").append(data);
+        $("#imagePreview_list").listview().listview('refresh');
+      }else if(imagetype == 'roadside'){
         
       }
       
