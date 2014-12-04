@@ -196,8 +196,13 @@ var controller = {
             $("#page_login_pass").val(window.localStorage.getItem("passw"));  
           }
           
+          if(controller.checkCordova() != undefined) {
           //move to manual and qr code login page
-          $.mobile.changePage($("#page_scanner"), {changeHash: false});
+            $.mobile.changePage($("#page_scanner"), {changeHash: false});  
+          }else{
+          //move to login page
+            $.mobile.changePage($("#page_login"), {changeHash: false});
+          }
           
         });
         
@@ -990,15 +995,16 @@ var controller = {
       
       //capture photo from all other pages of the app
       $(".takephoto").bind("click", function (event, ui) {
-        controller.capturePhoto();
         localStorage.editsitevisitimages = "false";
+        controller.capturePhoto();
+        
       });
       
     //capture photo from site visit edit page
       $(".takephotoedit").bind("click", function (event, ui) {
-        
-        controller.capturePhoto();
         localStorage.editsitevisitimages = "true";
+        controller.capturePhoto();
+        
       });
       
       //save url dialog
@@ -1478,10 +1484,11 @@ var controller = {
       + currentdate.getMinutes()
       + currentdate.getSeconds();
       
+      var editedImages = localStorage.editsitevisitimages;
       var imagename = "img_"+datetime+".jpeg";
       // Get image handle
       var reporttype = localStorage.reportType;
-      if(localStorage.editsitevisitimages == "true") {
+      if(editedImages == "true") {
         console.log("edit site photo");
         var ftritem_type = localStorage.reportType;
         var listitem = "";
@@ -1509,21 +1516,29 @@ var controller = {
       }
       else
       {
+        var listitem = "";
+        
+        listitem = ' <li><a href="#">'+
+        '<img src="data:image/jpeg;base64,'+ imageData +'" style="width: 80px; height: 80px;">'+
+        '<h2><div style="white-space:normal; word-wrap:break-word; overflow-wrap: break-word;">'+imagename+'</div></h2></a>'+
+        '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
+        '</li>';
+        
         if(reporttype.indexOf('oa') != -1) 
         {
           controller.filenames.push(imagename);
           controller.base64Images.push(imageData);
           controller.imageSource.push("hasnot");
           
-          $("#uploadPreview").append('<div>'+imagename+'</div>');
+          controller.addImageEdits('roadside',listitem);
           
-          //if we are adding images from edited site visit
+          //if we are adding images from other site visit than roadside visit
         }else {
           controller.fnames.push(imagename);
           controller.b64Images.push(imageData);
           controller.imageSrc.push("hasnot");
           
-          $("#imagePreview").append('<div>'+imagename+'</div>'); 
+          controller.addImageEdits('other',listitem); 
         }
         
       }
