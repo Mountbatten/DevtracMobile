@@ -6,15 +6,16 @@
 <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
 <meta name="viewport"
   content="initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
-<link href='http://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css' />
+<link href='http://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet'
+  type='text/css' />
 <link rel="stylesheet" type="text/css" href="css/style_light.css" />
 <link rel="stylesheet" href="css/jquery.mobile-1.4.3.min.css" />
 <!-- <link rel="stylesheet" href="css/jquery.mobile.theme-1.4.0.min.css" /> -->
 <link rel="stylesheet" href="css/jquery.mobile.theme-1.4.3.min.css" />
-   <!-- new notifications -->
-    <link rel="stylesheet" href="css/obNotificationCenter.css"/>
-  <link rel="stylesheet" href="css/jquery-ui-1.10.4.custom.css" />
-  <link rel="stylesheet" href="css/jquery.mobile.datepicker.css" />
+<!-- new notifications -->
+<link rel="stylesheet" href="css/obNotificationCenter.css" />
+<link rel="stylesheet" href="css/jquery-ui-1.10.4.custom.css" />
+<link rel="stylesheet" href="css/jquery.mobile.datepicker.css" />
 
 <link rel="stylesheet" href="css/normalize.css" />
 <link media="screen" href="css/index.css" rel="stylesheet" type="text/css" />
@@ -31,10 +32,9 @@
 
 <link rel="stylesheet" href="libs/FontAwesome/css/font-awesome.min.css" />
 
-          <link rel="stylesheet"
-            href="libs/FontAwesome/css/font-awesome.min.css"/>
+<link rel="stylesheet" href="libs/FontAwesome/css/font-awesome.min.css" />
 
-            <style type="text/css">
+<style type="text/css">
 /* Attempt to fix the flicker of page transitions */
 body {
   /* Setting body margins to 0 to have proper positioning of #container div */
@@ -91,33 +91,31 @@ body {
 -->
 
 
-   <!-- Page Loading  -->
+  <!-- Page Loading  -->
   <div data-role="page" id="page_loading">
 
     <div data-role="content" class='content'>
 
-    <div id="loader"></div>
+      <div id="loader"></div>
     </div>
     <!-- /content -->
 
   </div>
   <!-- /page -->
 
-<!-- Page Scan or Login  -->
+  <!-- Page Scan or Login  -->
   <div data-role="page" id="page_scanner">
-  <div data-role="header" id="header_login">
-  
-  </div>
+    <div data-role="header" id="header_login"></div>
     <div data-role="content" class='content'>
 
-    <ul data-role="listview" data-inset="true">
-    <li data-icon="false" id="qr_code"><a><i class="fa fa-rocket fa-fw"></i> &nbsp Scan QR Code</a>
-    </li>
-    
-    <li data-icon="false" id="alt_login"><a href="#page_login"><i class="fa fa-key fa-fw"></i> &nbsp Login</a>
-    </li>
-    </ul>
-    
+      <ul data-role="listview" data-inset="true">
+        <li data-icon="false" id="qr_code"><a><i
+            class="fa fa-rocket fa-fw"></i> &nbsp Scan QR Code</a></li>
+
+        <li data-icon="false" id="alt_login"><a href="#page_login"><i
+            class="fa fa-key fa-fw"></i> &nbsp Login</a></li>
+      </ul>
+
     </div>
     <!-- /content -->
 
@@ -135,7 +133,8 @@ body {
     <!-- /header -->
 
     <div data-role="content" class='content'>
-    <h5 id="helptext" style="display: none;">Welcome to Devtrac Mobile; Please use the menu button to navigate through the application.</h5>
+      <h5 id="helptext" style="display: none;">Welcome to Devtrac Mobile;
+        Please use the menu button to navigate through the application.</h5>
       <form class="cmxform" id="loginForm" method="" action="">
 
         <div class="input-prepend">
@@ -167,33 +166,31 @@ body {
           <div id='logoutdiv'>
             <button type="button" data-theme="a" id="page_logout_submit"
               data-mini="true">Logout</button>
-          </div>
-          
-          <br>
-			 <label for="myurl style='font-size: small'">Either Type in a
-            url or Select one from the list below: </label> <input type="url"
-          placeholder="Start with http://" name="myurl" class="myurl" value="">
-            <br> <select data-placeholder="Choose Url ..."
-              class="seturlselect" id="loginselect">
-                <!-- <option value="manual">manual</option>
+          </div> <br> <label for="myurl style='font-size: small'">Either
+              Type in a url or Select one from the list below: </label> <input
+            type="url" placeholder="Start with http://" name="myurl"
+            class="myurl" value=""> <br> <select
+                data-placeholder="Choose Url ..." class="seturlselect"
+                id="loginselect">
+                  <!-- <option value="manual">manual</option>
                 <option value="custom">custom</option>
                 <option value="DevtracUg" disabled="disabled">DevtracUganda</option>
                 <option value="test">test</option>
                 <option value="cloud">cloud</option>
                 <option value="local">local</option> -->
 
-              <option value="demo">demo</option>
-              <option value="custom">custom</option>
-            </select>
+                  <option value="demo">demo</option>
+                  <option value="custom">custom</option>
+              </select>
 
-              <div id='urldiv'>
-                <a href="#" data-role="button" data-inline="true" data-theme="b"
-                  data-mini="true" class='save_url'>Save Url</a>
-              </div>
-              <div class="urllogging"></div>
-              <div class="clickedurl"></div>
-              <div class="errorHTML"></div>
-
+                <div id='urldiv'>
+                  <a href="#" data-role="button" data-inline="true"
+                    data-theme="b" data-mini="true" class='save_url'>Save
+                    Url</a>
+                </div>
+                <div class="urllogging"></div>
+                <div class="clickedurl"></div>
+                <div class="errorHTML"></div>
       </form>
     </div>
     <!-- /content -->
@@ -206,8 +203,7 @@ body {
   <div data-role="page" id="page_fieldtrip_details">
     <div data-role="panel" id="navpanel_fieldtrip" data-theme="b"
       data-position="left" class="leftmenu"></div>
-    <div id="content" class="hide">
-    </div>
+    <div id="content" class="hide"></div>
     <div data-role="header" id="fieldtrip_details_header"></div>
     <!-- /header -->
 
@@ -254,7 +250,8 @@ body {
           </a>
         </h4>
 
-        <ul data-role="listview" data-filter-placeholder="Filter Site Visits" id="list_sitevisits" data-filter="true">
+        <ul data-role="listview" data-filter-placeholder="Filter Site Visits"
+          id="list_sitevisits" data-filter="true">
 
         </ul>
       </form>
@@ -311,9 +308,9 @@ body {
           <li data-icon="false"><a>Locations</a>
             <div id="location_count" class="ui-li-count"></div></li>
           <!-- <li><a data-role="button" data-mini="true" data-icon="arrow-u" onclick="devtracnodes.postComments();">Comments</a><div id="comment_count" class="ui-li-count"></div></li> -->
-          <li data-icon="false"><a >Action Items</a>
+          <li data-icon="false"><a>Action Items</a>
             <div id="actionitem_count" class="ui-li-count"></div></li>
-          <li data-icon="false"><a >Fieldtrip</a>
+          <li data-icon="false"><a>Fieldtrip</a>
             <div id="fieldtrip_count" class="ui-li-count"></div></li>
 
           <li><a onclick="devtracnodes.syncAll()"><i
@@ -334,9 +331,7 @@ body {
       data-position="left" class="leftmenu"></div>
 
     <div data-role="header" id="header_sitereports">
-    <div id="sitenav" data-role="navbar" data-theme="a">
-        
-    </div>
+      <div id="sitenav" data-role="navbar" data-theme="a"></div>
     </div>
     <!-- /header -->
 
@@ -373,10 +368,10 @@ body {
               <!-- </div> -->
 
               <!-- <div class="ui-field-contain"> -->
-              <span id="ftritem_location">
-              <label for="sitevisists_details_location"><b>Location
-                  Name: </b></label>
-              <p id="sitevisists_details_location" required></p>
+              <span id="ftritem_location"> <label
+                for="sitevisists_details_location"><b>Location Name:
+                </b></label>
+                <p id="sitevisists_details_location" required></p>
               </span>
               <!-- </div> -->
 
@@ -385,8 +380,7 @@ body {
 
           <div class="ui-block-b">
             <p>
-              <a href="" data-role="button"
-                id="editsitevisit" data-rel="dialog"><i
+              <a href="" data-role="button" id="editsitevisit" data-rel="dialog"><i
                 class="fa fa-edit fa-lg"></i>&nbsp&nbsp Edit</a>
             </p>
 
@@ -402,7 +396,8 @@ body {
 
         </h4>
 
-        <ul data-role="listview" data-filter-placeholder="Filter Action Items" id="list_actionitems" data-filter="true">
+        <ul data-role="listview" data-filter-placeholder="Filter Action Items"
+          id="list_actionitems" data-filter="true">
 
         </ul>
       </form>
@@ -449,7 +444,7 @@ body {
         <label for='sitevisit_add_type'>Site Report Type</label> <select
           name="sitevisit_add_type" id="sitevisit_add_type" data-mini="true"
           required>
-          
+
         </select> <input type='text' value='' id='location_latlon' name='location_latlon'
           required style="display: none" /> <label for="map_district"
           style="color: red;" id="map_district_error"></label><a
@@ -467,46 +462,49 @@ body {
 
   <!-- Edit site visit details -->
   <div data-role="page" id="page_sitevisit_edits">
-  <div data-role="panel" id="navpanel_editsitevisit" data-theme="b"
+    <div data-role="panel" id="navpanel_editsitevisit" data-theme="b"
       data-position="left" class="leftmenu"></div>
-      
+
     <div data-role="header" id="header_editsitevisit"></div>
     <!-- /header -->
 
     <div data-role="content" class='content'>
       <form id="form_sitevisit_edits" method="" action="">
         <fieldset>
-          <label for='sitevisit_title'>Title</label> <input type='text' value='' id='sitevisit_title' required> <label for='sitevisit_date'>Date
-              Visited</label> <input type='text' value='' id='sitevisit_date' required /> <label for='sitevisit_summary'>Summary</label>
-            <textarea id="sitevisit_summary" name="sitevisit_summary" required></textarea>
-            
-            <label for='sitevisit_report'>Report</label>
-            <textarea id="sitevisit_report" name="sitevisit_report" required></textarea>
-<br/>
+          <label for='sitevisit_title'>Title</label> <input type='text' value=''
+            id='sitevisit_title' required> <label for='sitevisit_date'>Date
+              Visited</label> <input type='text' value='' id='sitevisit_date' required />
+            <label for='sitevisit_summary'>Summary</label> <textarea
+              id="sitevisit_summary" name="sitevisit_summary" required></textarea>
+
+            <label for='sitevisit_report'>Report</label> <textarea
+              id="sitevisit_report" name="sitevisit_report" required></textarea>
+            <br />
 
 
-        <div class="ui-grid-b ui-responsive">
-          <div class="ui-block-a">
-            <div
-              class="ui-btn ui-icon-plus ui-btn-icon-left ui-corner-all fileinput-button">
-              <span>Image: </span> <input type="file" name="editImageFile"
-                id="editImageFile" multiple="multiple">
+            <div class="ui-grid-b ui-responsive">
+              <div class="ui-block-a">
+                <div
+                  class="ui-btn ui-icon-plus ui-btn-icon-left ui-corner-all fileinput-button">
+                  <span>Image: </span> <input type="file" name="editImageFile"
+                    id="editImageFile" multiple="multiple">
+                </div>
+              </div>
+              <div>
+                <b id="orbold">OR</b>
+              </div>
+              <div class="ui-block-b">
+                <a data-role="button" class="takephotoedit">Take Photo</a>
+
+              </div>
+
             </div>
-          </div>
-          <div>
-            <b id="orbold">OR</b>
-          </div>
-          <div class="ui-block-b">
-            <a data-role="button" class="takephotoedit">Take Photo</a>
 
-          </div>
-
-        </div>
-            
             <div id="imagesEdits">
-            <ul data-role="listview" id="editimagefile_list" data-split-icon="delete" data-split-theme="a" data-inset="true">
-   
-</ul>
+              <ul data-role="listview" id="editimagefile_list"
+                data-split-icon="delete" data-split-theme="a" data-inset="true">
+
+              </ul>
             </div>
         </fieldset>
       </form>
@@ -520,7 +518,7 @@ body {
 
   </div>
   <!-- /page -->
-  
+
 
   <!-- Edit fieldtrips details -->
   <div data-role="page" id="page_fieldtrip_edit">
@@ -552,7 +550,8 @@ body {
 
         <label for='sitevisit_add_oecds'>Oecds</label>
         <div id="select_oecds"></div>
-        <label for="sitevisit_add_date">Date</label> <input type='text' id='sitevisit_add_date' name='sitevisit_add_date' required/> <label
+        <label for="sitevisit_add_date">Date</label> <input type='text'
+          id='sitevisit_add_date' name='sitevisit_add_date' required /> <label
           for="sitevisit_add_public_summary">Public Summary</label>
         <textarea id='sitevisit_add_public_summary'
           name='sitevisit_add_public_summary' required></textarea>
@@ -581,13 +580,20 @@ body {
         </div>
 
         <br>
-          <div id="uploadPreview"></div>
-          <div id="uploaderror" style="color: red"></div> <br> <a
-            data-inline="true" data-role="button" data-theme='b'
-            data-mini="true" id='sitevisit_add_save'>Save</a> <a
-            data-role="button" data-rel="dialog" data-theme='b'
-            href="#page_site_report_type" data-mini="true" data-inline="true"
-            id='sitevisit_add_cancel'>Cancel</a>
+
+
+          <div id="uploadPreviews">
+            <ul data-role="listview" id="uploadPreview_list"
+              data-split-icon="delete" data-split-theme="a" data-inset="true"></ul>
+          </div>
+        <div id=""></div>
+
+        <div id="uploaderror" style="color: red"></div>
+        <br> <a data-inline="true" data-role="button" data-theme='b'
+          data-mini="true" id='sitevisit_add_save'>Save</a> <a
+          data-role="button" data-rel="dialog" data-theme='b'
+          href="#page_site_report_type" data-mini="true" data-inline="true"
+          id='sitevisit_add_cancel'>Cancel</a>
       </form>
 
     </div>
@@ -600,8 +606,9 @@ body {
   <div data-role="page" id="page_add_actionitems">
     <div data-role="panel" id="navpanel_addactionitems" data-theme="b"
       data-position="left" class="leftmenu"></div>
-    <div data-role="header" id="header_addactionitems" style="overflow:hidden;">
-      <h3 title="Add Action Items" style="overflow:hidden;">Add Action Items</h3>
+    <div data-role="header" id="header_addactionitems" style="overflow: hidden;">
+      <h3 title="Add Action Items" style="overflow: hidden;">Add Action
+        Items</h3>
     </div>
     <!-- /header -->
 
@@ -612,7 +619,7 @@ body {
 
         <div id='actionitems_oecds'></div>
 
-<label for="actionitem_date">Due Date</label> <input type='text'
+        <label for="actionitem_date">Due Date</label> <input type='text'
           id='actionitem_date' name='' required />
 
         <div class="ui-field-contain">
@@ -635,13 +642,14 @@ body {
           </select>
         </div>
 
-         <label
-          for="actionitem_followuptask">Follow up task</label>
+        <label for="actionitem_followuptask">Follow up task</label>
         <textarea value='' id='actionitem_followuptask'
           name='actionitem_followuptask' required></textarea>
 
         <label for="actionitem_tags">Tags</label> <input type='text' value=''
-          id='actionitem_tags' placeholder="Comma separated values without spaces"/> <input data-inline="true" type="button"
+          id='actionitem_tags'
+          placeholder="Comma separated values without spaces" /> <input
+          data-inline="true" type="button"
           onclick="controller.onSaveactionitem();" value='Save' data-theme='b'
           id='action_item_save' /><input type="button" onclick=""
           value='Cancel' data-theme='b' data-inline="true"
@@ -730,7 +738,9 @@ body {
         </fieldset>
 
         <h4 align="center">Comments</h4>
-        <ul data-role="listview" id="list_comments" data-filter-placeholder="Filter Action Item Comments" data-filter="true">
+        <ul data-role="listview" id="list_comments"
+          data-filter-placeholder="Filter Action Item Comments"
+          data-filter="true">
 
         </ul>
       </form>
@@ -793,7 +803,8 @@ body {
           Lon</label> <input type='text' value='' id='gpslon' name='gpslon'
           placeholder="Enter your own Longitude" /> <small><p
             class="error" id="coordserror"></p></small> <label for="gpserror">GPS
-          Errors</label> <input type='text' value='' id='gpserror' class="error" name='gpserror' />
+          Errors</label> <input type='text' value='' id='gpserror' class="error"
+          name='gpserror' />
 
         <div data-role="collapsible" data-theme="a">
           <h4>Contact</h4>
@@ -828,10 +839,11 @@ body {
         </div>
 
         <br>
-        <div id="imagePreviews">
-            <ul data-role="listview" id="imagePreview_list" data-split-icon="delete" data-split-theme="a" data-inset="true"></ul>
-            </div>
-          
+          <div id="imagePreviews">
+            <ul data-role="listview" id="imagePreview_list"
+              data-split-icon="delete" data-split-theme="a" data-inset="true"></ul>
+          </div>
+
           <div id="uploaderror" style="color: red"></div> <input type='button'
           onclick="controller.onSavelocation();" value='Save'
           id='location_item_save' data-inline="true" data-theme='b' /> <a
@@ -848,7 +860,7 @@ body {
   <!-- Map page -->
   <div data-role="page" id="mappage">
     <div data-role="header">
-<a id="viewlocation_back" class="ui-btn-left"
+      <a id="viewlocation_back" class="ui-btn-left"
         href="#page_sitevisits_details" data-iconpos="notext"><i
         class="fa fa-chevron-circle-left fa-lg"></i></a>
       <h3 id="mapheader"></h3>
@@ -866,10 +878,11 @@ body {
 
   <!-- Add questionnaire page -->
   <div data-role="page" id="page_add_questionnaire">
-    
+
     <div data-role="header" id='header_qtnr'>
-    <a class="ui-btn-left" href="#page_sitevisits_details" data-iconpos="notext"><i class="fa fa-chevron-circle-left fa-lg"></i></a>
-     <h3>Questionnaire</h3>
+      <a class="ui-btn-left" href="#page_sitevisits_details"
+        data-iconpos="notext"><i class="fa fa-chevron-circle-left fa-lg"></i></a>
+      <h3>Questionnaire</h3>
     </div>
     <!-- /header -->
 
@@ -892,7 +905,8 @@ body {
     <div data-role="content" class='content' id='Settingscontent'>
       <form action="" class="settingsform">
         <label for="myurl style='font-size: small'">Either Type in a url
-          or Select one from the list below: </label> <input type="url" placeholder="Start with http://" name="myurl" class="myurl" value="">
+          or Select one from the list below: </label> <input type="url"
+          placeholder="Start with http://" name="myurl" class="myurl" value="">
           <br> <select data-placeholder="Choose Url ..."
             class="seturlselect" id="settingselect">
               <!-- <option value="manual">manual</option>
@@ -912,7 +926,6 @@ body {
             </div>
 
             <div class="urllogging"></div>
-
       </form>
     </div>
     <!-- /content -->

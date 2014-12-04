@@ -361,8 +361,17 @@ var controller = {
         
       });
       
-      //stop gps
-      $("#cancel_addlocation").on('click', function(){
+      //clear images array for roadside visits
+      $("#sitevisit_add_cancel").on('click', function() {
+        controller.filenames = [];
+        controller.base64Images = [];
+        controller.filesizes = [];
+        controller.imageSource = [];
+        
+      });
+      
+      //stop gps and clear images arrays for human interest and site visits
+      $("#cancel_addlocation").on('click', function() {
         controller.fnames = [];
         controller.b64Images = [];
         controller.fsizes = [];
@@ -1753,7 +1762,15 @@ var controller = {
             controller.filesizes.push(~~(file.size/1024));
             controller.imageSource.push("has");
             
-            $("#uploadPreview").append('<div>'+n+" "+~~(file.size/1024)+'kb</div>');
+            var listitem = "";
+            
+            listitem = ' <li><a href="#">'+
+            '<img src="'+ image.src +'" style="width: 80px; height: 80px;">'+
+            '<h2><div style="white-space:normal; word-wrap:break-word; overflow-wrap: break-word;">'+n+'</div></h2></a>'+
+            '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
+            '</li>';
+            
+            controller.addImageEdits('roadside',listitem);
             
           }else
           {
@@ -1772,7 +1789,6 @@ var controller = {
             
             controller.addImageEdits('other',listitem);
             
-//            $("#imagePreview").append('<div>'+n+" "+~~(file.size/1024)+'kb</div>');
           } 
         }
         
@@ -1789,7 +1805,8 @@ var controller = {
         $("#imagePreview_list").append(data);
         $("#imagePreview_list").listview().listview('refresh');
       }else if(imagetype == 'roadside'){
-        
+        $("#uploadPreview_list").append(data);
+        $("#uploadPreview_list").listview().listview('refresh');
       }
       
       
@@ -2372,7 +2389,7 @@ var controller = {
       owlhandler.populateOwl(snid);
       
       localStorage.sitevisitname = $(anchor).children('.heada1').html();
-      onsitevisitclick:
+      
       var form = $("#form_sitevisists_details");
       
       var actionitemList = $('#list_actionitems');
@@ -3543,7 +3560,15 @@ var controller = {
               controller.base64Images.push(data.content);
               controller.imageSource.push("hasnot");
               
-              $("#uploadPreview").append('<div>'+data.name +'</div>');
+              var listitem = "";
+              
+              listitem = ' <li><a href="#">'+
+              '<img src="data:image/jpeg;base64,'+ data.content +'" style="width: 80px; height: 80px;">'+
+              '<h2><div style="white-space:normal; word-wrap:break-word; overflow-wrap: break-word;">'+data.name+'</div></h2></a>'+
+              '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
+              '</li>';
+              
+              controller.addImageEdits('roadside',listitem);
               
             }, function(error){
               alert(error);
@@ -3552,11 +3577,22 @@ var controller = {
           
           $('#sitevisitfile').click( function(e) {
             filechooser.open( {}, function(data){
+              
               controller.fnames.push(data.name);
               controller.b64Images.push(data.content);
               controller.imageSrc.push("hasnot");
               
-              $("#imagePreview").append('<div>'+data.name+'</div>');
+
+              var listitem = "";
+              
+              listitem = ' <li><a href="#">'+
+              '<img src="data:image/jpeg;base64,'+ data.content +'" style="width: 80px; height: 80px;">'+
+              '<h2><div style="white-space:normal; word-wrap:break-word; overflow-wrap: break-word;">'+data.name+'</div></h2></a>'+
+              '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
+              '</li>';
+              
+              controller.addImageEdits('other',listitem);
+            
             }, function(error) {
               alert(error);
             });
@@ -3591,8 +3627,6 @@ var controller = {
                   controller.imageSrc.push("hasnot");
                   
                 }
-                
-                console.log("this image hasnot");
                 
                 listitem = ' <li><a href="#">'+
                 '<img src="'+ data.filepath +'" style="width: 80px; height: 80px;">'+
