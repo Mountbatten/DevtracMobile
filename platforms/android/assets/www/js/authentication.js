@@ -157,7 +157,7 @@ var auth = {
         
         // Call system login with session token.
         $.ajax({
-          url : localStorage.appurl+"/api/user/login.json",
+          url : localStorage.appurl+"/api/devtracuser/login.json",
           type : 'post',
           data : 'username=' + encodeURIComponent(name) + '&password=' + encodeURIComponent(pass),
           dataType : 'json',
@@ -287,7 +287,7 @@ var auth = {
             $('#logoutdiv').show();
             console.log('response error '+XMLHttpRequest.responseText);
             console.log("logged out error");
-            d.reject();
+            d.reject(XMLHttpRequest.responseText);
             
           },
           success : function(data) {
@@ -313,7 +313,7 @@ var auth = {
             //hide menu button on login page
             $("#barsbutton_login").hide();
             
-            $.mobile.changePage("#page_login", "slide", true, false);
+            $.mobile.changePage("#page_scanner", "slide", true, false);
             
             localStorage.token = null;
             localStorage.pass = null;

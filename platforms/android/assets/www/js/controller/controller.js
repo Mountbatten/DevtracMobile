@@ -708,12 +708,8 @@ var controller = {
       
       //hide first page after loading
       $( "#page_fieldtrip_details" ).bind("pagebeforeshow", function (e, ui) {
+          $("#page_loading").remove();
         
-        if (typeof ui.prevPage[0] !== "undefined" && ui.prevPage[0].id == "page_loading") {
-          console.log("page id "+ui.prevPage[0].id);
-          
-          $(ui.prevPage).remove();
-        }
       });
       
       //validate field to set urls for annonymous users
@@ -3488,18 +3484,16 @@ var controller = {
       if(controller.checkCordova() != undefined) {
         //start qr scan
         $('#qr_code').bind('click', function(){
+          controller.loadingMsg("Please wait...", 0);
           cordova.plugins.barcodeScanner.scan(
               function (result) {
                 
               var jsonObject = JSON.parse(result.text);
-              var loginValues = {};
+              //alert("connect url is "+jsonObject['url']+" name is "+jsonObject['name']+" key is "+jsonObject['key']);
+              localStorage.appurl = jsonObject['url'];
               
-              for(var item in jsonObject) {
-                loginValues[item] = jsonObject[item];
-              }
-              
-              localStorage.appurl = loginValues['url'];
-              auth.login(loginValues['name'], loginValues['key']).then(function() {
+              controller.loadingMsg("Logging into "+localStorage.appurl, 0);
+              auth.login(jsonObject['name'], jsonObject['key']).then(function() {
                 
                 devtracnodes.countFieldtrips().then(function(){
                   devtracnodes.countOecds().then(function() {
@@ -3557,8 +3551,8 @@ var controller = {
                   });
                   
                 });
-              }).fail(function() {
-
+              }).fail(function(error) {
+                controller.loadingMsg("Log In Error: "+error, 2000);
               });
               
               }, 
