@@ -2703,13 +2703,13 @@ var controller = {
                 }).fail(function() {
                   
                   devtrac.indexedDB.addImages(db, images).then(function() {
-                    console.log('Added images');
+                    //console.log('Added images');
                   });
                 
                 });
               });    
             }else{
-              controller.loadingMsg("No Images Added", 2000)
+              //controller.loadingMsg("No Images Added", 2000)
             }
           
           $("#sitevisists_details_title").html($("#sitevisit_title").val());
