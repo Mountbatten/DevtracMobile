@@ -115,6 +115,18 @@ body {
             class="fa fa-key fa-fw"></i> &nbsp Login</a></li>
       </ul>
 
+    <!-- <ul data-role="listview" id="list_sitevisits" data-inset="true">
+    <li data-icon="false" id="qr_code"><a><i class="fa fa-rocket fa-fw"></i> &nbsp Scan QR Code</a>
+    </li>
+    
+    <li data-icon="false" id="alt_login"><a href="#page_login"><i class="fa fa-key fa-fw"></i> &nbsp Login</a>
+    </li>
+    </ul>
+     -->
+    <a data-role="button" id="qr_code"></a>
+      
+    <a class="ui-btn ui-icon-bars ui-btn-icon-notext ui-corner-all" href="#page_login" id="custom-menu"></a>
+    
     </div>
     <!-- /content -->
 
@@ -987,6 +999,8 @@ body {
         // Setting default page transition to slide
         $.mobile.defaultPageTransition = 'slide';
         
+        //Disable orientation change
+      $.mobile.orientationChangeEnabled = 'enable';
       });
     </script>
 

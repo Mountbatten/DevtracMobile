@@ -58,6 +58,24 @@ var controller = {
 
       $(window).bind('orientationchange pageshow pagechange resize', mapctlr.resizeMapIfVisible);
       
+      //Bind to window orientation change after the qr codes are scanned. 
+      $(window).on("orientationchange", function(){
+        console.log("the orientation has changed "+localStorage.qrcodes);
+        var qrcode_status = localStorage.qrcodes;
+        if(qrcode_status == "on"){
+          var orientation = window.orientation;
+          var new_orientation = (orientation) ? 0 : 180 + orientation;
+          $('body').css({
+              "-webkit-transform": "rotate(" + new_orientation + "deg)"
+          });
+          
+          localStorage.qrcodes = "off";
+          
+          console.log("the orientation has changed");
+        }
+        
+      });
+      
       //return date in ISO format
       Date.prototype.yyyymmdd = function() {         
         
@@ -3482,6 +3500,7 @@ var controller = {
     // device ready event handler
     onDeviceReady: function () {
       if(controller.checkCordova() != undefined) {
+
         //start qr scan
         $('#qr_code').bind('click', function(){
           controller.loadingMsg("Please wait...", 0);
@@ -3555,6 +3574,7 @@ var controller = {
                 controller.loadingMsg("Log In Error: "+error, 2000);
               });
               
+
               }, 
               function (error) {
                   alert("Scanning failed: " + error);
