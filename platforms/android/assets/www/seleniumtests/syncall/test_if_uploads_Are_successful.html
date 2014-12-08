@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://jenkinsge.mountbatten.net/DevtracMobile/platforms/android/web/" />
+<title>test_if_uploads_Are_successful</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">test_if_uploads_Are_successful</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/DevtracMobile/platforms/android/web/#</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=addsitereportbutton</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=sitevisit_add_type</td>
+	<td>label=Site Visit</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=submit_sitereporttype</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=location_name</td>
+	<td>Sample SiteVisit</td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=select_placetype</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=select_placetype</td>
+	<td>label=--Borehole</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=gpslat</td>
+	<td>0.2938</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=gpslon</td>
+	<td>0.32.3787</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=location_item_save</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td></td>
+	<td>Sample SiteVisit</td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/DevtracMobile/platforms/android/web/#page_sitevisits_details</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=addactionitem</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=header_addactionitems</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=actionitem_title</td>
+	<td>Sample Action Item</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=actionitem_status</td>
+	<td>Open</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=actionitem_priority</td>
+	<td>High</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=actionitem_date</td>
+	<td>2014/12/06</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=actionitem_followuptask</td>
+	<td>Plenty of apple bananas were supplied in Iganga market.</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=actionitem_tags</td>
+	<td>education, health</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=action_item_save</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>xpath=(//a[contains(text(),'Upload')])[5]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Sync All</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>id=actionitem_count</td>
+	<td>regexp:[0]</td>
+</tr>
+</tbody></table>
+</body>
+</html>
