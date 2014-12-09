@@ -150,14 +150,22 @@ var auth = {
     },
     
     //login to devtrac
-    login: function(name, pass, db) {
+    login: function(name, pass, db, source) {
       var d = $.Deferred();
+      var endpoint = "";
+      
       // Obtain session token.
       auth.getToken().then(function (token) {
         
+        if(source == "qrcodes"){
+          endpoint = "devtracuser"
+        }else{
+          endpoint = "user";
+        }
+        
         // Call system login with session token.
         $.ajax({
-          url : localStorage.appurl+"/api/devtracuser/login.json",
+          url : localStorage.appurl+"/api/"+endpoint+"/login.json",
           type : 'post',
           data : 'username=' + encodeURIComponent(name) + '&password=' + encodeURIComponent(pass),
           dataType : 'json',

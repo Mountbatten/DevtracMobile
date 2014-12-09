@@ -6,9 +6,9 @@ devtrac.indexedDB.db = null;
 
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 1;
+  var version = 2;
   
-  var request = indexedDB.open("b13", version);
+  var request = indexedDB.open("b14", version);
   
   request.onsuccess = function(e) {
     devtrac.indexedDB.db = e.target.result;
@@ -21,9 +21,9 @@ devtrac.indexedDB.open = function(callback) {
 //creating an object store
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 1;
+  var version = 2;
   
-  var request = indexedDB.open("b13", version);
+  var request = indexedDB.open("b14", version);
   
   // We can only create Object stores in a versionchange transaction.
   request.onupgradeneeded = function(e) {
@@ -55,14 +55,8 @@ devtrac.indexedDB.open = function(callback) {
     if(db.objectStoreNames.contains("qtionairesitemsobj")){
       db.deleteObjectStore("qtionairesitemsobj");
     }
-    if(db.objectStoreNames.contains("commentsitemsobj")){
-      db.deleteObjectStore("commentsitemsobj");
-    }
     if(db.objectStoreNames.contains("images")){
       db.deleteObjectStore("images");
-    }
-    if(db.objectStoreNames.contains("sublocations")){
-      db.deleteObjectStore("sublocations");
     }
     if(db.objectStoreNames.contains("images")){
       db.deleteObjectStore("images");
@@ -94,17 +88,12 @@ devtrac.indexedDB.open = function(callback) {
     var qtnairesitemstore = db.createObjectStore("qtionairesitemsobj", {keyPath: "qnid"});
     qtnairesitemstore.createIndex('qnid', 'qnid', { unique: true });
     
-    var commentsitemstore = db.createObjectStore("commentsitemsobj", {autoIncrement: true});
-    commentsitemstore.createIndex('nid', 'nid', { unique: false });
-    
     var images = db.createObjectStore("images", {keyPath: "nid"});
     images.createIndex('nid', 'nid', { unique: true });
     
-    var submittedlocations = db.createObjectStore("sublocations", {keyPath: "nid"});
-    submittedlocations.createIndex('nid', 'nid', { unique: true });
+    var actionitemcomments = db.createObjectStore("actionitemscomments", {autoIncrement: true});
+    objectStore.createIndex("anid", "anid", { unique: false });
     
-    var actionitemcomments = db.createObjectStore("actionitemscomments", {keyPath: "cid"});
-    actionitemcomments.createIndex('cid', 'cid', { unique: true });
   };
   
   request.onsuccess = function(e) {
@@ -170,33 +159,6 @@ devtrac.indexedDB.addFieldtripsData = function(db, fObj) {
     };
   }else{
     d.reject("No fieldtrips returned");
-  }
-  
-  return d;
-};
-
-
-//adding uploaded locations data to object store
-devtrac.indexedDB.addUploadedLocations = function(db, lObj) {
-  var d = $.Deferred();
-  var trans = db.transaction("sublocations", "readwrite");
-  var store = trans.objectStore("sublocations");
-  var request;
-  
-  if(lObj.length > 0){
-    for (var i in lObj) {
-      request = store.add(lObj[i])
-    }
-    
-    request.onsuccess = function(e) {
-      d.resolve();
-    };
-    
-    request.onerror = function(e) {
-      d.reject(e);
-    };
-  }else {
-    d.reject("No locations returned");
   }
   
   return d;
@@ -327,18 +289,18 @@ devtrac.indexedDB.addActionItemsData = function(db, aObj) {
 //adding action item comments data to object store
 devtrac.indexedDB.addActionItemCommentsData = function(db, aObj) {
   var d = $.Deferred();
-  var trans = db.transaction("actionitemscomments", "readwrite");
+  var trans = db.transaction(["actionitemscomments"], "readwrite");
   var store = trans.objectStore("actionitemscomments");
   
   request = store.add(aObj);
   
   request.onsuccess = function(e) {
-    
+    console.log("saved");
     d.resolve();
   };
   
   request.onerror = function(e) {
-    
+    console.log("not saved");
     d.resolve(e);
   };
   
@@ -346,7 +308,7 @@ devtrac.indexedDB.addActionItemCommentsData = function(db, aObj) {
 };
 
 //get all actionitem comments in database
-devtrac.indexedDB.getActionItemComments = function(db, callback) {
+devtrac.indexedDB.getActionItemComments = function(db, cnid, callback) {
   var actionitemcomments = [];
   var trans = db.transaction(["actionitemscomments"], "readonly");
   var store = trans.objectStore("actionitemscomments");
@@ -362,7 +324,9 @@ devtrac.indexedDB.getActionItemComments = function(db, callback) {
       return;
     }
     
-    actionitemcomments.push(result.value);
+    if(result.value.anid == cnid) {
+      actionitemcomments.push(result.value);  
+    }
     
     result["continue"]();
   };
@@ -370,25 +334,53 @@ devtrac.indexedDB.getActionItemComments = function(db, callback) {
   cursorRequest.onerror = devtrac.indexedDB.onerror;
 };
 
-//adding comments data to object store
-devtrac.indexedDB.addCommentsData = function(db, cObj) {
-  var d = $.Deferred();
-  var trans = db.transaction("commentsitemsobj", "readwrite");
-  var store = trans.objectStore("commentsitemsobj");
-  var request;
+
+//Edit actionitem comments 
+devtrac.indexedDB.itemComments = function(db, updates) {
+var d = $.Deferred();
+var trans = db.transaction(["actionitemscomments"], "readwrite");
+var store = trans.objectStore("actionitemscomments");
+
+var request = store.get(update['anid']);
+request.onerror = function(event) {
+  // Handle errors!
+  console.log("Error getting actionitem to update");
+};
+
+request.onsuccess = function(event) {
   
-  request = store.add(cObj);
+  // Get the old value that we want to update
+  var data = request.result;
+  if(updates['title'] != undefined){
+    data.title = updates['title'];  
+  }
+  if(updates['editflag'] != undefined){
+    data.editflag = updates['editflag'];  
+  }
+  if(updates['submit'] != undefined){
+    data.submit = updates['submit'];  
+  }
   
-  request.onsuccess = function(e) {
+  // update the value(s) in the object that you want to change
+  // Put this updated object back into the database.
+  var requestUpdate = store.put(data);
+  
+  requestUpdate.onerror = function(event) {
+    // Do something with the error
+    console.log("Item comment update failed");
     d.resolve();
   };
   
-  request.onerror = function(e) {
-    d.reject(e);
+  requestUpdate.onsuccess = function(event) {
+    // Success - the data is updated!
+    console.log("Item comment update success");
+    //callback();
+    d.resolve();
   };
-  
-  return d;
 };
+return d;
+};
+
 
 //adding questions data to object store
 devtrac.indexedDB.addSavedQuestions = function(db, aObj) {
@@ -868,32 +860,6 @@ devtrac.indexedDB.getAllImages = function(db, callback) {
     }
     
     images.push(result.value);
-    
-    result["continue"]();
-  };
-  
-  cursorRequest.onerror = devtrac.indexedDB.onerror;
-};
-
-
-//get all comments in database
-devtrac.indexedDB.getAllComments = function(db, callback) {
-  var comments = [];
-  var trans = db.transaction(["commentsitemsobj"], "readonly");
-  var store = trans.objectStore("commentsitemsobj");
-  
-  // Get everything in the store;
-  var keyRange = IDBKeyRange.lowerBound(0);
-  var cursorRequest = store.openCursor(keyRange);
-  
-  cursorRequest.onsuccess = function(e) {
-    var result = e.target.result;
-    if(!!result == false) {
-      callback(comments);
-      return;
-    }
-    
-    comments.push(result.value);
     
     result["continue"]();
   };

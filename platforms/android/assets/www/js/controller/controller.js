@@ -26,7 +26,7 @@ var controller = {
     watchid : null,
     nodes : [vocabularies.getOecdVocabularies, vocabularies.getPlacetypeVocabularies],
     
-    objectstores: ["oecdobj", "placetype", "fieldtripobj", "sitevisit", "actionitemsobj", "placesitemsobj", "qtnsitemsobj", "qtionairesitemsobj", "commentsitemsobj","images"],
+    objectstores: ["oecdobj", "placetype", "fieldtripobj", "sitevisit", "actionitemsobj", "placesitemsobj", "qtnsitemsobj", "qtionairesitemsobj", "actionitemscomments", "images"],
     
     //on body load
     onLoad: function(){
@@ -287,7 +287,7 @@ var controller = {
               
               devtracnodes.getActionItems(db).then(function(){
                 console.log("getting action comments");
-                devtracnodes.getActionItemComments(db);
+                devtracnodes.getActionComments(db);
               });
               devtracnodes.getQuestions(db);
               
@@ -3055,36 +3055,42 @@ var controller = {
           $("#actionitem_resp_person").html(localStorage.realname);
           $("#actionitem_followup_task").html(fObject['field_actionitem_followuptask']['und'][0]['value']);
           
-        });
-        
-        devtrac.indexedDB.getActionItemComments(db, function (comments) {
-          //By default hide the comments filter
-          $("#list_comments").prev("form.ui-filterable").hide();
-          
-          for (var i in comments) {
-            if (comments[i]['nid'] == localStorage.anid) {
-              //If a matching comment is found for this action item show the filter
-              $("#list_comments").prev("form.ui-filterable").show();
+
+          devtrac.indexedDB.getActionItemComments(db, anid, function (comments) {
+            //By default hide the comments filter
+            $("#list_comments").prev("form.ui-filterable").hide();
+            
+            for (var i in comments) {
               
-              var aItem = comments[i];
+                //Show the filter
+                $("#list_comments").prev("form.ui-filterable").show();
+                
+                var aItem = comments[i];
+                
+                var li = $("<li></li>");
+                var a = $("<a href='#' id='" + aItem['nid'] + "' onclick=''></a>");
+                var h1 = $("<h1 class='heada2'>" + aItem['comment_body']['und'][0]['value'] + "</h1>");
+                var p = $("<p class='para2'></p>");
+                
+                a.append(h1);
+                a.append(p);
+                li.append(a);
+                list_comment.append(li);
               
-              var li = $("<li></li>");
-              var a = $("<a href='#' id='" + aItem['nid'] + "' onclick=''></a>");
-              var h1 = $("<h1 class='heada2'>" + aItem['comment_body']['und'][0]['value'] + "</h1>");
-              var p = $("<p class='para2'></p>");
-              
-              a.append(h1);
-              a.append(p);
-              li.append(a);
-              list_comment.append(li);
             }
-          }
-          list_comment.listview().listview('refresh');
-          
+            list_comment.listview().listview('refresh');
+            
+            //Donot load oecds if they have been loaded before
+            if($('#comment_oecds').children().length == 0) {
+              controller.buildSelect("oecdobj", []);  
+            }else {
+              $.mobile.changePage("#page_actionitemdetails", {transition: "slide"});
+            }
+          });
         });
+
       });
       
-      $.mobile.changePage("#page_actionitemdetails", "slide", true, false);
     },
     
     //reset form passed as parameter
@@ -3435,27 +3441,40 @@ var controller = {
         comment['comment_body']['und'][0]['value'] = commentvalue;
         comment['comment_body']['und'][0]['format'] = 1;   
         comment['language'] = 'und';
-        comment['nid'] = localStorage.anid;
+        
+        if(!localStorage.actionuser) {
+          comment['nid'] = localStorage.anid;  
+        }else {
+          comment['nid'] = "";
+        }
+        
         comment['cid'] = null;
         comment['submit'] = 0;
         
         comment['format'] = '1';
         comment['status'] = '1';
         
+        console.log("actionitem id "+localStorage.anid);
+        console.log("user is "+localStorage.actionuser);
+        
+        comment['anid'] = localStorage.anid;
+        comment['user_added'] = localStorage.actionuser;
+        
         comment['field_actionitem_status'] = {};
         comment['field_actionitem_status']['und'] = [];
         comment['field_actionitem_status']['und'][0] = {};
-        comment['field_actionitem_status']['und'][0]['value'] = 1; 
+        comment['field_actionitem_status']['und'][0]['value'] = $("#select-status :selected").val();
         
         comment['taxonomy_vocabulary_8'] = {};
         comment['taxonomy_vocabulary_8']['und'] = [];
         comment['taxonomy_vocabulary_8']['und'][0] = {};
-        comment['taxonomy_vocabulary_8']['und'][0]['tid'] = '328'; 
+        comment['taxonomy_vocabulary_8']['und'][0]['tid'] = $("#select_oecdobj :selected").val();
+        
         comment['language'] = 'und';
         
         
         devtrac.indexedDB.open(function (db) {
-          devtrac.indexedDB.addCommentsData(db, comment).then(function() {
+          devtrac.indexedDB.addActionItemCommentsData(db, comment).then(function() {
             //Show the comments filter
             $("#list_comments").prev("form.ui-filterable").show();
             
@@ -3471,7 +3490,7 @@ var controller = {
             
             list_comment.listview('refresh');
             
-            controller.loadingMsg("Saved", 1000);
+            controller.loadingMsg("Saved", 800);
             
             $('#actionitem_comment').val("");
             $('#commentcollapse').collapsible('collapse');
@@ -3512,7 +3531,10 @@ var controller = {
               localStorage.appurl = jsonObject['url'];
               
               controller.loadingMsg("Logging into "+localStorage.appurl, 0);
-              auth.login(jsonObject['name'], jsonObject['key']).then(function() {
+              
+              devtrac.indexedDB.open(function (db) {
+              
+              auth.login(jsonObject['name'], jsonObject['key'], db, "qrcodes").then(function() {
                 
                 devtracnodes.countFieldtrips().then(function(){
                   devtracnodes.countOecds().then(function() {
@@ -3574,6 +3596,7 @@ var controller = {
                 controller.loadingMsg("Log In Error: "+error, 2000);
               });
               
+              });
 
               }, 
               function (error) {
@@ -3807,7 +3830,12 @@ var controller = {
           //create oecd codes optgroup
           $('#actionitems_oecds').empty().append(selectGroup).trigger('create');
           $.mobile.changePage("#page_add_actionitems", "slide", true, false);
-        }else
+        }else if($.mobile.activePage.attr('id') == "page_sitevisits_details") {
+          //create oecd codes optgroup
+          $('#comment_oecds').empty().append(selectGroup).trigger('create');
+          $.mobile.changePage("#page_actionitemdetails", "slide", true, false);
+        }
+        else
         {
           //create oecd codes optgroup
           $('#select_oecds').empty().append(selectGroup).trigger('create');

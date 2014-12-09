@@ -95,27 +95,22 @@ var devtracnodes = {
     },
     
     //Post action item comments to devtrac
-    postComments: function(commentId) {
-      var d = $.Deferred();
-      devtrac.indexedDB.open(function (db) {
-        devtrac.indexedDB.getAllComments(db, function (comments) {
-          if(comments.length > 0){
-            for (var comment in comments) {
-              comments[comment]['nid'] = commentId['nid'];
-              
+    postComments: function(commentId, comments, callback) {
+      
+          if(comments.length > 0) {
+
               var info = {
                   
                   'node_type': 'comment_node_actionitem',
-                  "subject": "<p>Some body text</p>",
                   "language": "und",
-                  "taxonomy_vocabulary_8": { "und": { "tid": "328" } },
+                  "taxonomy_vocabulary_8": { "und": { "tid": comments[0]['taxonomy_vocabulary_8']['und'][0]['tid'] } },
                   "nid": commentId,
                   
                   "uid": localStorage.uid,
                   "format": 1,
                   "status": '1',
-                  "comment_body": { "und": {0 : { "value": "<p>Some body text</p>", "format": '1' }}},
-                  "field_actionitem_status": { "und": { "value": '1' }}
+                  "comment_body": { "und": {0 : { "value": comments[0]['comment_body']['und'][0]['value'], "format": '1' }}},
+                  "field_actionitem_status": { "und": { "value": comments[0]['field_actionitem_status']['und'][0]['value'] }}
                   
               }
               
@@ -126,21 +121,20 @@ var devtracnodes = {
                 headers: {'X-CSRF-Token': localStorage.usertoken},
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                   console.log('error '+errorThrown);
-                  d.reject();
+            
                 },
                 success: function (data) {
                   console.log('Comments upload success');
-                  d.resolve();
+            
+                  comments.splice(0, 1);
+                  devtracnodes.postComments(commentId, comments, callback);
                 }
               });
-            } 
+            
           }else{
-            d.reject();
+            callback();
           }
-          
-        });
-      });
-      return d;
+      
     },
     
     //upload action items
@@ -158,22 +152,29 @@ var devtracnodes = {
           devtracnodes.getActionItemString(actionitems[0], "", function(jsonstring, anid) {
             console.log("Action item string is "+jsonstring);
             devtracnodes.postNode(jsonstring, 0, actionitems.length, anid).then(function(updates, status, anid) {
-              
               updates['fresh_nid'] = updates['nid'];
               nodeStatus['actionitems'][actionitems[0]['nid']]['nid'] = updates['fresh_nid'];
               
-              actionitems.splice(0,1);
-              devtracnodes.uploadActionItems(actionitems, nodeStatus, callback);
+              //updates for comments uploaded
+              updates['anid'] = actionitems[0]['nid'];
+              updates['submit'] = 0;
               
-              devtracnodes.postComments(updates).then(function() {
-                
-                
-              }).fail(function(){
-                
+              devtrac.indexedDB.open(function (db) {
+                devtrac.indexedDB.getActionItemComments(db, actionitems[0]['nid'], function (comments) {
+                  devtracnodes.postComments(updates['nid'], comments, function() {
+                    
+/*                    devtrac.indexedDB.editItemComments(db, updates).then(function(){
+                                         
+                    });*/
+                    
+                    actionitems.splice(0,1);
+                    devtracnodes.uploadActionItems(actionitems, nodeStatus, callback);   
+
+                  });                
+                  
+                });                
                 
               });
-              
-              
               
             }).fail(function(e) {
               console.log("actionitem post error "+e);
@@ -1253,7 +1254,6 @@ var devtracnodes = {
           
           devtracnodes.uploadActionItems(actionitems, nodeStatus, function(updatedStatus){
             actionitems = true;
-            
             controller.loadingMsg("Finished Syncing Action Items ...", 0);
             
             if(ftritems == true && actionitems == true){
@@ -2135,7 +2135,7 @@ var devtracnodes = {
     },
     
   //Returns devtrac action item comments 
-    getActionItemComments: function(db) {
+    getActionComments: function(db) {
       var d = $.Deferred();
       
       devtrac.indexedDB.getAllActionitems(db, function(actionitems){
@@ -2157,8 +2157,12 @@ var devtracnodes = {
               if(controller.sizeme(data) <= 0) {
                 
               }else {
+                
                 for(var key in data){
+                  data[key]['anid'] = actionitems[key]['nid'];
+                  data[key]['user_added'] = false;
                   data[key]['submit'] = 0;
+                  
                   devtrac.indexedDB.addActionItemCommentsData(db, data[key]);
                 }
                 
