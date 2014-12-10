@@ -391,7 +391,11 @@ devtrac.indexedDB.getAllActionComments = function(db) {
     var cursor = event.target.result;
     
     if(cursor) {
-      actionComments.push(cursor.value);
+      
+      if(cursor.value.submit == 0) {
+        actionComments.push(cursor.value);
+      }
+      
       cursor.continue();
       
     }else {

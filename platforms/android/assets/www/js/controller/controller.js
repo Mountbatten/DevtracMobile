@@ -55,7 +55,7 @@ var controller = {
       $("#header_editsitevisit").html(header({id: "editsitevisit", title: "Edit Site Visit"}));
       $("#header_settings").html(header({id: "settings", title: "Settings"}));
       $("#header_download").html(header({id: "download", title: "Download Nodes"}));
-
+      
       $(window).bind('orientationchange pageshow pagechange resize', mapctlr.resizeMapIfVisible);
       
       //Bind to window orientation change after the qr codes are scanned. 
@@ -66,7 +66,7 @@ var controller = {
           var orientation = window.orientation;
           var new_orientation = (orientation) ? 0 : 180 + orientation;
           $('body').css({
-              "-webkit-transform": "rotate(" + new_orientation + "deg)"
+            "-webkit-transform": "rotate(" + new_orientation + "deg)"
           });
           
           localStorage.qrcodes = "off";
@@ -215,10 +215,10 @@ var controller = {
           }
           
           if(controller.checkCordova() != undefined) {
-          //move to manual and qr code login page
+            //move to manual and qr code login page
             $.mobile.changePage($("#page_scanner"), {changeHash: false});  
           }else{
-          //move to login page
+            //move to login page
             $.mobile.changePage($("#page_login"), {changeHash: false});
           }
           
@@ -286,8 +286,13 @@ var controller = {
               devtracnodes.getPlaces(db);
               
               devtracnodes.getActionItems(db).then(function(){
-                console.log("getting action comments");
-                devtracnodes.getActionComments(db);
+                
+                devtrac.indexedDB.getAllActionitems(db, function(actionitems){
+                  devtracnodes.getActionComments(db, actionitems, function(){
+                    console.log("Downloaded action comments");    
+                  });  
+                });
+                
               });
               devtracnodes.getQuestions(db);
               
@@ -337,7 +342,7 @@ var controller = {
     
     //Bind any events that are required on startup
     bindEvents: function () {
-
+      
       $(".menulistview").listview().listview('refresh');
       
       if($(".seturlselect option:selected").val() == "custom") {
@@ -533,7 +538,17 @@ var controller = {
                     toolbar2: "bullist numlist",
                     
                     menubar: false,
-                    toolbar_items_size: 'small'
+                    toolbar_items_size: 'small',
+                    setup: function(ed) {
+                      ed.on(
+                          "init",
+                          function(ed) {
+                            
+                            tinyMCE.execCommand('mceRepaint');
+                            
+                          }
+                      );
+                    }
         });
       });
       
@@ -542,7 +557,7 @@ var controller = {
         $("#sitenav").html('<ul>' +
             '<li><a href="#page_add_questionnaire"><i class="fa fa-list-alt fa-lg"></i>&nbsp&nbsp Questionnaire</a></li>' +
             '<li><a href="#mappage" class="panel_map" onclick="var state=false; var mapit = true; mapctlr.initMap(null, null, state, mapit);"><i class="fa fa-map-marker fa-lg"></i>&nbsp&nbsp Map</a></li>' +
-            '</ul>');
+        '</ul>');
       });
       
       //empty image arrays on cancel of site visit edits
@@ -634,7 +649,7 @@ var controller = {
       
       //count nodes for upload before uploads page is shown
       $("#syncall_page").bind('pagebeforeshow', function(){
-
+        
         controller.countAllNodes();
       });
       
@@ -726,7 +741,7 @@ var controller = {
       
       //hide first page after loading
       $( "#page_fieldtrip_details" ).bind("pagebeforeshow", function (e, ui) {
-          $("#page_loading").remove();
+        $("#page_loading").remove();
         
       });
       
@@ -1000,11 +1015,11 @@ var controller = {
                     titletextffield).append(
                         savesitevisitedits).append(
                             cancelsitevisitedits);
-
+            
             editform.append(fieldset).trigger('create');
           });
         });
-
+        
       });
       
       //capture photo from all other pages of the app
@@ -1014,7 +1029,7 @@ var controller = {
         
       });
       
-    //capture photo from site visit edit page
+      //capture photo from site visit edit page
       $(".takephotoedit").bind("click", function (event, ui) {
         localStorage.editsitevisitimages = "true";
         controller.capturePhoto();
@@ -1592,7 +1607,7 @@ var controller = {
       //open panel on the current page
       var page = $(':mobile-pagecontainer').pagecontainer('getActivePage')[0].id;
       var mypanel = $("#"+page).children(":first-child");
-
+      
       if( mypanel.hasClass("ui-panel-open") == true ) {
         mypanel.panel().panel("close");
       }else{
@@ -1697,7 +1712,7 @@ var controller = {
           }).fail(function(lcount){
             $("#comment_count").html(lcount);
           });
-
+          
           devtracnodes.countLocations(db).then(function(items) {
             $("#location_count").html(items);
           }).fail(function(lcount){
@@ -1780,7 +1795,7 @@ var controller = {
             controller.b64Images.push(image.src);
             controller.fsizes.push(~~(file.size/1024));
             controller.imageSrc.push("has");
-           
+            
           }
           
           var listitem = "";
@@ -1816,7 +1831,7 @@ var controller = {
             controller.b64Images.push(image.src);
             controller.fsizes.push(~~(file.size/1024));
             controller.imageSrc.push("has");
-          
+            
             var listitem = "";
             
             listitem = ' <li><a href="#">'+
@@ -2342,7 +2357,7 @@ var controller = {
       controller.base64Images = [];
       controller.filesizes = [];
       controller.imageSource = [];
-     
+      
       //empty other site visit images
       controller.fnames = [];
       controller.b64Images = [];
@@ -2683,7 +2698,7 @@ var controller = {
             var rtype = localStorage.reportType;
             
             if(rtype == "roadside") {
-
+              
               images['base64s'] = controller.base64Images;
               images['names'] = controller.filenames;
               images['kitkat'] = controller.imageSource;
@@ -2703,7 +2718,7 @@ var controller = {
               controller.b64Images = [];
               controller.fnames = [];
               controller.imageSrc = [];
-
+              
             }
             
             if(images['names'].length > 0 || controller.editedImageNames.length > 0) {
@@ -2725,27 +2740,27 @@ var controller = {
                   devtrac.indexedDB.addImages(db, images).then(function() {
                     //console.log('Added images');
                   });
-                
+                  
                 });
               });    
             }else{
               //controller.loadingMsg("No Images Added", 2000)
             }
-          
-          $("#sitevisists_details_title").html($("#sitevisit_title").val());
-          
-          if(localStorage.user == "true"){
-            $("#user"+localStorage.snid).children(".heada1").html($("#sitevisit_title").val());
-          }else{
-            $("#snid"+localStorage.snid).children(".heada1").html($("#sitevisit_title").val());
-          }
-          
-          $("#sitevisists_details_date").html($("#sitevisit_date").val());
-          $("#sitevisists_details_summary").html(editsummaryvalue);
-          
-          controller.refreshSitevisits();
-          
-          $.mobile.changePage("#page_sitevisits_details", "slide", true, false);
+            
+            $("#sitevisists_details_title").html($("#sitevisit_title").val());
+            
+            if(localStorage.user == "true"){
+              $("#user"+localStorage.snid).children(".heada1").html($("#sitevisit_title").val());
+            }else{
+              $("#snid"+localStorage.snid).children(".heada1").html($("#sitevisit_title").val());
+            }
+            
+            $("#sitevisists_details_date").html($("#sitevisit_date").val());
+            $("#sitevisists_details_summary").html(editsummaryvalue);
+            
+            controller.refreshSitevisits();
+            
+            $.mobile.changePage("#page_sitevisits_details", "slide", true, false);
           });
         });
       }else {
@@ -3061,27 +3076,27 @@ var controller = {
           $("#actionitem_resp_person").html(localStorage.realname);
           $("#actionitem_followup_task").html(fObject['field_actionitem_followuptask']['und'][0]['value']);
           
-
+          
           devtrac.indexedDB.getActionItemComments(db, anid, function (comments) {
             //By default hide the comments filter
             $("#list_comments").prev("form.ui-filterable").hide();
             
             for (var i in comments) {
               
-                //Show the filter
-                $("#list_comments").prev("form.ui-filterable").show();
-                
-                var aItem = comments[i];
-                
-                var li = $("<li></li>");
-                var a = $("<a href='#' id='" + aItem['nid'] + "' onclick=''></a>");
-                var h1 = $("<h1 class='heada2'>" + aItem['comment_body']['und'][0]['value'] + "</h1>");
-                var p = $("<p class='para2'></p>");
-                
-                a.append(h1);
-                a.append(p);
-                li.append(a);
-                list_comment.append(li);
+              //Show the filter
+              $("#list_comments").prev("form.ui-filterable").show();
+              
+              var aItem = comments[i];
+              
+              var li = $("<li></li>");
+              var a = $("<a href='#' id='" + aItem['nid'] + "' onclick=''></a>");
+              var h1 = $("<h1 class='heada2'>" + aItem['comment_body']['und'][0]['value'] + "</h1>");
+              var p = $("<p class='para2'></p>");
+              
+              a.append(h1);
+              a.append(p);
+              li.append(a);
+              list_comment.append(li);
               
             }
             list_comment.listview().listview('refresh');
@@ -3094,7 +3109,7 @@ var controller = {
             }
           });
         });
-
+        
       });
       
     },
@@ -3524,90 +3539,90 @@ var controller = {
     // device ready event handler
     onDeviceReady: function () {
       if(controller.checkCordova() != undefined) {
-
+        
         //start qr scan
         $('#qr_code').bind('click', function(){
           controller.loadingMsg("Please wait...", 0);
           cordova.plugins.barcodeScanner.scan(
               function (result) {
                 
-              var jsonObject = JSON.parse(result.text);
-              //alert("connect url is "+jsonObject['url']+" name is "+jsonObject['name']+" key is "+jsonObject['key']);
-              localStorage.appurl = jsonObject['url'];
-              
-              controller.loadingMsg("Logging into "+localStorage.appurl, 0);
-              
-              devtrac.indexedDB.open(function (db) {
-              
-              auth.login(jsonObject['name'], jsonObject['key'], db, "qrcodes").then(function() {
+                var jsonObject = JSON.parse(result.text);
+                //alert("connect url is "+jsonObject['url']+" name is "+jsonObject['name']+" key is "+jsonObject['key']);
+                localStorage.appurl = jsonObject['url'];
                 
-                devtracnodes.countFieldtrips().then(function(){
-                  devtracnodes.countOecds().then(function() {
+                controller.loadingMsg("Logging into "+localStorage.appurl, 0);
+                
+                devtrac.indexedDB.open(function (db) {
+                  
+                  auth.login(jsonObject['name'], jsonObject['key'], db, "qrcodes").then(function() {
                     
-                    //load field trip details from the database if its one and the list if there's more.
-                    controller.loadFieldTripList();                    
-                  }).fail(function() {
-                    //download all devtrac data for user.
-                    controller.fetchAllData().then(function(){
+                    devtracnodes.countFieldtrips().then(function(){
                       devtracnodes.countOecds().then(function() {
                         
                         //load field trip details from the database if its one and the list if there's more.
                         controller.loadFieldTripList();                    
                       }).fail(function() {
-
-                        controller.loadingMsg("Subjects were not found", 2000);
-                        
-                        
-                        setTimeout(function() {
+                        //download all devtrac data for user.
+                        controller.fetchAllData().then(function(){
+                          devtracnodes.countOecds().then(function() {
+                            
+                            //load field trip details from the database if its one and the list if there's more.
+                            controller.loadFieldTripList();                    
+                          }).fail(function() {
+                            
+                            controller.loadingMsg("Subjects were not found", 2000);
+                            
+                            
+                            setTimeout(function() {
+                              auth.logout();
+                              
+                            }, 2000);
+                            
+                          });
+                        }).fail(function(error) {
                           auth.logout();
+                          controller.loadingMsg(error,5000);
                           
-                        }, 2000);
+                        });
                         
                       });
-                    }).fail(function(error) {
-                      auth.logout();
-                      controller.loadingMsg(error,5000);
                       
-                    });
-                    
-                  });
-                  
-                }).fail(function() {
-                  //download all devtrac data for user.
-                  controller.fetchAllData().then(function(){
-                    
-                    devtracnodes.countOecds().then(function() {
-                      
-                      //load field trip details from the database if its one and the list if there's more.
-                      controller.loadFieldTripList();                    
                     }).fail(function() {
-                      
-                      controller.loadingMsg("Subjects were not found", 2000);
-                      
-                      setTimeout(function() {
-                        auth.logout();
+                      //download all devtrac data for user.
+                      controller.fetchAllData().then(function(){
                         
-                      }, 2000);
+                        devtracnodes.countOecds().then(function() {
+                          
+                          //load field trip details from the database if its one and the list if there's more.
+                          controller.loadFieldTripList();                    
+                        }).fail(function() {
+                          
+                          controller.loadingMsg("Subjects were not found", 2000);
+                          
+                          setTimeout(function() {
+                            auth.logout();
+                            
+                          }, 2000);
+                          
+                        });
+                      }).fail(function(error) {
+                        auth.logout();
+                        controller.loadingMsg(error,5000);
+                        
+                      });
                       
                     });
                   }).fail(function(error) {
-                    auth.logout();
-                    controller.loadingMsg(error,5000);
-                    
+                    controller.loadingMsg("Log In Error: "+error, 2000);
                   });
                   
                 });
-              }).fail(function(error) {
-                controller.loadingMsg("Log In Error: "+error, 2000);
-              });
-              
-              });
-
+                
               }, 
               function (error) {
-                  alert("Scanning failed: " + error);
+                alert("Scanning failed: " + error);
               }
-           );
+          );
         });
         
         //if device runs kitkat android 4.4 use plugin to access image files
@@ -3642,7 +3657,7 @@ var controller = {
               controller.b64Images.push(data.content);
               controller.imageSrc.push("hasnot");
               
-
+              
               var listitem = "";
               
               listitem = ' <li><a href="#">'+
@@ -3652,7 +3667,7 @@ var controller = {
               '</li>';
               
               controller.addImageEdits('other',listitem);
-            
+              
             }, function(error) {
               alert(error);
             });
@@ -3661,44 +3676,44 @@ var controller = {
           
           //handle file chooser for edited site visits
           $('#editImageFile').bind('click', function(e) {
-              var currentdate = new Date(); 
-              var datetime = currentdate.getDate()
-              + (currentdate.getMonth()+1)
-              + currentdate.getFullYear() + "_"  
-              + currentdate.getHours()
-              + currentdate.getMinutes()
-              + currentdate.getSeconds();
+            var currentdate = new Date(); 
+            var datetime = currentdate.getDate()
+            + (currentdate.getMonth()+1)
+            + currentdate.getFullYear() + "_"  
+            + currentdate.getHours()
+            + currentdate.getMinutes()
+            + currentdate.getSeconds();
+            
+            var imagename = "img_"+datetime+".jpeg";
+            
+            filechooser.open( {}, function(data){
+              var ftritem_type = localStorage.reportType;
+              var listitem = "";
+              var imagedata = data.content;
               
-              var imagename = "img_"+datetime+".jpeg";
+              if(ftritem_type.indexOf("oa") != -1) {
+                controller.filenames.push(imagename);
+                controller.base64Images.push(imagedata);
+                controller.imageSource.push("hasnot");
+                
+              }else {
+                controller.fnames.push(imagename);
+                controller.b64Images.push(imagedata);
+                controller.imageSrc.push("hasnot");
+                
+              }
               
-              filechooser.open( {}, function(data){
-                var ftritem_type = localStorage.reportType;
-                var listitem = "";
-                var imagedata = data.content;
-                
-                if(ftritem_type.indexOf("oa") != -1) {
-                  controller.filenames.push(imagename);
-                  controller.base64Images.push(imagedata);
-                  controller.imageSource.push("hasnot");
-                  
-                }else {
-                  controller.fnames.push(imagename);
-                  controller.b64Images.push(imagedata);
-                  controller.imageSrc.push("hasnot");
-                  
-                }
-                
-                listitem = ' <li><a href="#">'+
-                '<img src="'+ data.filepath +'" style="width: 80px; height: 80px;">'+
-                '<h2><div style="white-space:normal; word-wrap:break-word; overflow-wrap: break-word;">'+imagename+'</div></h2></a>'+
-                '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
-                '</li>';
-                
-                controller.addImageEdits('edit',listitem);
-                
-              }, function(error) {
-                alert(error);
-              });
+              listitem = ' <li><a href="#">'+
+              '<img src="'+ data.filepath +'" style="width: 80px; height: 80px;">'+
+              '<h2><div style="white-space:normal; word-wrap:break-word; overflow-wrap: break-word;">'+imagename+'</div></h2></a>'+
+              '<a onclick="controller.deleteImageEdits(this);" data-position-to="window" class="deleteImage"></a>'+
+              '</li>';
+              
+              controller.addImageEdits('edit',listitem);
+              
+            }, function(error) {
+              alert(error);
+            });
             
           });
           
