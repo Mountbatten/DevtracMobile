@@ -1692,6 +1692,12 @@ var controller = {
         devtracnodes.countSitevisits(db).then(function(scount){
           $("#sitevisit_count").html(scount);
           
+          devtracnodes.countComments(db).then(function(items) {
+            $("#comment_count").html(items);
+          }).fail(function(lcount){
+            $("#comment_count").html(lcount);
+          });
+
           devtracnodes.countLocations(db).then(function(items) {
             $("#location_count").html(items);
           }).fail(function(lcount){
@@ -3448,7 +3454,6 @@ var controller = {
           comment['nid'] = "";
         }
         
-        comment['cid'] = null;
         comment['submit'] = 0;
         
         comment['format'] = '1';

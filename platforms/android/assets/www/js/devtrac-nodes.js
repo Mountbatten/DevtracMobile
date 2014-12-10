@@ -95,7 +95,7 @@ var devtracnodes = {
     },
     
     //Post action item comments to devtrac
-    postComments: function(commentId, comments, callback) {
+    postComments: function(db, commentArray, comments, callback) {
       
           if(comments.length > 0) {
 
@@ -104,7 +104,7 @@ var devtracnodes = {
                   'node_type': 'comment_node_actionitem',
                   "language": "und",
                   "taxonomy_vocabulary_8": { "und": { "tid": comments[0]['taxonomy_vocabulary_8']['und'][0]['tid'] } },
-                  "nid": commentId,
+                  "nid": commentArray['nid'],
                   
                   "uid": localStorage.uid,
                   "format": 1,
@@ -113,6 +113,9 @@ var devtracnodes = {
                   "field_actionitem_status": { "und": { "value": comments[0]['field_actionitem_status']['und'][0]['value'] }}
                   
               }
+              
+              //updates for comments uploaded
+              commentArray['title'] = comments[0]['comment_body']['und'][0]['value'];
               
               $.ajax({
                 url: localStorage.appurl+"/api/comment",
@@ -124,10 +127,13 @@ var devtracnodes = {
             
                 },
                 success: function (data) {
-                  console.log('Comments upload success');
-            
-                  comments.splice(0, 1);
-                  devtracnodes.postComments(commentId, comments, callback);
+                  commentArray['submit'] = 1;
+                  
+                  devtrac.indexedDB.editItemComments(db, commentArray).then(function() {
+                    comments.splice(0, 1);
+                    devtracnodes.postComments(db, commentArray, comments, callback);  
+                  });
+                  
                 }
               });
             
@@ -155,17 +161,11 @@ var devtracnodes = {
               updates['fresh_nid'] = updates['nid'];
               nodeStatus['actionitems'][actionitems[0]['nid']]['nid'] = updates['fresh_nid'];
               
-              //updates for comments uploaded
               updates['anid'] = actionitems[0]['nid'];
-              updates['submit'] = 0;
               
               devtrac.indexedDB.open(function (db) {
                 devtrac.indexedDB.getActionItemComments(db, actionitems[0]['nid'], function (comments) {
-                  devtracnodes.postComments(updates['nid'], comments, function() {
-                    
-/*                    devtrac.indexedDB.editItemComments(db, updates).then(function(){
-                                         
-                    });*/
+                  devtracnodes.postComments(db, updates, comments, function() {
                     
                     actionitems.splice(0,1);
                     devtracnodes.uploadActionItems(actionitems, nodeStatus, callback);   
@@ -354,6 +354,33 @@ var devtracnodes = {
         });  
         
       });
+      
+      return d;
+    },
+    
+    countComments: function(db) {
+      var d = $.Deferred();
+      var comments = [];
+      
+      var count = 0;
+      
+      devtrac.indexedDB.getAllActionComments(db).then(function(comments) {
+        
+        for(var key in comments) {
+          if(comments[key]['submit'] == 0) {
+            count = count + 1;
+          }
+          
+        }        
+        
+        if(count > 0) {
+          d.resolve(count);  
+        }else
+        {
+          d.reject(count);
+        }
+      });  
+      
       
       return d;
     },
@@ -1789,10 +1816,10 @@ var devtracnodes = {
               nodestring = nodestring + 'node['+p+'][und][0][geom]='+pObj[p]['und'][0]['geom']+'&';
               break;
             case 'taxonomy_vocabulary_6':
-              nodestring = nodestring + 'node['+p+'][und][0][tid]='+pObj[p]['und'][0]['tid']+'&';
+              nodestring = nodestring + 'node['+p+'][und][tid]='+pObj[p]['und'][0]['tid']+'&';
               break;
             case 'taxonomy_vocabulary_1':
-              nodestring = nodestring + 'node['+p+'][und][0][tid]='+pObj[p]['und'][0]['tid']+'&';
+              nodestring = nodestring + 'node['+p+'][und][tid]='+pObj[p]['und'][0]['tid']+'&';
               break;
             default :
               break
@@ -2161,7 +2188,6 @@ var devtracnodes = {
                 for(var key in data){
                   data[key]['anid'] = actionitems[key]['nid'];
                   data[key]['user_added'] = false;
-                  data[key]['submit'] = 0;
                   
                   devtrac.indexedDB.addActionItemCommentsData(db, data[key]);
                 }

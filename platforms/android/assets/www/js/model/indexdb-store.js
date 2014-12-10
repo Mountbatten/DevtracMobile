@@ -6,7 +6,7 @@ devtrac.indexedDB.db = null;
 
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 2;
+  var version = 6;
   
   var request = indexedDB.open("b14", version);
   
@@ -21,7 +21,7 @@ devtrac.indexedDB.open = function(callback) {
 //creating an object store
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 2;
+  var version = 6;
   
   var request = indexedDB.open("b14", version);
   
@@ -91,8 +91,8 @@ devtrac.indexedDB.open = function(callback) {
     var images = db.createObjectStore("images", {keyPath: "nid"});
     images.createIndex('nid', 'nid', { unique: true });
     
-    var actionitemcomments = db.createObjectStore("actionitemscomments", {autoIncrement: true});
-    objectStore.createIndex("anid", "anid", { unique: false });
+    var actionitemcomments = db.createObjectStore("actionitemscomments", {keyPath: "cid", autoIncrement: true});
+    actionitemcomments.createIndex("anid", "anid", { unique: false });
     
   };
   
@@ -336,49 +336,72 @@ devtrac.indexedDB.getActionItemComments = function(db, cnid, callback) {
 
 
 //Edit actionitem comments 
-devtrac.indexedDB.itemComments = function(db, updates) {
-var d = $.Deferred();
-var trans = db.transaction(["actionitemscomments"], "readwrite");
-var store = trans.objectStore("actionitemscomments");
-
-var request = store.get(update['anid']);
-request.onerror = function(event) {
-  // Handle errors!
-  console.log("Error getting actionitem to update");
+devtrac.indexedDB.editItemComments = function(db, updates) {
+  var d = $.Deferred();
+  var trans = db.transaction(["actionitemscomments"], "readwrite");
+  var store = trans.objectStore("actionitemscomments");
+  var commentId = updates['anid'].toString();
+  
+  store.openCursor().onsuccess = function(event) {
+    var cursor = event.target.result;
+    
+    if(cursor) {
+      
+      var editedData = cursor.value;
+      
+      if(updates['title'] == editedData.comment_body.und[0].value && commentId == editedData.anid) {
+        editedData.submit = 1;
+        
+        var trans2 = db.transaction(["actionitemscomments"], "readwrite");
+        var store2 = trans2.objectStore("actionitemscomments");
+        
+        // Put this updated object back into the database.
+        var requestUpdate = store2.put(editedData);
+        requestUpdate.onerror = function(event) {
+          // Do something with the error
+          console.log("actionitem comments update failed");
+          d.reject();
+        };
+        requestUpdate.onsuccess = function(event) {
+          // Success - the data is updated!
+          console.log("actionitem comments update success");
+          d.resolve();
+        };
+        
+      }else {
+        cursor.continue();  
+      }
+      
+    } else {
+      console.log('Entries all displayed.');
+      
+    }
+  };
+  return d;
 };
 
-request.onsuccess = function(event) {
+//Get all action item comments
+devtrac.indexedDB.getAllActionComments = function(db) {
+  var d = $.Deferred();
+  var trans = db.transaction("actionitemscomments", "readonly");
+  var store = trans.objectStore("actionitemscomments");
+  var actionComments = [];
   
-  // Get the old value that we want to update
-  var data = request.result;
-  if(updates['title'] != undefined){
-    data.title = updates['title'];  
-  }
-  if(updates['editflag'] != undefined){
-    data.editflag = updates['editflag'];  
-  }
-  if(updates['submit'] != undefined){
-    data.submit = updates['submit'];  
-  }
-  
-  // update the value(s) in the object that you want to change
-  // Put this updated object back into the database.
-  var requestUpdate = store.put(data);
-  
-  requestUpdate.onerror = function(event) {
-    // Do something with the error
-    console.log("Item comment update failed");
-    d.resolve();
+  store.openCursor().onsuccess = function(event) {
+    var cursor = event.target.result;
+    
+    if(cursor) {
+      actionComments.push(cursor.value);
+      cursor.continue();
+      
+    }else {
+      console.log('Entries all displayed.');
+      d.resolve(actionComments);
+    }
+    
   };
   
-  requestUpdate.onsuccess = function(event) {
-    // Success - the data is updated!
-    console.log("Item comment update success");
-    //callback();
-    d.resolve();
-  };
-};
-return d;
+  return d;
 };
 
 
