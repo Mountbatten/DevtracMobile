@@ -6,9 +6,9 @@ devtrac.indexedDB.db = null;
 
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 6;
+  var version = 1;
   
-  var request = indexedDB.open("b14", version);
+  var request = indexedDB.open("b15", version);
   
   request.onsuccess = function(e) {
     devtrac.indexedDB.db = e.target.result;
@@ -21,9 +21,9 @@ devtrac.indexedDB.open = function(callback) {
 //creating an object store
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 6;
+  var version = 1;
   
-  var request = indexedDB.open("b14", version);
+  var request = indexedDB.open("b15", version);
   
   // We can only create Object stores in a versionchange transaction.
   request.onupgradeneeded = function(e) {
@@ -337,47 +337,57 @@ devtrac.indexedDB.getActionItemComments = function(db, cnid, callback) {
 
 //Edit actionitem comments 
 devtrac.indexedDB.editItemComments = function(db, updates) {
+  
   var d = $.Deferred();
   var trans = db.transaction(["actionitemscomments"], "readwrite");
   var store = trans.objectStore("actionitemscomments");
-  var commentId = updates['anid'].toString();
+  var commentId = updates['editcomment'].toString();
   
-  store.openCursor().onsuccess = function(event) {
-    var cursor = event.target.result;
-    
-    if(cursor) {
+  devtrac.indexedDB.getActionItemComments(db, commentId, function(itemComments) {
+    devtrac.indexedDB.saveActionComments(db, updates, itemComments, function(){
+      d.resolve();
+    });
+  });
+  
+  return d;
+};
+
+
+//Get all action item comments
+devtrac.indexedDB.saveActionComments = function(db, updates, editedData, callback) {
+
+  if(editedData.length > 0) {
+    if(updates['title'] == editedData[0].comment_body.und[0].value && updates['editcomment'].toString() == editedData[0].anid) {
+      editedData[0].submit = 1;
       
-      var editedData = cursor.value;
+      var trans2 = db.transaction(["actionitemscomments"], "readwrite");
+      var store2 = trans2.objectStore("actionitemscomments");
       
-      if(updates['title'] == editedData.comment_body.und[0].value && commentId == editedData.anid) {
-        editedData.submit = 1;
+      // Put this updated object back into the database.
+      var requestUpdate = store2.put(editedData[0]);
+      requestUpdate.onerror = function(event) {
+        // Do something with the error
+        console.log("actionitem comments update failed");
+        editedData.splice(0, 1);
+        devtrac.indexedDB.saveActionComments(db, updates, editedData, callback);
         
-        var trans2 = db.transaction(["actionitemscomments"], "readwrite");
-        var store2 = trans2.objectStore("actionitemscomments");
-        
-        // Put this updated object back into the database.
-        var requestUpdate = store2.put(editedData);
-        requestUpdate.onerror = function(event) {
-          // Do something with the error
-          console.log("actionitem comments update failed");
-          d.reject();
-        };
-        requestUpdate.onsuccess = function(event) {
-          // Success - the data is updated!
-          console.log("actionitem comments update success");
-          d.resolve();
-        };
-        
-      }else {
-        cursor.continue();  
-      }
+      };
+      
+      requestUpdate.onsuccess = function(event) {
+        // Success - the data is updated!
+        console.log("actionitem comments update success");
+        editedData.splice(0, 1);
+        devtrac.indexedDB.saveActionComments(db, updates, editedData, callback);
+      };
       
     } else {
-      console.log('Entries all displayed.');
-      
+      editedData.splice(0, 1);
+      devtrac.indexedDB.saveActionComments(db, updates, editedData, callback);
     }
-  };
-  return d;
+  }else{
+    callback();
+  }
+   
 };
 
 //Get all action item comments
@@ -604,8 +614,8 @@ devtrac.indexedDB.getAllSitevisits = function(db, callback) {
   var store = trans.objectStore("sitevisit");
   
   // Get everything in the store;
-  var keyRange = IDBKeyRange.lowerBound(0);
-  var cursorRequest = store.openCursor(keyRange);
+  //var keyRange = IDBKeyRange.lowerBound(0);
+  var cursorRequest = store.openCursor();
   
   cursorRequest.onsuccess = function(e) {
     var result = e.target.result;

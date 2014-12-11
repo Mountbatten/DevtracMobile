@@ -98,12 +98,28 @@ var devtracnodes = {
     postComments: function(db, commentArray, comments, callback) {
       
       var commentId = "";
+      var edit_comment = "";
+      
       if(comments.length > 0) {
-        if(commentArray['nid'] != undefined) {
-          commentId = commentArray['nid'];    
-        }else{
+        if(typeof commentArray['anid'] == "number") {
+          commentId = commentArray['nid'];
+          edit_comment = commentArray['anid'];
+          
+          //commentArray['anid'] = commentId;
+          commentArray['editcomment'] = edit_comment;
+          
+          
+        }else {
           commentId = commentArray[0]['anid'];
+          edit_comment = commentId;
+          
+          //commentArray['anid'] = commentId;
+          commentArray['editcomment'] = edit_comment;
+          
+          
         }
+        
+        commentId = commentId.toString();
         
         var info = {
             
@@ -134,7 +150,6 @@ var devtracnodes = {
           },
           success: function (data) {
             commentArray['submit'] = 1;
-            commentArray['anid'] = commentId;
             
             devtrac.indexedDB.editItemComments(db, commentArray).then(function() {
               
@@ -146,7 +161,9 @@ var devtracnodes = {
         });
         
       }else{
+        controller.countAllNodes();
         callback("");
+        
       }
       
     },
@@ -173,8 +190,15 @@ var devtracnodes = {
               
               devtrac.indexedDB.open(function (db) {
                 devtrac.indexedDB.getActionItemComments(db, actionitems[0]['nid'], function (comments) {
+                  
+                  //loop thru comments and remove those that wea upload
+                  for(var comment in comments) {
+                    if(comments[comment]['submit'] == 1) {
+                      comments.splice(comment, 1);
+                    }
+                  }
+                  
                   devtracnodes.postComments(db, updates, comments, function() {
-                    
                     actionitems.splice(0,1);
                     devtracnodes.uploadActionItems(actionitems, nodeStatus, callback);   
                     
@@ -1348,35 +1372,39 @@ var devtracnodes = {
     
     syncComments: function(fieldtrips, nodeStatus) {
       var comments = false;
-      if(parseInt($("#comment_count").html()) > 0) {
-        //Upload comments
-        devtracnodes.uploadComments().then(function() {
-          comments = true;
-          controller.loadingMsg("Finished Syncing Comments ...", 0);
-          
-          if(fieldtrips == true && comments == true) {
-            devtracnodes.updateSyncData(status);
+      
+      devtrac.indexedDB.open(function (db) {
+        devtracnodes.countComments(db).then(function(items) {
+          //Upload comments
+          devtracnodes.uploadComments().then(function() {
+            comments = true;
+            controller.loadingMsg("Finished Syncing Comments ...", 0);
             
-          }
-          
-        }).fail(function(e){
-          controller.loadingMsg("Error Uploading Comments, Please try again ..."+e, 0);
-          
+            if(fieldtrips == true && comments == true) {
+              devtracnodes.updateSyncData(status);
+              
+            }
+            
+          }).fail(function(e){
+            controller.loadingMsg("Error Uploading Comments, Please try again ..."+e, 0);
+            
+            comments = true;
+            if(fieldtrips == true && comments == true){
+              devtracnodes.updateSyncData(nodeStatus);
+              
+            }
+            
+          });
+        }).fail(function(lcount){
           comments = true;
-          if(fieldtrips == true && comments == true){
+          if(fieldtrips == true && comments == true) {
             devtracnodes.updateSyncData(nodeStatus);
             
           }
-          
-        });  
+        });
         
-      }else {
-        comments = true;
-        if(fieldtrips == true && comments == true) {
-          devtracnodes.updateSyncData(nodeStatus);
-          
-        }
-      }
+      });
+      
     },
     
     //upload fieldtrips
@@ -2115,13 +2143,15 @@ var devtracnodes = {
                 
               },
               success : function(data) {
+
+                callback(data);
                 //create bubble notification
                 if(data.length <= 0) {
                   callback();
                 }else{
                   
                   devtracnodes.saveSiteVisit(db, data, function() {
-                    callback();
+                    
                   });
                   
                 }
@@ -2230,24 +2260,43 @@ var devtracnodes = {
             
           },
           success : function(data) {
-            
-            //create bubble notification
-            if(controller.sizeme(data) > 0) {
-
+            var items = [];
+            for(var key in data) {
               data[key]['anid'] = actionitems[0]['nid'];
               data[key]['user_added'] = false;
-            
-              actionitems.splice(0, 1);
               
-              devtrac.indexedDB.addActionItemCommentsData(db, data[key]).then(function(){
-                devtracnodes.getActionComments(db, actionitems, callback);
-              }).fail(function(){
-                devtracnodes.getActionComments(db, actionitems, callback);
+              items.push(data[key]);
+            }
+            
+            //create bubble notification
+            if(items.length > 0) {
+              devtracnodes.saveItemComments(db, items, function() {
+                actionitems.splice(0, 1);
+                devtracnodes.getActionComments(db, actionitems, callback);        
               });
+            
+            }else{
+              actionitems.splice(0, 1);
+              devtracnodes.getActionComments(db, actionitems, callback);
             }
           }
         });  
       }else {
+        callback();
+      }
+      
+    },
+    
+    saveItemComments: function(db, data, callback) {
+      if(data.length > 0) {
+        devtrac.indexedDB.addActionItemCommentsData(db, data).then(function(){
+          data.splice(0, 1);
+          devtracnodes.saveItemComments(db, data, callback);
+        }).fail(function(){
+          data.splice(0, 1);
+          devtracnodes.saveItemComments(db, data, callback);
+        });
+      } else {
         callback();
       }
       
@@ -2343,9 +2392,7 @@ var devtracnodes = {
       });
     },
     
-    //
-    getPlaces: function(db) {
-      devtrac.indexedDB.getAllSitevisits(db, function(snid){
+    getPlaces: function(db, snid) {
         if(snid.length > 0) {
           for(var k in snid) {
             if(snid[k]['fresh_nid'] != undefined) {
@@ -2355,7 +2402,7 @@ var devtracnodes = {
             }
           }
         }
-      });
+      
     },
     
     //Returns devtrac question json list 

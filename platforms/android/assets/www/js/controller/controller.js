@@ -283,48 +283,49 @@ var controller = {
               controller.loadingMsg("Sitevisits Saved", 0);
               
               notes.push('Sitevisits');
-              devtracnodes.getPlaces(db);
               
-              devtracnodes.getActionItems(db).then(function(){
+                devtracnodes.getPlaces(db, response);  
                 
-                devtrac.indexedDB.getAllActionitems(db, function(actionitems){
-                  devtracnodes.getActionComments(db, actionitems, function(){
-                    console.log("Downloaded action comments");    
-                  });  
+                devtracnodes.getActionItems(db).then(function(){
+                  
+                  devtrac.indexedDB.getAllActionitems(db, function(actionitems){
+                    devtracnodes.getActionComments(db, actionitems, function(){
+                      console.log("Downloaded action comments");    
+                    });  
+                  });
+                  
                 });
                 
-              });
-              devtracnodes.getQuestions(db);
-              
-              var counter = 0;
-              for(var x = 0; x < controller.nodes.length; x++) {
-                controller.nodes[x](db).then(function(response) {
-                  console.log("fetch success "+response);
-                  counter = counter + 1;
-                  controller.loadingMsg("Saved "+response, 1500);
-                  
-                  notes.push(response);
-                  if(counter > controller.nodes.length - 1) {
-                    console.log("creating notes");
-                    owlhandler.notes(notes);
-                    
-                    d.resolve();
-                  }
-                  
-                }).fail(function(e) {
-                  
-                  controller.loadingMsg("Error: "+e, 2000);
-                  
-                  
-                  setTimeout(function(){
-                    auth.logout();
-                    
-                  }, 2500);
-                  
-                });  
+                devtracnodes.getQuestions(db);
                 
-              }
-              
+                var counter = 0;
+                for(var x = 0; x < controller.nodes.length; x++) {
+                  controller.nodes[x](db).then(function(response) {
+                    console.log("fetch success "+response);
+                    counter = counter + 1;
+                    controller.loadingMsg("Saved "+response, 1500);
+                    
+                    notes.push(response);
+                    if(counter > controller.nodes.length - 1) {
+                      console.log("creating notes");
+                      owlhandler.notes(notes);
+                      
+                      d.resolve();
+                    }
+                    
+                  }).fail(function(e) {
+                    
+                    controller.loadingMsg("Error: "+e, 2000);
+                    
+                    
+                    setTimeout(function(){
+                      auth.logout();
+                      
+                    }, 2500);
+                    
+                  });  
+                  
+                }
               
             });
             
@@ -543,7 +544,7 @@ var controller = {
                       ed.on(
                           "init",
                           function(ed) {
-                            
+                            tinymce.execCommand('mceSetContent', false, "");
                             tinyMCE.execCommand('mceRepaint');
                             
                           }
