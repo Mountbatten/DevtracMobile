@@ -3550,24 +3550,52 @@ var controller = {
           cordova.plugins.barcodeScanner.scan(
               function (result) {
                 
-                var jsonObject = JSON.parse(result.text);
-                //alert("connect url is "+jsonObject['url']+" name is "+jsonObject['name']+" key is "+jsonObject['key']);
-                localStorage.appurl = jsonObject['url'];
-                
-                controller.loadingMsg("Logging into "+localStorage.appurl, 0);
-                
-                devtrac.indexedDB.open(function (db) {
+                if(!result.cancelled) {
+                  var jsonObject = JSON.parse(result.text);
+                  //alert("connect url is "+jsonObject['url']+" name is "+jsonObject['name']+" key is "+jsonObject['key']);
+                  localStorage.appurl = jsonObject['url'];
                   
-                  auth.login(jsonObject['name'], jsonObject['key'], db, "qrcodes").then(function() {
+                  controller.loadingMsg("Logging into "+localStorage.appurl, 0);
+                  
+                  devtrac.indexedDB.open(function (db) {
                     
-                    devtracnodes.countFieldtrips().then(function(){
-                      devtracnodes.countOecds().then(function() {
+                    auth.login(jsonObject['name'], jsonObject['key'], db, "qrcodes").then(function() {
+                      
+                      devtracnodes.countFieldtrips().then(function(){
+                        devtracnodes.countOecds().then(function() {
+                          
+                          //load field trip details from the database if its one and the list if there's more.
+                          controller.loadFieldTripList();                    
+                        }).fail(function() {
+                          //download all devtrac data for user.
+                          controller.fetchAllData().then(function(){
+                            devtracnodes.countOecds().then(function() {
+                              
+                              //load field trip details from the database if its one and the list if there's more.
+                              controller.loadFieldTripList();                    
+                            }).fail(function() {
+                              
+                              controller.loadingMsg("Subjects were not found", 2000);
+                              
+                              
+                              setTimeout(function() {
+                                auth.logout();
+                                
+                              }, 2000);
+                              
+                            });
+                          }).fail(function(error) {
+                            auth.logout();
+                            controller.loadingMsg(error,5000);
+                            
+                          });
+                          
+                        });
                         
-                        //load field trip details from the database if its one and the list if there's more.
-                        controller.loadFieldTripList();                    
                       }).fail(function() {
                         //download all devtrac data for user.
                         controller.fetchAllData().then(function(){
+                          
                           devtracnodes.countOecds().then(function() {
                             
                             //load field trip details from the database if its one and the list if there's more.
@@ -3575,7 +3603,6 @@ var controller = {
                           }).fail(function() {
                             
                             controller.loadingMsg("Subjects were not found", 2000);
-                            
                             
                             setTimeout(function() {
                               auth.logout();
@@ -3590,37 +3617,12 @@ var controller = {
                         });
                         
                       });
-                      
-                    }).fail(function() {
-                      //download all devtrac data for user.
-                      controller.fetchAllData().then(function(){
-                        
-                        devtracnodes.countOecds().then(function() {
-                          
-                          //load field trip details from the database if its one and the list if there's more.
-                          controller.loadFieldTripList();                    
-                        }).fail(function() {
-                          
-                          controller.loadingMsg("Subjects were not found", 2000);
-                          
-                          setTimeout(function() {
-                            auth.logout();
-                            
-                          }, 2000);
-                          
-                        });
-                      }).fail(function(error) {
-                        auth.logout();
-                        controller.loadingMsg(error,5000);
-                        
-                      });
-                      
+                    }).fail(function(error) {
+                      controller.loadingMsg("Log In Error: "+error, 2000);
                     });
-                  }).fail(function(error) {
-                    controller.loadingMsg("Log In Error: "+error, 2000);
-                  });
-                  
-                });
+                    
+                  });  
+                }
                 
               }, 
               function (error) {
