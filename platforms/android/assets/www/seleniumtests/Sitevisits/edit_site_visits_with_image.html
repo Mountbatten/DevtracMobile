@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://jenkinsge.mountbatten.net/DevtracMobile/platforms/android/web/" />
+<title>New Test</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">New Test</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/DevtracMobile/platforms/android/web/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=addsitereportbutton</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=sitevisit_add_type</td>
+	<td>label=Site Visit</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=submit_sitereporttype</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=location_name</td>
+	<td>My Site visit</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=sitevisitfile</td>
+	<td>/home/aggrey/Downloads/14 - 1.jpg</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=location_item_save</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=editsitevisit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=sitevisit_title</td>
+	<td>My Site visit</td>
+</tr>
+<tr>
+	<td>assertTextNotPresent</td>
+	<td>xpath=//img[@src='/home/aggrey/Downloads/14 - 1.jpg']</td>
+	<td>14 - 1.jpg</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=editImageFile</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=editImageFile</td>
+	<td>/home/aggrey/Downloads/code-horror.gif</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=save_site_visit_edits</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>
