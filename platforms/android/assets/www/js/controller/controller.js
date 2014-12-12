@@ -216,10 +216,10 @@ var controller = {
           
           if(controller.checkCordova() != undefined) {
             //move to manual and qr code login page
-            $.mobile.changePage($("#page_scanner"), {changeHash: false});  
+            $.mobile.changePage($("#page_scanner"), {changeHash: true});  
           }else{
             //move to login page
-            $.mobile.changePage($("#page_login"), {changeHash: false});
+            $.mobile.changePage($("#page_login"), {changeHash: true});
           }
           
         });
@@ -647,6 +647,11 @@ var controller = {
         
       });
       
+      //Remove loading page on load of page scanner
+      $("#page_scanner").bind('pagebeforeshow', function(){
+        $('#page_loading').remove();
+        
+      });
       
       //count nodes for upload before uploads page is shown
       $("#syncall_page").bind('pagebeforeshow', function(){
@@ -1328,9 +1333,7 @@ var controller = {
         if ($("#page_login_name").valid() && $("#page_login_pass").valid()) {
           controller.loadingMsg("Logging In ...", 0);
           
-          
           if(controller.connectionStatus) {
-            
             devtrac.indexedDB.open(function (db) {
               auth.login($('#page_login_name').val(), $('#page_login_pass').val(), db).then(function () {
                 console.log("success logged in");
