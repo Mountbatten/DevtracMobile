@@ -264,7 +264,7 @@ var controller = {
       devtrac.indexedDB.open(function (db) {
         devtracnodes.getFieldtrips(db).then(function () {
           
-          controller.loadingMsg("Fieldtrips Saved", 0);
+          controller.loadingMsg("Fieldtrips Downloaded", 0);
           
           notes.push('Fieldtrips');
           
@@ -274,7 +274,7 @@ var controller = {
               window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, saveTypes, failsaveTypes);  
             }
             
-            controller.loadingMsg("Site Report Types Saved", 0);
+            controller.loadingMsg("Site Report Types Downloaded", 0);
             
             notes.push('Site Report Types');
             
@@ -290,7 +290,7 @@ var controller = {
                   
                   devtrac.indexedDB.getAllActionitems(db, function(actionitems){
                     devtracnodes.getActionComments(db, actionitems, function(){
-                      console.log("Downloaded action comments");    
+                      console.log("Action comments Downloaded");    
                     });  
                   });
                   
@@ -303,7 +303,12 @@ var controller = {
                   controller.nodes[x](db).then(function(response) {
                     console.log("fetch success "+response);
                     counter = counter + 1;
-                    controller.loadingMsg("Saved "+response, 1500);
+                    
+                    if(response == "Oecds") {
+                      response = "Subjects";
+                    }
+                    
+                    controller.loadingMsg(response+" Downloaded", 1500);
                     
                     notes.push(response);
                     if(counter > controller.nodes.length - 1) {
@@ -1044,10 +1049,10 @@ var controller = {
       
       //save url dialog
       $('.save_url').bind("click", function (event, ui) {
-        $(".urllogging").html("clicked the save");
+        //$(".urllogging").html("clicked the save");
         var url = null;
         if($(".myurl").val().length > 0) {
-          $(".clickedurl").html($(".myurl").val());
+          //$(".clickedurl").html($(".myurl").val());
           
           devtrac.indexedDB.open(function (db) {
             devtrac.indexedDB.clearDatabase(db, 0, function() {
@@ -1066,7 +1071,7 @@ var controller = {
           
           url = $('.seturlselect option:selected"').val();
           
-          $(".clickedurl").html($('.seturlselect option:selected"').val());
+          //$(".clickedurl").html($('.seturlselect option:selected"').val());
           
           switch (url) {
             case "local":
@@ -1329,7 +1334,7 @@ var controller = {
       
       //handle login click event
       $('#page_login_submit').bind("click", function (event, ui) {
-        $(".loginlogs").html("clicked sign in");
+        /*$(".loginlogs").html("clicked sign in");*/
         if ($("#page_login_name").valid() && $("#page_login_pass").valid()) {
           controller.loadingMsg("Logging In ...", 0);
           
