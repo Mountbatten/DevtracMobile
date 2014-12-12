@@ -324,8 +324,16 @@ devtrac.indexedDB.getActionItemComments = function(db, cnid, callback) {
       return;
     }
     
-    if(result.value.anid == cnid) {
-      actionitemcomments.push(result.value);  
+    if(typeof result.value == "object") {
+      for(var comment in result.value) {
+        if(result.value[comment].anid == cnid) {
+          actionitemcomments.push(result.value[comment]);  
+        }    
+      }
+    }else{
+      if(result.value.anid == cnid) {
+        actionitemcomments.push(result.value);  
+      }
     }
     
     result["continue"]();

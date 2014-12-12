@@ -2288,18 +2288,13 @@ var devtracnodes = {
     },
     
     saveItemComments: function(db, data, callback) {
-      if(data.length > 0) {
         devtrac.indexedDB.addActionItemCommentsData(db, data).then(function(){
-          data.splice(0, 1);
-          devtracnodes.saveItemComments(db, data, callback);
+          callback();
+          
         }).fail(function(){
-          data.splice(0, 1);
-          devtracnodes.saveItemComments(db, data, callback);
+          callback();
+          
         });
-      } else {
-        callback();
-      }
-      
     },
     
     saveActionItems: function(db, data, count, callback) {

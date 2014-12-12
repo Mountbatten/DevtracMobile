@@ -305,6 +305,7 @@ var auth = {
               }
                
             });
+            
             console.log("logged out okay");
             $(".menulistview").hide();
             $("#form_fieldtrip_details").hide();
@@ -321,7 +322,13 @@ var auth = {
             //hide menu button on login page
             $("#barsbutton_login").hide();
             
-            $.mobile.changePage("#page_scanner", "slide", true, false);
+            if(controller.checkCordova() != undefined) {
+              //move to manual and qr code login page
+              $.mobile.changePage($("#page_scanner"), {changeHash: true});  
+            }else{
+              //move to login page
+              $.mobile.changePage($("#page_login"), {changeHash: true});
+            }
             
             localStorage.token = null;
             localStorage.pass = null;

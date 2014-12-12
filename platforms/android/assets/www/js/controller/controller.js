@@ -2078,7 +2078,6 @@ var controller = {
             fieldtripList.listview().listview('refresh');
             $("#fieldtrip_count").html(count);
             
-            //$("body").pagecontainer("change", $("#home_page"), {changeHash: false});
             $.mobile.changePage($("#home_page"), {changeHash: false});
             
             $.unblockUI({ 
