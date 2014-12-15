@@ -2145,16 +2145,6 @@ var devtracnodes = {
               success : function(data) {
 
                 callback(data);
-                //create bubble notification
-                if(data.length <= 0) {
-                  callback();
-                }else{
-                  
-                  devtracnodes.saveSiteVisit(db, data, function() {
-                    
-                  });
-                  
-                }
                 
               }
             });
@@ -2213,10 +2203,10 @@ var devtracnodes = {
     getActionItems: function(db) {
       var d = $.Deferred();
       
-      devtrac.indexedDB.getAllFieldtripItems(db, function(fnid){
-        for(var key in fnid){
+      devtrac.indexedDB.getAllFieldtripItems(db, function(fnid) {
+        
           $.ajax({
-            url : localStorage.appurl+"/api/views/api_fieldtrips.json?display_id=actionitems&args[nid]="+fnid[key]['nid']+"&filters[field_actionitem_status_value][]=1&filters[field_actionitem_status_value][]=3",
+            url : localStorage.appurl+"/api/views/api_fieldtrips.json?display_id=actionitems&args[nid]="+fnid['0']['nid']+"&filters[field_actionitem_status_value][]=1&filters[field_actionitem_status_value][]=3",
             type : 'get',
             dataType : 'json',
             error : function(XMLHttpRequest, textStatus, errorThrown) { 
@@ -2230,15 +2220,15 @@ var devtracnodes = {
               //create bubble notification
               if(data.length <= 0) {
                 
-              }else{
-                data[0]['submit'] = 0;
+              }else {
+                
                 devtracnodes.saveActionItems(db, data, 0, function(){
                   d.resolve("Action Items");
                 });
               }
             }
           });
-        }
+        
       });
       return d;
       
@@ -2246,7 +2236,7 @@ var devtracnodes = {
     
     //Returns devtrac action item comments 
     getActionComments: function(db, actionitems, callback) {
-      
+      //alert("we have received these items "+actionitems.length);
       if(actionitems.length > 0) {
         $.ajax({  
           url : localStorage.appurl+"/api/node/"+actionitems[0]['nid']+"/comments",
@@ -2303,6 +2293,7 @@ var devtracnodes = {
       var counter = count;
       
       if(counter != arrlength) {
+        data[counter]['submit'] = 0;
         devtrac.indexedDB.addActionItemsData(db, data[counter]).then(function(){
           counter = counter + 1;
           devtracnodes.saveActionItems(db, data, counter, callback);  
@@ -2332,24 +2323,6 @@ var devtracnodes = {
       
     },
     
-    /*    saveSitetypes: function(db, data, callback) {
-      console.log("inside save site types "+data.length);
-      console.log("One site type is "+data[0]);
-      var arrlength = data.length;
-      
-      if(arrlength > 0 && data[0] != undefined && data[0] != null) {
-        devtrac.indexedDB.addSitereporttypes(db, data[0]).then(function(){
-          data.shift();
-          devtracnodes.saveSitetypes(db, data, callback);  
-        });
-        
-      }
-      else {
-        callback();
-      }
-      
-    },*/
-    
     //Returns devtrac places json list 
     downloadPlaces: function(db, snid) {
       $.ajax({
@@ -2357,7 +2330,7 @@ var devtracnodes = {
         type : 'get',
         dataType : 'json',
         error : function(XMLHttpRequest, textStatus, errorThrown) { 
-          //console.log("Error location "+errorThrown);
+          
           $.unblockUI({ 
             onUnblock: function() {
               document.removeEventListener("backbutton", controller.onBackKeyDown, false);
@@ -2366,7 +2339,6 @@ var devtracnodes = {
           });
         },
         success : function(data) {
-          //console.log("Downloaded location "+data[0]['title']);
           
           //create bubble notification
           if(data.length <= 0) {
@@ -2389,7 +2361,7 @@ var devtracnodes = {
     
     getPlaces: function(db, snid) {
         if(snid.length > 0) {
-          for(var k in snid) {
+          for(var k in snid){
             if(snid[k]['fresh_nid'] != undefined) {
               devtracnodes.downloadPlaces(db, snid[k]['fresh_nid']);
             }else {

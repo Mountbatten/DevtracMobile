@@ -8,7 +8,7 @@ devtrac.indexedDB.open = function(callback) {
   
   var version = 1;
   
-  var request = indexedDB.open("b15", version);
+  var request = indexedDB.open("b16", version);
   
   request.onsuccess = function(e) {
     devtrac.indexedDB.db = e.target.result;
@@ -23,7 +23,7 @@ devtrac.indexedDB.open = function(callback) {
   
   var version = 1;
   
-  var request = indexedDB.open("b15", version);
+  var request = indexedDB.open("b16", version);
   
   // We can only create Object stores in a versionchange transaction.
   request.onupgradeneeded = function(e) {
@@ -815,18 +815,16 @@ devtrac.indexedDB.getActionItem = function(db, anid) {
 //get all action items in database
 devtrac.indexedDB.getAllActionitems = function(db, callback) {
   var actionitems = [];
-  var trans = db.transaction(["actionitemsobj"], "readonly");
+  var trans = db.transaction(["actionitemsobj"], "readwrite");
   var store = trans.objectStore("actionitemsobj");
   
-  // Get everything in the store;
-  var keyRange = IDBKeyRange.lowerBound(0);
-  var cursorRequest = store.openCursor(keyRange);
+  /*//Get everything in the store;
+  var cursorRequest = store.openCursor();
   
   cursorRequest.onsuccess = function(e) {
     var result = e.target.result;
     if(!!result == false) {
       callback(actionitems);
-      return;
     }
     
     actionitems.push(result.value);
@@ -834,7 +832,44 @@ devtrac.indexedDB.getAllActionitems = function(db, callback) {
     result["continue"]();
   };
   
-  cursorRequest.onerror = devtrac.indexedDB.onerror;
+  cursorRequest.onerror = devtrac.indexedDB.onerror;*/
+  
+  var keyRange = IDBKeyRange.lowerBound(0);
+  
+  trans.oncomplete = function(evt) { 
+    console.log("total items "+actionitems.length);
+    callback(actionitems);
+    
+    
+    };
+    
+     
+    
+    var cursorRequest = store.openCursor(keyRange);
+    
+     
+    
+    cursorRequest.onerror = function(error) {
+    
+    console.log(error);
+    
+    };
+    
+     
+    
+    cursorRequest.onsuccess = function(evt) {                   
+    
+    var cursor = evt.target.result;
+    
+    if (cursor) {
+    
+    console.log("Getting item "+cursor.value.title);
+    actionitems.push(cursor.value);
+    
+    cursor.continue();
+    
+    }
+    };
 };
 
 //get all user saved answers in database

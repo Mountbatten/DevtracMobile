@@ -280,57 +280,61 @@ var controller = {
             
             devtracnodes.getSiteVisits(db, function(response) {
               
-              controller.loadingMsg("Sitevisits Saved", 0);
+              controller.loadingMsg("Sitevisits Downloaded", 0);
               
-              notes.push('Sitevisits');
+              devtracnodes.saveSiteVisit(db, response, function() {
+                notes.push('Sitevisits');  
+              });
               
                 devtracnodes.getPlaces(db, response);  
                 
                 devtracnodes.getActionItems(db).then(function(){
                   
-                  devtrac.indexedDB.getAllActionitems(db, function(actionitems){
+                  devtrac.indexedDB.getAllActionitems(db, function(actionitems) {
+                    console.log("From db "+actionitems.length);
                     devtracnodes.getActionComments(db, actionitems, function(){
                       console.log("Action comments Downloaded");    
+                    
+                      devtracnodes.getQuestions(db);
+                      
+                      var counter = 0;
+                      for(var x = 0; x < controller.nodes.length; x++) {
+                        controller.nodes[x](db).then(function(response) {
+                          console.log("fetch success "+response);
+                          counter = counter + 1;
+                          
+                          if(response == "Oecds") {
+                            response = "Subjects";
+                          }
+                          
+                          controller.loadingMsg(response+" Downloaded", 1500);
+                          
+                          notes.push(response);
+                          if(counter > controller.nodes.length - 1) {
+                            console.log("creating notes");
+                            owlhandler.notes(notes);
+                            
+                            d.resolve();
+                          }
+                          
+                        }).fail(function(e) {
+                          
+                          controller.loadingMsg("Error: "+e, 2000);
+                          
+                          
+                          setTimeout(function(){
+                            auth.logout();
+                            
+                          }, 2500);
+                          
+                        });  
+                        
+                      }
                     });  
+                    
                   });
                   
                 });
-                
-                devtracnodes.getQuestions(db);
-                
-                var counter = 0;
-                for(var x = 0; x < controller.nodes.length; x++) {
-                  controller.nodes[x](db).then(function(response) {
-                    console.log("fetch success "+response);
-                    counter = counter + 1;
-                    
-                    if(response == "Oecds") {
-                      response = "Subjects";
-                    }
-                    
-                    controller.loadingMsg(response+" Downloaded", 1500);
-                    
-                    notes.push(response);
-                    if(counter > controller.nodes.length - 1) {
-                      console.log("creating notes");
-                      owlhandler.notes(notes);
-                      
-                      d.resolve();
-                    }
-                    
-                  }).fail(function(e) {
-                    
-                    controller.loadingMsg("Error: "+e, 2000);
-                    
-                    
-                    setTimeout(function(){
-                      auth.logout();
-                      
-                    }, 2500);
-                    
-                  });  
-                  
-                }
               
             });
             
@@ -753,7 +757,12 @@ var controller = {
       //hide first page after loading
       $( "#page_fieldtrip_details" ).bind("pagebeforeshow", function (e, ui) {
         $("#page_loading").remove();
+        $.unblockUI({ 
+          onUnblock: function() {
+            document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+          }
         
+        })
       });
       
       //validate field to set urls for annonymous users
@@ -1006,7 +1015,16 @@ var controller = {
       
       //handle edit fieldtrip click event
       $("#edit_fieldtrip").bind("click", function (event) {
-        var editform = $("#form_fieldtrip_edits");
+        devtrac.indexedDB.open(function (db) {
+          devtrac.indexedDB.getAllActionitems(db, function(){
+            
+          });  
+        });
+        
+        
+        /*
+         *  edit me
+         * var editform = $("#form_fieldtrip_edits");
         editform.empty();
         var fnid = localStorage.fnid;
         
@@ -1029,7 +1047,7 @@ var controller = {
             
             editform.append(fieldset).trigger('create');
           });
-        });
+        });*/
         
       });
       
@@ -2222,12 +2240,12 @@ var controller = {
               
               $.mobile.changePage($("#page_fieldtrip_details"), {changeHash: false});
               
-              $.unblockUI({ 
+              /*$.unblockUI({ 
                 onUnblock: function() {
                   document.removeEventListener("backbutton", controller.onBackKeyDown, false);
                 }
               
-              });
+              });*/
             } else {
               controller.loadingMsg("Please add dates to Fieldtrip from Devtrac", 2000);
               
@@ -3088,6 +3106,8 @@ var controller = {
           devtrac.indexedDB.getActionItemComments(db, anid, function (comments) {
             //By default hide the comments filter
             $("#list_comments").prev("form.ui-filterable").hide();
+            
+            console.log("found "+comments.length);
             
             for (var i in comments) {
               
