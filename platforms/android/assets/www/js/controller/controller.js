@@ -457,8 +457,7 @@ var controller = {
                     "contextmenu directionality template textcolor paste fullpage"
                     ],
                     
-                    toolbar1: "bold italic | alignleft aligncenter alignright alignjustify",
-                    toolbar2: "bullist numlist",
+                    toolbar1: "bold italic underline | bullist numlist | blockquote link",
                     
                     menubar: false,
                     toolbar_items_size: 'small',          
@@ -495,8 +494,7 @@ var controller = {
                     "contextmenu directionality template textcolor paste fullpage"
                     ],
                     
-                    toolbar1: "bold italic | alignleft aligncenter alignright alignjustify",
-                    toolbar2: "bullist numlist",
+                    toolbar1: "bold italic underline | bullist numlist | blockquote link",
                     
                     menubar: false,
                     toolbar_items_size: 'small',
@@ -525,8 +523,7 @@ var controller = {
                     "contextmenu directionality template textcolor paste fullpage"
                     ],
                     
-                    toolbar1: "bold italic | alignleft aligncenter alignright alignjustify",
-                    toolbar2: "bullist numlist",
+                    toolbar1: "bold italic underline | bullist numlist | blockquote link",
                     
                     menubar: false,
                     toolbar_items_size: 'small'
@@ -544,8 +541,7 @@ var controller = {
                     "contextmenu directionality template textcolor paste fullpage"
                     ],
                     
-                    toolbar1: "bold italic | alignleft aligncenter alignright alignjustify",
-                    toolbar2: "bullist numlist",
+                    toolbar1: "bold italic underline | bullist numlist | blockquote link",
                     
                     menubar: false,
                     toolbar_items_size: 'small',
