@@ -286,55 +286,55 @@ var controller = {
                 notes.push('Sitevisits');  
               });
               
-                devtracnodes.getPlaces(db, response);  
+              devtracnodes.getPlaces(db, response);  
+              
+              devtracnodes.getActionItems(db).then(function(){
                 
-                devtracnodes.getActionItems(db).then(function(){
-                  
-                  devtrac.indexedDB.getAllActionitems(db, function(actionitems) {
-                    console.log("From db "+actionitems.length);
-                    devtracnodes.getActionComments(db, actionitems, function(){
-                      console.log("Action comments Downloaded");    
+                devtrac.indexedDB.getAllActionitems(db, function(actionitems) {
+                  console.log("From db "+actionitems.length);
+                  devtracnodes.getActionComments(db, actionitems, function(){
+                    console.log("Action comments Downloaded");    
                     
-                      devtracnodes.getQuestions(db);
-                      
-                      var counter = 0;
-                      for(var x = 0; x < controller.nodes.length; x++) {
-                        controller.nodes[x](db).then(function(response) {
-                          console.log("fetch success "+response);
-                          counter = counter + 1;
-                          
-                          if(response == "Oecds") {
-                            response = "Subjects";
-                          }
-                          
-                          controller.loadingMsg(response+" Downloaded", 1500);
-                          
-                          notes.push(response);
-                          if(counter > controller.nodes.length - 1) {
-                            console.log("creating notes");
-                            owlhandler.notes(notes);
-                            
-                            d.resolve();
-                          }
-                          
-                        }).fail(function(e) {
-                          
-                          controller.loadingMsg("Error: "+e, 2000);
-                          
-                          
-                          setTimeout(function(){
-                            auth.logout();
-                            
-                          }, 2500);
-                          
-                        });  
+                    devtracnodes.getQuestions(db);
+                    
+                    var counter = 0;
+                    for(var x = 0; x < controller.nodes.length; x++) {
+                      controller.nodes[x](db).then(function(response) {
+                        console.log("fetch success "+response);
+                        counter = counter + 1;
                         
-                      }
-                    });  
-                    
-                  });
+                        if(response == "Oecds") {
+                          response = "Subjects";
+                        }
+                        
+                        controller.loadingMsg(response+" Downloaded", 1500);
+                        
+                        notes.push(response);
+                        if(counter > controller.nodes.length - 1) {
+                          console.log("creating notes");
+                          owlhandler.notes(notes);
+                          
+                          d.resolve();
+                        }
+                        
+                      }).fail(function(e) {
+                        
+                        controller.loadingMsg("Error: "+e, 2000);
+                        
+                        
+                        setTimeout(function(){
+                          auth.logout();
+                          
+                        }, 2500);
+                        
+                      });  
+                      
+                    }
+                  });  
                   
                 });
+                
+              });
               
             });
             
@@ -583,37 +583,7 @@ var controller = {
       
       //show the connected url in the drop down select - login page
       $("#page_login").bind('pagebeforeshow', function() {
-        var el = $('#loginselect');
-        
-        var url = localStorage.appurl;
-        
-        if(url.indexOf("test") != -1) {
-          // Select the relevant option, de-select any others
-          el.val('test').selectmenu('refresh');
-          
-        }else if(url.indexOf("cloud") != -1) {
-          // Select the relevant option, de-select any others
-          el.val('cloud').selectmenu('refresh');
-          
-        }else if(url.indexOf("manual") != -1) {
-          // Select the relevant option, de-select any others
-          el.val('manual').selectmenu('refresh');
-          
-        }else if(url.indexOf("emo") != -1) {
-          // Select the relevant option, de-select any others
-          el.val('demo').selectmenu('refresh');
-          
-        }else if(url.indexOf("local") != -1 || url.indexOf("10.0.2") != -1 || url.indexOf("192.168") != -1) {
-          
-          $(".myurl").show();  
-          
-          //show custom url in the textfield
-          $(".myurl").val(localStorage.appurl);
-          
-          // Select the relevant option, de-select any others
-          el.val('custom').selectmenu('refresh');
-          
-        }
+        controller.resetLoginUrls();
       });
       
       //show the connected url in the drop down select - settings page
@@ -867,7 +837,6 @@ var controller = {
           
           $(".myurl").show();
         }else{
-          
           $(".myurl").hide();
         }
       });
@@ -1173,148 +1142,119 @@ var controller = {
       
       //save url dialog
       $('.save_url_settings').bind("click", function (event, ui) {
-        var url = null;
-        if($(".settingsform .myurl").val().length > 0) {
-          
-          controller.clearDBdialog().then(function() {
-            localStorage.appurl2 = localStorage.appurl;
-            localStorage.appurl = $(".myurl").val();
-            controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-            
-            controller.updateDB().then(function(){
+        localStorage.custom = "";
+        var url = $('.settingsform .seturlselect option:selected').val();
+        console.log("url is "+url+" "+$(".settingsform .myurl").val());
+        switch (url) {
+          case "custom":
+            localStorage.custom = "custom"
+            controller.clearDBdialog().then(function() {
               
-            }).fail(function(){
+              controller.resetLoginUrls();
+              
+              controller.updateDB($(".settingsform .myurl").val());
+              
+            }).fail(function() {
+              controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
               
             });
-          }).fail(function(){
-            controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
             
-          });
-          
-        }else
-        {
-          url = $('.settingsform a.chosen-single span').html();
-          
-          if(url == null){
-            url = $('.settingsform .seturlselect').val();
-          }
-          
-          switch (url) {
-            case "local":
+            break;
+            
+            
+          case "cloud":
+            
+            controller.clearDBdialog().then(function() {
+              var url = "http://jenkinsge.mountbatten.net/devtraccloud";
               
-              controller.clearDBdialog().then(function() {
-                var url = "http://192.168.38.114/dt13";
-                controller.loadingMsg("Saved Url "+url, 2000);
-                
-                controller.updateDB(url).then(function(){
-                  
-                }).fail(function(){
-                  
-                });
+              controller.updateDB(url).then(function(){
               }).fail(function(){
-                controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
                 
               });
-              break;
+            }).fail(function(){
+              controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
               
+            });
+            break;
+            
+          case "manual":
+            
+            controller.clearDBdialog().then(function(){
               
-            case "cloud":
+              var url = "http://jenkinsge.mountbatten.net/devtracmanual";
               
-              controller.clearDBdialog().then(function() {
-                var url = "http://jenkinsge.mountbatten.net/devtraccloud";
-                controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
+              controller.updateDB(url).then(function(){
                 
-                controller.updateDB(url).then(function(){
-                }).fail(function(){
-                  
-                });
               }).fail(function(){
-                controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
                 
               });
-              break;
+            }).fail(function(){
+              controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
               
-            case "manual":
+            });
+            break;
+          case "DevtracUganda":
+            
+            controller.clearDBdialog().then(function(){
               
-              controller.clearDBdialog().then(function(){
+              var url = "http://devtrac.ug";
+              
+              controller.updateDB(url).then(function(){
                 
-                var url = "http://jenkinsge.mountbatten.net/devtracmanual";
-                controller.loadingMsg("Saved Url "+url, 2000);
-                
-                controller.updateDB(url).then(function(){
-                  
-                }).fail(function(){
-                  
-                });
               }).fail(function(){
-                controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
                 
               });
-              break;
-            case "DevtracUganda":
+            }).fail(function(){
+              controller.loadingMsg("Saved Url "+url, 2000);
               
-              controller.clearDBdialog().then(function(){
-                
-                var url = "http://devtrac.ug";
-                controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                
-                controller.updateDB(url).then(function(){
-                  
-                }).fail(function(){
-                  
-                });
+            });
+            break;
+          case "Choose Url ...":
+            
+            controller.loadingMsg("Please select one url", 2000);
+            
+            break;
+            
+          case "test":
+            
+            controller.clearDBdialog().then(function() {
+              
+              var url = "http://jenkinsge.mountbatten.net/devtracorgtest";
+              
+              controller.updateDB(url).then(function(){
+                localStorage.appurl = url;
               }).fail(function(){
-                controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
+                localStorage.appurl = url;
+              });
+            }).fail(function(){
+              localStorage.appurl = url;
+              controller.loadingMsg("Saved Url "+url, 2000);
+              
+            });
+            break;
+            
+          case "demo":
+            
+            controller.clearDBdialog().then(function() {
+              
+              var url = "http://demo.devtrac.org";
+              controller.loadingMsg("Saved Url "+url, 2000);
+              
+              
+              controller.updateDB(url).then(function(){
+                
+              }).fail(function(){
                 
               });
-              break;
-            case "Choose Url ...":
+            }).fail(function(){
               
-              controller.loadingMsg("Please select one url", 2000);
+              controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
               
-              break;
-              
-            case "test":
-              
-              controller.clearDBdialog().then(function() {
-                
-                var url = "http://jenkinsge.mountbatten.net/devtracorgtest";
-                controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                
-                
-                controller.updateDB(url).then(function(){
-                  
-                }).fail(function(){
-                  
-                });
-              }).fail(function(){
-                controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                
-              });
-              break;
-              
-            case "demo":
-              
-              controller.clearDBdialog().then(function() {
-                
-                var url = "http://demo.devtrac.org";
-                controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                
-                
-                controller.updateDB(url).then(function(){
-                  
-                }).fail(function(){
-                  
-                });
-              }).fail(function(){
-                controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-                
-              });
-              break;
-              
-            default:
-              break;
-          }
+            });
+            break;
+            
+          default:
+            break;
         }
         
       });
@@ -1322,16 +1262,6 @@ var controller = {
       //on click url select setting, clear textfield
       $('.seturlselect').bind("click", function (event, ui) {
         $(".myurl").val("");
-      });
-      
-      //on click url select setting, clear textfield
-      $("a.chosen-single span").bind("click", function (event, ui) {
-        $(".myurl").val("");
-      });
-      
-      //on click url textfield set chosen dropdown to default
-      $('.myurl').bind("click", function (event, ui) {
-        $("a.chosen-single span").html("Choose Url ...");
       });
       
       //cancel url dialog
@@ -1523,6 +1453,41 @@ var controller = {
         //controller.loadingMsg("The request to get user location timed out.", 1000);
         // 
       }
+    },
+    
+    resetLoginUrls: function(){
+      var el = $("#loginselect");
+      
+      var url = localStorage.appurl;
+      
+      if(url.indexOf("test") != -1) {
+        // Select the relevant option, de-select any others
+        el.val('test').selectmenu().selectmenu('refresh');
+        
+      }else if(url.indexOf("cloud") != -1) {
+        // Select the relevant option, de-select any others
+        el.val('cloud').selectmenu().selectmenu('refresh');
+        
+      }else if(url.indexOf("manual") != -1) {
+        // Select the relevant option, de-select any others
+        el.val('manual').selectmenu().selectmenu('refresh');
+        
+      }else if(url.indexOf("emo") != -1) {
+        // Select the relevant option, de-select any others
+        el.val('demo').selectmenu().selectmenu('refresh');
+        
+      }else if(localStorage.custom == "custom") {
+        console.log("inside local settings");
+        $(".myurl").show();  
+        
+        //show custom url in the textfield
+        $(".myurl").val(localStorage.appurl);
+        
+        // Select the relevant option, de-select any others
+        el.val('custom').selectmenu().selectmenu('refresh');
+        
+      }
+      
     },
     
     //camera functions
@@ -2236,12 +2201,6 @@ var controller = {
               
               $.mobile.changePage($("#page_fieldtrip_details"), {changeHash: false});
               
-              /*$.unblockUI({ 
-                onUnblock: function() {
-                  document.removeEventListener("backbutton", controller.onBackKeyDown, false);
-                }
-              
-              });*/
             } else {
               controller.loadingMsg("Please add dates to Fieldtrip from Devtrac", 2000);
               
@@ -3963,7 +3922,7 @@ var controller = {
         }, 
         
         css: { 
-          width: '300px', 
+          width: '400px', 
           border: 'none', 
           padding: '5px', 
           backgroundColor: '#000', 

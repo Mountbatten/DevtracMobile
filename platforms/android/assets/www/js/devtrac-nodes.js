@@ -2219,7 +2219,7 @@ var devtracnodes = {
               console.log("received action items "+data.length);
               //create bubble notification
               if(data.length <= 0) {
-                
+                d.resolve("Action Items");
               }else {
                 
                 devtracnodes.saveActionItems(db, data, 0, function(){
