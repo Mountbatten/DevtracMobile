@@ -8,6 +8,7 @@ var auth = {
       $.ajax({
         url: localStorage.appurl+"/services/session/token",
         type:"get",
+        timeout: 30000,
         error:function (jqXHR, textStatus, errorThrown) {
           console.log("token error "+errorThrown);
           console.log("detailed token error "+jqXHR.responseText);
@@ -27,7 +28,11 @@ var auth = {
           if(errorThrown == ""){
             controller.loadingMsg("Selected Url "+localStorage.appurl+" is Unavailable. Make sure you have an internet connection or try another url.", 5000)
             
-          }else {
+          }else if(textStatus == "timeout"){
+            controller.loadingMsg("Timeout Error Make sure you have an internet connection or try another url.", 5000)
+            
+          }
+          else {
             controller.loadingMsg("Error: "+errorThrown, 3000);
             
             $('.errorHTML').html(jqXHR.responseText);
