@@ -32,12 +32,12 @@ var controller = {
     onLoad: function(){
       document.addEventListener("offline", controller.onOffline, false);
       document.addEventListener("online", controller.online, false);
-      document.addEventListener("deviceready", controller.onDeviceReady, false);
       
     },
     
     //Application Constructor
     initialize: function () {
+      
       //initialise section for templates
       var leftMenu = Handlebars.compile($("#leftmenu-tpl").html()); 
       $(".leftmenu").html(leftMenu());
@@ -58,24 +58,6 @@ var controller = {
       
       $(window).bind('orientationchange pageshow pagechange resize', mapctlr.resizeMapIfVisible);
       
-      //Bind to window orientation change after the qr codes are scanned. 
-      $(window).on("orientationchange", function(){
-        console.log("the orientation has changed "+localStorage.qrcodes);
-        var qrcode_status = localStorage.qrcodes;
-        if(qrcode_status == "on"){
-          var orientation = window.orientation;
-          var new_orientation = (orientation) ? 0 : 180 + orientation;
-          $('body').css({
-            "-webkit-transform": "rotate(" + new_orientation + "deg)"
-          });
-          
-          localStorage.qrcodes = "off";
-          
-          console.log("the orientation has changed");
-        }
-        
-      });
-      
       //return date in ISO format
       Date.prototype.yyyymmdd = function() {         
         
@@ -86,6 +68,7 @@ var controller = {
         return yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]);
       }; 
       
+      //faster button click for android cordova version 
       if(controller.checkCordova() != undefined) {
         //faster button clicks
         window.addEventListener('load', function() {
@@ -120,138 +103,18 @@ var controller = {
         
       }
       
-      
-      if(controller.connectionStatus) {
-        controller.loadingMsg("Please Wait..", 0);
-        
+      controller.loadingMsg("Please wait...", 0);
+      //Start HTML5 app - it doesnot have cordova defined
+      if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+        document.addEventListener("deviceready", controller.onDeviceReady, false);
+      } else {
+        //check if user is logged in before deciding which
+        //start function to call
         auth.loginStatus().then(function () {
-          
-          $(".menulistview").show();
-          
-          $("#form_add_location").show();
-          $("#form_fieldtrip_details").show();
-          $("#form_sitevisists_details").show();
-          $("#addquestionnaire").show();
-          $(".settingsform").show();
-          $(".ui-navbar").show();
-          
-          $("#syncForm").show();
-          
-          //show menu button on login page
-          $("#barsbutton_login").show();
-          
-          devtracnodes.countFieldtrips().then(function(){
-            
-            devtracnodes.countOecds().then(function() {
-              
-              //load field trip details from the database if its one and the list if there's more.
-              controller.loadFieldTripList();                    
-            }).fail(function() {
-              
-              controller.loadingMsg("Subjects were not found", 2000);
-              
-              
-              setTimeout(function() {
-                auth.logout();
-                
-              }, 2000);
-              
-            });
-            
-          }).fail(function(){
-            
-            //download all devtrac data for user.
-            controller.fetchAllData().then(function(){
-              
-              devtracnodes.countOecds().then(function() {
-                
-                //load field trip details from the database if its one and the list if there's more.
-                controller.loadFieldTripList();                    
-              }).fail(function() {
-                
-                controller.loadingMsg("Subjects were not found", 2000);
-                
-                
-                setTimeout(function() {
-                  auth.logout();
-                  
-                }, 2000);
-                
-              });
-            }).fail(function(error){
-              auth.logout();
-              controller.loadingMsg(error,5000);
-              
-            });
-            
-          });
-          
-          
-        }).fail(function () {
-          $(".menulistview").hide();
-          $("#form_fieldtrip_details").hide();
-          $("#form_sitevisists_details").hide();
-          $("#form_add_location").hide();
-          $(".settingsform").hide();
-          $(".ui-navbar").hide();
-          $("#addquestionnaire").hide();
-          
-          $("#syncForm").hide();
-          
-          //hide menu button if user is not logged in
-          $("#barsbutton_login").hide();
-          
-          controller.resetForm($('#form_fieldtrip_details'));
-          $.unblockUI({ 
-            onUnblock: function() {
-              document.removeEventListener("backbutton", controller.onBackKeyDown, false);
-            }
-          
-          });
-          
-          if(window.localStorage.getItem("usernam") != null && window.localStorage.getItem("passw") != null) {
-            $("#page_login_name").val(window.localStorage.getItem("usernam"));
-            $("#page_login_pass").val(window.localStorage.getItem("passw"));  
-          }
-          
-          if(controller.checkCordova() != undefined) {
-            //move to manual and qr code login page
-            $.mobile.changePage($("#page_scanner"), {changeHash: true});  
-          }else{
-            //move to login page
-            $.mobile.changePage($("#page_login"), {changeHash: true});
-          }
-          
+          controller.startDevtracMobile_online();    
+        }).fail(function(){
+          controller.startDevtracMobile_offline();
         });
-        
-      }else
-      {
-        
-        if(window.localStorage.getItem("username") != null && window.localStorage.getItem("pass") != null) {
-          controller.loadingMsg("You are offline, cannot upload data. Now using offline data", 6000);
-          
-          $("#barsbutton_login").hide();
-          
-          //load field trip details from the database if its one and the list if there's more.
-          controller.loadFieldTripList();
-          
-        }else {
-          controller.loadingMsg("Please connect to the internet to login and download your devtrac data.", 2000);
-          
-          //hide logout button and show login button when offline
-          $('#logoutdiv').hide();
-          $('#logindiv').show();
-          
-          setTimeout(function(){
-            $.unblockUI({ 
-              onUnblock: function() {
-                document.removeEventListener("backbutton", controller.onBackKeyDown, false);
-              }
-            
-            });  
-          }, 2000);
-          
-        }
       }
       
       this.bindEvents();
@@ -323,7 +186,10 @@ var controller = {
                         
                         
                         setTimeout(function(){
-                          auth.logout();
+                          auth.logout().then(function(){
+                            //Clear user info from file
+                            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                          });
                           
                         }, 2500);
                         
@@ -684,13 +550,20 @@ var controller = {
                           
                           
                           setTimeout(function() {
-                            auth.logout();
+                            auth.logout().then(function(){
+                              //Clear user info from file
+                              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                            });
                             
                           }, 2000);
                           
                         });          
                       }).fail(function(error){
-                        auth.logout();
+                        auth.logout().then(function(){
+                          //Clear user info from file
+                          window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                        });
+                        
                         if(error.indexOf("field") != -1){
                           controller.loadingMsg(error,5000);  
                           
@@ -721,7 +594,7 @@ var controller = {
       });
       
       //hide first page after loading
-      $( "#page_fieldtrip_details" ).bind("pagebeforeshow", function (e, ui) {
+      $( "#page_fieldtrip_details" ).bind("pageshow", function (e, ui) {
         $("#page_loading").remove();
         $.unblockUI({ 
           onUnblock: function() {
@@ -980,16 +853,7 @@ var controller = {
       
       //handle edit fieldtrip click event
       $("#edit_fieldtrip").bind("click", function (event) {
-        devtrac.indexedDB.open(function (db) {
-          devtrac.indexedDB.getAllActionitems(db, function(){
-            
-          });  
-        });
-        
-        
-        /*
-         *  edit me
-         * var editform = $("#form_fieldtrip_edits");
+        var editform = $("#form_fieldtrip_edits");
         editform.empty();
         var fnid = localStorage.fnid;
         
@@ -1012,7 +876,7 @@ var controller = {
             
             editform.append(fieldset).trigger('create');
           });
-        });*/
+        });
         
       });
       
@@ -1148,16 +1012,16 @@ var controller = {
         switch (url) {
           case "custom":
             localStorage.custom = "custom"
-            controller.clearDBdialog().then(function() {
-              
-              controller.resetLoginUrls();
-              
-              controller.updateDB($(".settingsform .myurl").val());
-              
-            }).fail(function() {
-              controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
-              
-            });
+              controller.clearDBdialog().then(function() {
+                
+                controller.resetLoginUrls();
+                
+                controller.updateDB($(".settingsform .myurl").val());
+                
+              }).fail(function() {
+                controller.loadingMsg("Saved Url "+localStorage.appurl, 2000);
+                
+              });
             
             break;
             
@@ -1278,17 +1142,24 @@ var controller = {
       
       //handle login click event
       $('#page_login_submit').bind("click", function (event, ui) {
-        /*$(".loginlogs").html("clicked sign in");*/
+        
         if ($("#page_login_name").valid() && $("#page_login_pass").valid()) {
           controller.loadingMsg("Logging In ...", 0);
           
           if(controller.connectionStatus) {
             devtrac.indexedDB.open(function (db) {
               auth.login($('#page_login_name').val(), $('#page_login_pass').val(), db).then(function () {
-                console.log("success logged in");
+                
                 if($("#checkbox-mini-0").is(":checked")){
                   window.localStorage.setItem("usernam", $("#page_login_name").val());
                   window.localStorage.setItem("passw", $("#page_login_pass").val());
+                  
+                  if(controller.checkCordova() != undefined) {
+                    localStorage.username = $("#page_login_name").val();
+                    localStorage.password = $("#page_login_pass").val();
+                    
+                    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, saveUserInfo, failsaveUserInfo);  
+                  }
                   
                 }else{
                   window.localStorage.removeItem("usernam");
@@ -1314,13 +1185,19 @@ var controller = {
                         
                         
                         setTimeout(function() {
-                          auth.logout();
+                          auth.logout().then(function(){
+                            //Clear user info from file
+                            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                          });
                           
                         }, 2000);
                         
                       });
                     }).fail(function(error) {
-                      auth.logout();
+                      auth.logout().then(function(){
+                        //Clear user info from file
+                        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                      });
                       controller.loadingMsg(error,5000);
                       
                     });
@@ -1341,13 +1218,18 @@ var controller = {
                       
                       
                       setTimeout(function() {
-                        auth.logout();
+                        auth.logout().then(function(){
+                          //Clear user info from file
+                          window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                        });
                         
                       }, 2000);
                       
                     });
                   }).fail(function(error) {
-                    auth.logout();
+                    auth.logout().then(function(){
+                                  //Clear user info from file
+                                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);});
                     controller.loadingMsg(error,5000);
                     
                   });
@@ -1367,9 +1249,8 @@ var controller = {
               
             });
             
-          }else{
+          }else {
             controller.loadingMsg("Please Connect to Internet ...", 1000);
-            
           }
           
         }
@@ -1391,8 +1272,15 @@ var controller = {
       
       //handle logout click from panel menu
       $('.panel_logout').bind("click", function (event, ui) {
-        console.log("clicked logout");
-        auth.logout();
+        
+        if(controller.connectionStatus) {
+          auth.logout().then(function(){
+                                  //Clear user info from file
+                                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);});  
+        }else {
+          controller.loadingMsg("Please Connect to Internet ...", 1000);
+        }
+        
       });
       
       //handle click event for edit images from the html5 version
@@ -1485,6 +1373,167 @@ var controller = {
         
         // Select the relevant option, de-select any others
         el.val('custom').selectmenu().selectmenu('refresh');
+        
+      }
+      
+    },
+    
+    //Check if app is online before potentially downloading nodes
+    startDevtracMobile_online: function() {
+      auth.loginStatus().then(function () {
+        
+        $(".menulistview").show();
+        
+        $("#form_add_location").show();
+        $("#form_fieldtrip_details").show();
+        $("#form_sitevisists_details").show();
+        $("#addquestionnaire").show();
+        $(".settingsform").show();
+        $(".ui-navbar").show();
+        
+        $("#syncForm").show();
+        
+        //show menu button on login page
+        $("#barsbutton_login").show();
+        
+        devtracnodes.countFieldtrips().then(function(){
+          
+          devtracnodes.countOecds().then(function() {
+            
+            //load field trip details from the database if its one and the list if there's more.
+            controller.loadFieldTripList();                    
+          }).fail(function() {
+            
+            controller.loadingMsg("Subjects were not found", 2000);
+            
+            
+            setTimeout(function() {
+              auth.logout().then(function(){
+                                  //Clear user info from file
+                                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);});
+              
+            }, 2000);
+            
+          });
+          
+        }).fail(function(){
+          
+          //download all devtrac data for user.
+          controller.fetchAllData().then(function(){
+            
+            devtracnodes.countOecds().then(function() {
+              
+              //load field trip details from the database if its one and the list if there's more.
+              controller.loadFieldTripList();                    
+            }).fail(function() {
+              
+              controller.loadingMsg("Subjects were not found", 2000);
+              
+              
+              setTimeout(function() {
+                auth.logout().then(function(){
+                                  //Clear user info from file
+                                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);});
+                
+              }, 2000);
+              
+            });
+          }).fail(function(error){
+            auth.logout().then(function(){
+                                  //Clear user info from file
+                                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);});
+            controller.loadingMsg(error,5000);
+            
+          });
+          
+        });
+        
+        
+      }).fail(function () {
+        
+        $(".menulistview").hide();
+        $("#form_fieldtrip_details").hide();
+        $("#form_sitevisists_details").hide();
+        $("#form_add_location").hide();
+        $(".settingsform").hide();
+        $(".ui-navbar").hide();
+        $("#addquestionnaire").hide();
+        
+        $("#syncForm").hide();
+        
+        //hide menu button if user is not logged in
+        $("#barsbutton_login").hide();
+        
+        controller.resetForm($('#form_fieldtrip_details'));
+        
+        $.unblockUI({ 
+          onUnblock: function() {
+            document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+          }
+        
+        });
+        
+        if(window.localStorage.getItem("usernam") != null && window.localStorage.getItem("passw") != null) {
+          $("#page_login_name").val(window.localStorage.getItem("usernam"));
+          $("#page_login_pass").val(window.localStorage.getItem("passw"));  
+        }
+        
+        if(controller.checkCordova() != undefined) {
+          
+          //move to manual and qr code login page
+          $.mobile.changePage($("#page_scanner"), {changeHash: true});  
+        }else{
+          
+          //move to login page
+          $.mobile.changePage($("#page_login"), {changeHash: true});
+        }
+        
+      });
+    },
+    
+    //Start the application without an internet connection
+    startDevtracMobile_offline: function() {
+      
+      if(localStorage.username != "0" && localStorage.password != "0") {
+        console.log("found passwords");
+        //Set username in menu
+        $(".username").html("Hi, "+localStorage.username+" !");
+        
+        //Set user title in menu
+        $(".user_title").html(localStorage.usertitle);
+        
+        $("#barsbutton_login").show();
+        
+        //load field trip details from the database if its one and the list if there's more.
+        controller.loadFieldTripList();    
+        
+      }else if(window.localStorage.getItem("username") == null && window.localStorage.getItem("pass") == null) {
+        
+        /*controller.loadingMsg("Please connect to the internet to login and download your devtrac data.", 2000);
+            
+            //hide logout button and show login button when offline
+            $('#logoutdiv').hide();
+            $('#logindiv').show();
+            
+            if(controller.checkCordova() != undefined) {
+              //move to manual and qr code login page
+              $.mobile.changePage($("#page_scanner"), {changeHash: true});  
+            }else {
+              //move to login page
+              $.mobile.changePage($("#page_login"), {changeHash: true});
+            }
+            
+            setTimeout(function(){
+              $.unblockUI({ 
+                onUnblock: function() {
+                  document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+                  
+                }
+              
+              });  
+            }, 2000);*/
+        
+        alert("didnt find passwords");
         
       }
       
@@ -1903,19 +1952,33 @@ var controller = {
     //cordova offline event
     onOffline: function() {
       controller.connectionStatus = false;
-      $.unblockUI({ 
-        onUnblock: function() {
-          document.removeEventListener("backbutton", controller.onBackKeyDown, false);
-        }
       
-      });
-      controller.loadingMsg("You are offline. Connect to Upload and Download your Data", 2000);
+      //hide menu button on login page
+      $("#barsbutton_login").hide();
+      
+      //Hide help text from the login page
+      $("#helptext").hide();
       
     },
     
     //cordova online event
     online: function() {
       controller.connectionStatus = true;
+      
+      auth.loginStatus().then(function () {
+        //show menu button on login page
+        $("#barsbutton_login").show();
+        
+        //Hide help text from the login page
+        $("#helptext").show();  
+      }).fail(function() {
+        //hide menu button on login page
+        $("#barsbutton_login").hide();
+        
+        //Hide help text from the login page
+        $("#helptext").hide();
+        
+      });
       
     },
     
@@ -2065,8 +2128,9 @@ var controller = {
               }
             
             });
+            
           } else if (data.length == 1) {
-            console.log("one fieldtrip");
+            
             //set home screen to be fieldtrip details
             $(".settings_panel_home").attr("href","#page_fieldtrip_details");
             
@@ -2199,14 +2263,24 @@ var controller = {
                 
               });
               
+              console.log("changing page to fieldtrip details");
               $.mobile.changePage($("#page_fieldtrip_details"), {changeHash: false});
+              
+              $.unblockUI({ 
+                onUnblock: function() {
+                  document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+                }
+              
+              });
               
             } else {
               controller.loadingMsg("Please add dates to Fieldtrip from Devtrac", 2000);
               
               
               setTimeout(function(){
-                auth.logout();
+                auth.logout().then(function(){
+                                  //Clear user info from file
+                                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);});
                 
               }, 2000);
               
@@ -2217,6 +2291,13 @@ var controller = {
             $.unblockUI({ 
               onUnblock: function() {
                 document.removeEventListener("backbutton", controller.onBackKeyDown, false);
+                
+                //hide and show dialog auth buttons
+                $('#logindiv').show();
+                $('#logoutdiv').hide();
+                
+                //move to login page
+                $.mobile.changePage($("#page_login"), {changeHash: true});
               }
             
             });
@@ -3521,6 +3602,9 @@ var controller = {
     
     // device ready event handler
     onDeviceReady: function () {
+      //Load user info from file
+      window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, readUserInfo, failReadUserInfo);
+      
       if(controller.checkCordova() != undefined) {
         
         //start qr scan
@@ -3558,13 +3642,19 @@ var controller = {
                               
                               
                               setTimeout(function() {
-                                auth.logout();
+                                auth.logout().then(function(){
+                                  //Clear user info from file
+                                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                                });
                                 
                               }, 2000);
                               
                             });
                           }).fail(function(error) {
-                            auth.logout();
+                            auth.logout().then(function(){
+                              //Clear user info from file
+                              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                            });
                             controller.loadingMsg(error,5000);
                             
                           });
@@ -3584,13 +3674,19 @@ var controller = {
                             controller.loadingMsg("Subjects were not found", 2000);
                             
                             setTimeout(function() {
-                              auth.logout();
+                              auth.logout().then(function(){
+                                //Clear user info from file
+                                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                              });
                               
                             }, 2000);
                             
                           });
                         }).fail(function(error) {
-                          auth.logout();
+                          auth.logout().then(function(){
+                            //Clear user info from file
+                            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                          });
                           controller.loadingMsg(error,5000);
                           
                         });
@@ -3706,11 +3802,17 @@ var controller = {
       }
       
       
-      //check online status
-      controller.checkOnline().then(function(){
+      //check online status and launch the app
+      controller.checkOnline().then(function(networkType) {
         controller.connectionStatus = true;
-      }).fail(function(){
+        console.log("loading app while online");
+        controller.startDevtracMobile_online();
+        
+      }).fail(function(networkType) {
         controller.connectionStatus = false;
+        console.log("loading app while offline");
+        controller.startDevtracMobile_offline();
+        
       });
       
       //listen for menu button click
@@ -3722,18 +3824,13 @@ var controller = {
       
       //notify if network connection is down
       if(navigator.network.connection.type == Connection.NONE) {
-        controller.loadingMsg("Sorry, you are offline", 2000);
-        $.unblockUI({ 
-          onUnblock: function() {
-            document.removeEventListener("backbutton", controller.onBackKeyDown, false);
-          }
-        
-        });
+        //controller.loadingMsg("You are offline", 5000);
         
         controller.connectionStatus = false;
         
       } else {
         controller.connectionStatus = true;
+        
       }
     },
     
@@ -3917,13 +4014,10 @@ var controller = {
         fadeIn: 700, 
         fadeOut: 700,
         timeout: t,
-        onBlock: function() {           
-          
-        }, 
         
         css: { 
-          width: '400px', 
-          border: 'none', 
+          width: '350px', 
+          border: 'none',
           padding: '5px', 
           backgroundColor: '#000', 
           '-webkit-border-radius': '10px', 
