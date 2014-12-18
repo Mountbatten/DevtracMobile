@@ -41,6 +41,7 @@ var controller = {
       //initialise section for templates
       var leftMenu = Handlebars.compile($("#leftmenu-tpl").html()); 
       $(".leftmenu").html(leftMenu());
+      
       var header = Handlebars.compile($("#header-tpl").html());
       $("#fieldtrip_details_header").html(header({notes: '<a class="ui-btn-right" data-role="button" data-iconpos="notext" id="notify_fieldtrip"><i class="fa fa-info fa-lg"></i></a>', id: 'fieldtrip', title: 'Fieldtrip Details'}));
       $("#header_login").html(header({id: "login", title: "Devtrac Mobile"}));
@@ -594,8 +595,8 @@ var controller = {
       });
       
       //hide first page after loading
-      $( "#page_fieldtrip_details" ).bind("pageshow", function (e, ui) {
-        $("#page_loading").remove();
+      $( "#page_fieldtrip_details" ).bind("pagebeforeshow", function (e, ui) {
+
         $.unblockUI({ 
           onUnblock: function() {
             document.removeEventListener("backbutton", controller.onBackKeyDown, false);
@@ -1304,6 +1305,20 @@ var controller = {
         
       });
       
+      $(document).live("pagebeforechange", function(e,ob) {
+        
+        if(ob.options.fromPage && ob.toPage[0].id === "page_dynamic") {
+            console.log("blocking the back");
+            e.preventDefault();
+            history.go(1);
+            
+            if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+              navigator.app.exitApp();
+            }
+            
+        }
+    });
+      
     },
     
     onSuccess: function(position) {
@@ -1480,12 +1495,15 @@ var controller = {
         
         if(controller.checkCordova() != undefined) {
           
-          //move to manual and qr code login page
-          $.mobile.changePage($("#page_scanner"), {changeHash: true});  
-        }else{
+          console.log("loading scanner");
+          $.mobile.changePage($("#page_scanner"), {changeHash: true});
           
-          //move to login page
+          
+        }else{
+          console.log("loading login");
+
           $.mobile.changePage($("#page_login"), {changeHash: true});
+          
         }
         
       });
@@ -2262,16 +2280,9 @@ var controller = {
                 });
                 
               });
-              
-              console.log("changing page to fieldtrip details");
+
               $.mobile.changePage($("#page_fieldtrip_details"), {changeHash: false});
               
-              $.unblockUI({ 
-                onUnblock: function() {
-                  document.removeEventListener("backbutton", controller.onBackKeyDown, false);
-                }
-              
-              });
               
             } else {
               controller.loadingMsg("Please add dates to Fieldtrip from Devtrac", 2000);

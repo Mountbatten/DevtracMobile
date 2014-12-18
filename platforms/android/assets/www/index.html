@@ -49,13 +49,11 @@ body {
 }
 </style>
 </head>
-<body onload="controller.onLoad()">
+<body onload="controller.onLoad()" id="dmobile_body">
   <!-- 
-     Here we have some handle bars templates like the menu and the top bar
+     Here we have some handle bars templates
 -->
-  <!-- 
-     Here we have some handle bars templates like the menu and the top bar
--->
+  
   <script id="leftmenu-tpl" type="text/template">
 <ul data-role="listview" class="menulistview">
   <li><img src="img/person.png" /><span><strong
@@ -86,25 +84,14 @@ body {
   {{{extra_buttons}}}
 </script>
   <!--
-  loadfieldtriplist:
   end of templates 
 -->
 
+<div data-role="page" id="page_dynamic">
 
-  <!-- Page Loading  -->
-  <div data-role="page" id="page_loading">
+</div>
 
-    <div data-role="content" class='content'>
-
-      <div id="loader"></div>
-    </div>
-    <!-- /content -->
-
-  </div>
-  <!-- /page -->
-
-  <!-- Page Scan or Login  -->
-  <div data-role="page" id="page_scanner">
+   <div data-role="page" id="page_scanner">
     <div data-role="header" id="header_scanner"><h1>Devtrac Mobile</h1> </div>
     <div data-role="content" class='content'>
 
@@ -113,20 +100,19 @@ body {
     <a class="ui-btn ui-icon-bars ui-btn-icon-notext ui-corner-all" href="#page_login" id="custom-menu"></a>
     
     </div>
-    <!-- /content -->
 
   </div>
-  <!-- /page -->
 
 
-  <!-- Page Login  -->
+
+   
   <div data-role="page" id="page_login">
 
     <div data-role="panel" id="navpanel_login" data-theme="b"
       data-position="left" class="leftmenu"></div>
 
     <div data-role="header" id="header_login"></div>
-    <!-- /header -->
+    
 
     <div data-role="content" class='content'>
       <h5 id="helptext" style="display: none;">Welcome to Devtrac Mobile;
@@ -157,7 +143,7 @@ body {
               data-mini="true">Sign In</button>
           </div>
 
-          <!-- <div class="loginlogs"></div> -->
+          <div class="loginlogs"></div>
 
           <div id='logoutdiv'>
             <button type="button" data-theme="a" id="page_logout_submit"
@@ -181,11 +167,8 @@ body {
 
       </form>
     </div>
-    <!-- /content -->
 
   </div>
-  <!-- /page -->
-
 
   <!-- Fieldtrips details -->
   <div data-role="page" id="page_fieldtrip_details">
@@ -979,6 +962,11 @@ body {
   <script type="text/javascript">
       //Attempt to fix transition flicker
       $(document).one("mobileinit", function() {
+      
+        $.ajaxSetup ({
+          // Disable caching of AJAX responses
+          cache: false
+        });
 
         // Setting #container div as a jqm pageContainer
         $.mobile.pageContainer = $('#container');
@@ -987,7 +975,10 @@ body {
         $.mobile.defaultPageTransition = 'slide';
         
         //Disable orientation change
-      $.mobile.orientationChangeEnabled = 'enable';
+        $.mobile.orientationChangeEnabled = 'enable';
+      
+        // No hoverdelay for buttons. Use FastClick for 0 delay a tags
+        $.mobile.buttonMarkup.hoverDelay = 0;
       });
     </script>
 
