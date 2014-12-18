@@ -247,9 +247,6 @@ var auth = {
               //set user title in menu
               $(".user_title").html(localStorage.usertitle);
               
-              //show help text on login page
-              $("#helptext").show();
-              
               //hide and show dialog auth buttons
               $('#logindiv').hide();
               $('#logoutdiv').show();
@@ -322,7 +319,6 @@ var auth = {
             $("#syncForm").hide();
             
             $("#loginForm").show();
-            $("#helptext").hide();
             
             //hide menu button on login page
             $("#barsbutton_login").hide();
