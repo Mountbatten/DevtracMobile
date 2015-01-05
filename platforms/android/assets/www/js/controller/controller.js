@@ -3507,19 +3507,21 @@ var controller = {
       var commenttextarea = $("#actionitem_comment").val();
       var commentvalue = commenttextarea.substring(commenttextarea.lastIndexOf("<body>")+6, commenttextarea.lastIndexOf("</body>")).trim();
       
+      var comment = {};
+      
       if ($("#actionitem_comment").valid() && commentvalue.length > 0) {
         var anid = "";
         
-        if(localStorage.actionuser){
+        if(localStorage.actionuser) {
           anid = parseInt(localStorage.anid);
+          comment['anid'] = anid;
         }
         else
         {
-          anid = localStorage.anid;  
+          anid = localStorage.anid;
+          comment['anid'] = anid;
         }
         var list_comment = $('#list_comments');
-        
-        var comment = {};
         
         comment['comment_body'] = {};
         comment['comment_body']['und']  = [];
@@ -3542,7 +3544,6 @@ var controller = {
         console.log("actionitem id "+localStorage.anid);
         console.log("user is "+localStorage.actionuser);
         
-        comment['anid'] = localStorage.anid;
         comment['user_added'] = localStorage.actionuser;
         
         comment['field_actionitem_status'] = {};
@@ -3610,7 +3611,7 @@ var controller = {
         
         //start qr scan
         $('#qr_code').bind('click', function(){
-          controller.loadingMsg("Please wait...", 0);
+          controller.loadingMsg("Please wait...", 1000);
           cordova.plugins.barcodeScanner.scan(
               function (result) {
                 

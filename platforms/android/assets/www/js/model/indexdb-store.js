@@ -6,7 +6,7 @@ devtrac.indexedDB.db = null;
 
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 2;
+  var version = 3;
   
   var request = indexedDB.open("b17", version);
   
@@ -21,7 +21,7 @@ devtrac.indexedDB.open = function(callback) {
 //creating an object store
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 2;
+  var version = 3;
   
   var request = indexedDB.open("b17", version);
   
