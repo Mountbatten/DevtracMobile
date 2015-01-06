@@ -292,6 +292,10 @@ var controller = {
         controller.onSavesitevisit();
       });
       
+      //save actionitem comment
+      $("#actionitem_comment_save").bind('click', function(){
+        controller.onSavecomment();
+      });
       
       //add site visit
       $("#page_site_report_type").bind('pagebeforeshow', function(){
@@ -380,6 +384,36 @@ var controller = {
         
       });
       
+    //apply tinymce b4 this page is displayed
+      $("#page_add_actionitem_comment").bind('pagebeforeshow', function(event, data) {
+        
+        tinymce.init({
+          selector: "textarea#add_actionitem_comment",
+          plugins: [
+                    "advlist autolink autosave link lists charmap hr anchor",
+                    "visualblocks visualchars code fullscreen nonbreaking",
+                    "contextmenu directionality template textcolor paste fullpage"
+                    ],
+                    
+                    toolbar1: "bold italic underline | bullist numlist | blockquote link",
+                    
+                    menubar: false,
+                    toolbar_items_size: 'small',
+                    setup: function(ed){
+                      ed.on(
+                          "init",
+                          function(ed) {
+                            
+                            tinymce.execCommand('mceSetContent', false, "");
+                            tinyMCE.execCommand('mceRepaint');
+                            
+                          }
+                      );
+                    }
+        });
+        
+      });
+      
       //apply tinymce b4 this page is displayed
       $("#page_add_actionitems").bind('pagebeforeshow', function() {
         tinymce.init({
@@ -395,34 +429,6 @@ var controller = {
                     
                     menubar: false,
                     toolbar_items_size: 'small'
-        });
-      });
-      
-      //apply tinymce b4 this page is displayed
-      $("#page_actionitemdetails").bind('pagebeforeshow', function() {
-        tinymce.init({
-          
-          selector: "textarea#actionitem_comment",
-          plugins: [
-                    "advlist autolink autosave link lists charmap hr anchor",
-                    "visualblocks visualchars code fullscreen nonbreaking",
-                    "contextmenu directionality template textcolor paste fullpage"
-                    ],
-                    
-                    toolbar1: "bold italic underline | bullist numlist | blockquote link",
-                    
-                    menubar: false,
-                    toolbar_items_size: 'small',
-                    setup: function(ed) {
-                      ed.on(
-                          "init",
-                          function(ed) {
-                            tinymce.execCommand('mceSetContent', false, "");
-                            tinyMCE.execCommand('mceRepaint');
-                            
-                          }
-                      );
-                    }
         });
       });
       
@@ -2557,21 +2563,24 @@ var controller = {
               
               sitedatearray = sitedateonly.split("-");
               
-              formatedsitedate = sitedatearray[2] + "/" + sitedatearray[1] + "/" + sitedatearray[0];  
+              formatedsitedate = sitedatearray[0] + "/" + sitedatearray[1] + "/" + sitedatearray[2];  
             }else{
               sitedatearray = sitedate.split("-");
               
-              formatedsitedate = sitedatearray[2] + "/" + sitedatearray[1] + "/" + sitedatearray[0];
+              formatedsitedate = sitedatearray[0] + "/" + sitedatearray[1] + "/" + sitedatearray[2];
             }
             
           }
           else {
-            formatedsitedate = sitedate;            
+            var dirtydate = sitedate;
+            var dirtydatearray = dirtydate.split("/");
+            var cleanarray = dirtydatearray[2] + "/" + dirtydatearray[1] + "/" + dirtydatearray[0];
+            
+            formatedsitedate = cleanarray;            
           }
           
           var sitevisittype = null;
           $("#sitevisists_details_date").html(formatedsitedate);
-          
           
           switch (fObject['taxonomy_vocabulary_7']['und'][0]['tid']) {
             
@@ -3109,11 +3118,21 @@ var controller = {
               
             }else
             {
-              formatedsitedate = sitedate.date;
+              var dirtydate = sitedate.date;
+              var dirtydatearray = dirtydate.split("/");
+              var cleanarray = dirtydatearray[2] + "/" + dirtydatearray[1] + "/" + dirtydatearray[0];
+              
+              formatedsitedate = cleanarray;    
+            
             }
           }
           else {
-            formatedsitedate = sitedate;
+            var dirtydate = sitedate.date;
+            var dirtydatearray = dirtydate.split("/");
+            var cleanarray = dirtydatearray[2] + "/" + dirtydatearray[1] + "/" + dirtydatearray[0];
+            
+            formatedsitedate = cleanarray;    
+            
           }
           
           $("#actionitem_due_date").html(formatedsitedate);
@@ -3504,22 +3523,22 @@ var controller = {
     //save comment
     onSavecomment: function() {
       tinyMCE.triggerSave();
-      var commenttextarea = $("#actionitem_comment").val();
+      var commenttextarea = $("#add_actionitem_comment").val();
       var commentvalue = commenttextarea.substring(commenttextarea.lastIndexOf("<body>")+6, commenttextarea.lastIndexOf("</body>")).trim();
       
       var comment = {};
       
-      if ($("#actionitem_comment").valid() && commentvalue.length > 0) {
+      if (commentvalue.length > 0) {
         var anid = "";
         
         if(localStorage.actionuser) {
           anid = parseInt(localStorage.anid);
-          comment['anid'] = anid;
+          comment['actionnid'] = anid;
         }
         else
         {
           anid = localStorage.anid;
-          comment['anid'] = anid;
+          comment['actionnid'] = anid;
         }
         var list_comment = $('#list_comments');
         
@@ -3566,7 +3585,7 @@ var controller = {
             
             var li = $("<li></li>");
             var a = $("<a href='#' id='" + anid + "' onclick=''></a>");
-            var h1 = $("<h1 class='heada2'>" + $('#actionitem_comment').val() + "</h1>");
+            var h1 = $("<h1 class='heada2'>" + commentvalue + "</h1>");
             var p = $("<p class='para2'></p>");
             
             a.append(h1);
@@ -3577,6 +3596,8 @@ var controller = {
             list_comment.listview('refresh');
             
             controller.loadingMsg("Saved", 800);
+            
+            $.mobile.changePage("#page_actionitemdetails", "slide", true, false);
             
             $('#actionitem_comment').val("");
             $('#commentcollapse').collapsible('collapse');

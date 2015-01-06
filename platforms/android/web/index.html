@@ -626,80 +626,46 @@ body {
         <fieldset class="ui-grid-a">
           <div class="ui-block-a">
             <div class="ui-bar" style="width: 70%">
-              <label for="actionitem_details_title"><b>Title: </b></label>
+              <label for="actionitem_details_title"></label>
               <p id="actionitem_details_title" required></p>
 
               <label for="actionitem_due_date"><b>Due Date: </b></label>
               <p id="actionitem_due_date" required></p>
 
-              <label for="actionitem_resp_location"><b>Responsible
-                  Location: </b></label>
+              <label for="actionitem_resp_location"><b>Location: </b></label>
               <p id="actionitem_resp_location" required></p>
+              
+              <label for="actionitem_author"><b>Author: </b></label>
+              <p id="actionitem_author" required></p>
+              
+              <label for="actionitem_resp_person"><b>Responsible Person: </b></label>
+              <p id="actionitem_resp_person" required></p>
+              
+              <label for="actionitem_followup_task"><b>Follow Up Task: </b></label>
+              <p id="actionitem_followup_task" required></p>
+              
+              <label for="actionitem_details_priority"><b>Priority:
+                  </b></label>
+                  <p id="actionitem_details_priority" required></p>
 
             </div>
           </div>
+          
           <div class="ui-block-b">
-            <div data-role="collapsible" data-theme="b" id="commentcollapse">
-              <h4>Comment</h4>
-              
-              <ul data-role="listview">
-                <li><select name="select-status" id="select-status" data-mini="true">
-              <option value="1">Open</option>
-              <option value="2">Rejected</option>
-              <option value="3">Closed</option>
-              
-              </select>
-              </li>
-              <li><div id="comment_oecds"></div></li>
-                <li><label for="actionitem_comment"><h5>Tell Us What You
-                  Think</h5></label>
-              <textarea rows="8" value='' id='actionitem_comment'
-                required></textarea>
-                 </li>
-                <li><input type='button' onclick="controller.onSavecomment();"
-                value='Save' data-mini="true" id='actionitem_comment_save' /></li>
-              </ul>
-              
-            </div>
-
-            <div data-role="collapsible" data-theme="b">
-              <h4>Follow Up Task</h4>
-              <ul data-role="listview">
-                <li><label for="actionitem_author"><b>Author: </b></label>
-                  <p id="actionitem_author" required></p></li>
-                <li><label for="actionitem_resp_person"><b>Responsible
-                      Person: </b></label>
-                  <p id="actionitem_resp_person" required></p></li>
-                <li><label for="actionitem_followup_tas"><b>Follow
-                      Up Task: </b></label>
-                  <p id="actionitem_followup_task" required></p></li>
-              </ul>
-            </div>
-
-            <div data-role="collapsible" data-theme="b">
-              <h4>Status</h4>
-              <ul data-role="listview">
-                <li><label for="actionitem_details_status"><b>Status:
-                  </b></label>
-                  <p id="actionitem_details_status" required></p></li>
-
-                <li><label for="actionitem_ftritem"><b>Report:
-                  </b></label>
-                  <p id="actionitem_ftritem" required></p></li>
-
-                <li><label for="actionitem_details_priority"><b>Priority:
-                  </b></label>
-                  <p id="actionitem_details_priority" required></p></li>
-
-              </ul>
-            </div>
-
-
-
+            <a class="" data-role="button" id="edit_actionitem"
+              href="#page_actionitem_edit" data-rel="dialog" data-iconpos=""><i
+              class="fa fa-edit fa-lg"></i>&nbsp&nbsp Edit</a>
           </div>
         </fieldset>
 
-        <h4 align="center">Comments</h4>
+        <h4 align="center">Comments
+        <a href="#page_add_actionitem_comment" data-rel="dialog"
+            class="ui-btn-inline" data-role="button" data-iconpos=""
+            data-inline="true" id="add_actionitem_comment_button"> <i class="fa fa-plus-square fa-lg"></i>&nbsp&nbsp
+            Add Comment
+          </a>
+        </h4>
+        
         <ul data-role="listview" id="list_comments" data-filter="true">
 
         </ul>
@@ -711,7 +677,45 @@ body {
   </div>
   <!-- /page -->
 
+  <!-- Add action item comment page -->
+  <div data-role="page" id="page_add_actionitem_comment">
+    <div data-role="header" id="header_actionitem_comment">
+      
+    </div>
 
+    <div data-role="content" class='content'>
+      <form id="form_actionitem_comment" method="" action="">
+        <h4>Comment</h4>
+              
+              <ul data-role="listview">
+                <li><select name="select-status" id="select-status" data-mini="true">
+              <option value="1">Open</option>
+              <option value="2">Rejected</option>
+              <option value="3">Closed</option>
+              
+              </select>
+              </li>
+              <li><div id="comment_oecds"></div></li>
+                <li><label for="add_actionitem_comment"><h5>Tell Us What You
+                  Think</h5></label>
+              <textarea rows="8" value='' id='add_actionitem_comment'
+                required></textarea>
+                 </li>
+                
+                <li class="ui-body ui-body-b">
+            <fieldset class="ui-grid-a">
+                    <div class="ui-block-a"><a  data-role='button' id='actionitem_comment_save'>Save</a><a data-role="button" href="#page_actionitemdetails" data-rel="back" id='cancel_actionitem_comment_save'>Cancel</a></div>
+                    
+            </fieldset>
+              </ul>
+              
+      </form>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
 
   <!-- Edit Location Page -->
   <div data-role="page" id="page_location_edits">
