@@ -6,9 +6,9 @@ devtrac.indexedDB.db = null;
 
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 3;
+  var version = 1;
   
-  var request = indexedDB.open("b17", version);
+  var request = indexedDB.open("b18", version);
   
   request.onsuccess = function(e) {
     devtrac.indexedDB.db = e.target.result;
@@ -21,9 +21,9 @@ devtrac.indexedDB.open = function(callback) {
 //creating an object store
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 3;
+  var version = 1;
   
-  var request = indexedDB.open("b17", version);
+  var request = indexedDB.open("b18", version);
   
   // We can only create Object stores in a versionchange transaction.
   request.onupgradeneeded = function(e) {
@@ -92,7 +92,7 @@ devtrac.indexedDB.open = function(callback) {
     images.createIndex('nid', 'nid', { unique: true });
     
     var actionitemcomments = db.createObjectStore("actionitemscomments", {keyPath: "anid", autoIncrement: true});
-    actionitemcomments.createIndex("anid", "anid", { unique: false });
+    actionitemcomments.createIndex("anid", "anid", { unique: true });
     
   };
   

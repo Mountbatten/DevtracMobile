@@ -135,8 +135,9 @@ var controller = {
           
           devtracnodes.getSitereporttypes(db).then(function () {
             //save report types in a file
-            if(controller.checkCordova() != undefined) {
-              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, saveTypes, failsaveTypes);  
+            
+            if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, saveTypes, failsaveTypes);
             }
             
             controller.loadingMsg("Site Report Types Downloaded", 0);
@@ -189,8 +190,10 @@ var controller = {
                         
                         setTimeout(function(){
                           auth.logout().then(function(){
-                            //Clear user info from file
-                            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                            
+                            if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                            }
                           });
                           
                         }, 2500);
@@ -559,8 +562,10 @@ var controller = {
                           
                           setTimeout(function() {
                             auth.logout().then(function(){
-                              //Clear user info from file
-                              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                              
+                              if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                              }
                             });
                             
                           }, 2000);
@@ -568,8 +573,9 @@ var controller = {
                         });          
                       }).fail(function(error){
                         auth.logout().then(function(){
-                          //Clear user info from file
-                          window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                          if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                          }
                         });
                         
                         if(error.indexOf("field") != -1){
@@ -1162,11 +1168,11 @@ var controller = {
                   window.localStorage.setItem("usernam", $("#page_login_name").val());
                   window.localStorage.setItem("passw", $("#page_login_pass").val());
                   
-                  if(controller.checkCordova() != undefined) {
+                  if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
                     localStorage.username = $("#page_login_name").val();
                     localStorage.password = $("#page_login_pass").val();
                     
-                    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, saveUserInfo, failsaveUserInfo);  
+                    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, saveUserInfo, failsaveUserInfo);
                   }
                   
                 }else{
@@ -1194,8 +1200,11 @@ var controller = {
                         
                         setTimeout(function() {
                           auth.logout().then(function(){
-                            //Clear user info from file
-                            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                            
+                            if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                            }
+                            
                           });
                           
                         }, 2000);
@@ -1203,8 +1212,9 @@ var controller = {
                       });
                     }).fail(function(error) {
                       auth.logout().then(function(){
-                        //Clear user info from file
-                        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                        if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                          window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                        }
                       });
                       controller.loadingMsg(error,5000);
                       
@@ -1227,8 +1237,9 @@ var controller = {
                       
                       setTimeout(function() {
                         auth.logout().then(function(){
-                          //Clear user info from file
-                          window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                          if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                          }
                         });
                         
                       }, 2000);
@@ -1236,8 +1247,11 @@ var controller = {
                     });
                   }).fail(function(error) {
                     auth.logout().then(function(){
-                      //Clear user info from file
-                      window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);});
+                      if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                      }
+                      
+                    });
                     controller.loadingMsg(error,5000);
                     
                   });
@@ -1283,8 +1297,12 @@ var controller = {
         
         if(controller.connectionStatus) {
           auth.logout().then(function(){
-            //Clear user info from file
-            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);});  
+          
+            if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+            }
+            
+          });  
         }else {
           controller.loadingMsg("Please Connect to Internet ...", 1000);
         }
@@ -1446,8 +1464,13 @@ var controller = {
             
             setTimeout(function() {
               auth.logout().then(function(){
+
+                if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
                 //Clear user info from file
-                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);});
+                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                }  
+                
+              });
               
             }, 2000);
             
@@ -1469,16 +1492,23 @@ var controller = {
               
               setTimeout(function() {
                 auth.logout().then(function(){
-                  //Clear user info from file
-                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);});
+                
+                  if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                    //Clear user info from file
+                      window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                    }  
+                });
                 
               }, 2000);
               
             });
           }).fail(function(error){
             auth.logout().then(function(){
-              //Clear user info from file
-              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);});
+              if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                //Clear user info from file
+                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+              }    
+            });
             controller.loadingMsg(error,5000);
             
           });
@@ -2286,8 +2316,11 @@ var controller = {
               
               setTimeout(function(){
                 auth.logout().then(function(){
-                  //Clear user info from file
-                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);});
+                  if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                    //Clear user info from file
+                      window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                    }    
+                });
                 
               }, 2000);
               
@@ -2485,10 +2518,10 @@ var controller = {
     //handle site visit click
     onSitevisitClick: function (anchor) {
       //read report types from a file
-      
-      if(controller.checkCordova() != undefined) {
-        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, readTypes, failreadTypes);  
-      }
+     
+      if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, readTypes, failreadTypes);
+      }  
       
       var state = false;
       var anchor_id = $(anchor).attr('id');
@@ -3666,17 +3699,19 @@ var controller = {
                               
                               setTimeout(function() {
                                 auth.logout().then(function(){
-                                  //Clear user info from file
-                                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                                  if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                                    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                                  }
                                 });
-                                
                               }, 2000);
                               
                             });
                           }).fail(function(error) {
                             auth.logout().then(function(){
-                              //Clear user info from file
-                              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                              if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                              }
+                              
                             });
                             controller.loadingMsg(error,5000);
                             
@@ -3698,8 +3733,9 @@ var controller = {
                             
                             setTimeout(function() {
                               auth.logout().then(function(){
-                                //Clear user info from file
-                                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                                if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                                }
                               });
                               
                             }, 2000);
@@ -3707,8 +3743,9 @@ var controller = {
                           });
                         }).fail(function(error) {
                           auth.logout().then(function(){
-                            //Clear user info from file
-                            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                            if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, clearUserInfo, failclearUserInfo);
+                            }
                           });
                           controller.loadingMsg(error,5000);
                           
