@@ -885,12 +885,14 @@
 
 
 .content .ui-grid-a>.ui-block-a label[for='sitevisists_details_title'] ,
-.content .ui-grid-a>.ui-block-a label[for='fieldtrip_details_title'] {
+.content .ui-grid-a>.ui-block-a label[for='fieldtrip_details_title'] ,
+.content .ui-grid-a>.ui-block-a label[for='actionitem_details_title']
+{
     display: none !important;
 }
 
 #sitevisists_details_title ,
-#fieldtrip_details_title {
+#fieldtrip_details_title, #actionitem_details_title {
     font-size: 2.0em;
     margin-top: 0;
     margin-bottom: 20px;
