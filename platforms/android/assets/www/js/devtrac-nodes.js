@@ -1022,6 +1022,9 @@ var devtracnodes = {
                 devtrac.indexedDB.editFieldtrip(db, localStorage.currentfnid, updates).then(function() {
                   controller.countAllNodes();
                   
+                  syncData['fieldtrip'] = [];
+                  devtracnodes.updateSyncData(syncData)
+                  
                 });
                 
               });  
@@ -1344,6 +1347,7 @@ var devtracnodes = {
         devtracnodes.uploadFieldtrips(nodeStatus).then(function(status, e) {
           fieldtrips = true;
           controller.loadingMsg("Finished Syncing Fieldtrips ...", 0);
+          $("#fieldtrip_count").html("0");
           
           if(fieldtrips == true && actionitems == true) {
             devtracnodes.syncComments(fieldtrips, status);
