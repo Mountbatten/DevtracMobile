@@ -435,13 +435,13 @@ var controller = {
         });
       });
       
-      //initialise navbar for site visit details
+      /*//initialise navbar for site visit details
       $(document).on('pagebeforecreate', '#page_sitevisits_details', function() {
         $("#sitenav").html('<ul>' +
             '<li><a href="#page_add_questionnaire"><i class="fa fa-list-alt fa-lg"></i>&nbsp&nbsp Questionnaire</a></li>' +
             '<li><a href="#mappage" class="panel_map" onclick="var state=false; var mapit = true; mapctlr.initMap(null, null, state, mapit);"><i class="fa fa-map-marker fa-lg"></i>&nbsp&nbsp Map</a></li>' +
         '</ul>');
-      });
+      });*/
       
       //empty image arrays on cancel of site visit edits
       $("#cancel_site_visit_edits").bind('click', function() {
