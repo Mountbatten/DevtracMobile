@@ -387,7 +387,65 @@ var controller = {
         
       });
       
-    //apply tinymce b4 this page is displayed
+      //Load location data for edits
+      $("#page_location_edits").bind('pagebeforeshow', function(event, data) {
+        
+        var location_type = localStorage.locationtype;
+        var location_id;
+        
+        if(location_type == "user") {
+          location_id = parseInt(localStorage.placenid);
+        }else{
+          location_id = localStorage.placenid;
+
+        }
+        
+        //Load placetypes if it has not been done before
+        if($('#edit_placetypes').children().length == 0) {
+          controller.buildSelect("placetype", []);  
+        }
+        
+        devtrac.indexedDB.open(function (db) {
+        
+        devtrac.indexedDB.getPlace(db, location_id, function(aPlace) {
+          console.log(aPlace['nid']+" we have the loca");
+          var lat = aPlace['field_place_lat_long']['und'][0]['lat'];
+          var lon = aPlace['field_place_lat_long']['und'][0]['lon'];
+          
+          $("#edit_place_title").val(aPlace['title']);
+        
+          $("#edit_latlon").val(lat+" "+lon);
+          
+          $("#select_placetype").filter(function() {
+            //may want to use $.trim in here
+            return $(this).val() == aPlace['taxonomy_vocabulary_1']['und'][0]['tid']; 
+          }).prop('selected', true).selectmenu('refresh');
+          
+          //$("#select_placetype").val().attr("selected", "selected").selectmenu('refresh');
+          
+          if(aPlace['field_place_responsible_person']['und'] != undefined && aPlace['field_place_responsible_person']['und'][0]['value'] != undefined) {
+            $("#edit_place_name").val(aPlace['field_place_responsible_person']['und'][0]['value']);
+          }
+          
+          if(aPlace['field_place_phone'].length > 0 && aPlace['field_place_phone']['und'][0]['value'] != undefined) {
+            $("#edit_place_phone").val(aPlace['field_place_phone']['und'][0]['phone']);
+          }
+          
+          if(aPlace['field_place_email'].length > 0 && aPlace['field_place_email']['und'][0]['email'] != undefined) {
+            $("#edit_place_email").val(aPlace['field_place_email']['und'][0]['email']);
+          }
+          
+          if(aPlace['field_place_website'].length > 0 && aPlace['field_place_website']['und'][0]['url'] != undefined) {
+            $("#edit_place_website").val(aPlace['field_place_website']['und'][0]['url']);
+          }
+          
+          
+        });
+        });
+        
+      });
+      
+      //apply tinymce b4 this page is displayed
       $("#page_add_actionitem_comment").bind('pagebeforeshow', function(event, data) {
         
         tinymce.init({
@@ -801,7 +859,7 @@ var controller = {
             $("#sitevisit_title").val(sitevisitObject['title']);
             
             var uncleandate =  sitevisitObject['field_ftritem_date_visited']['und'][0]['value'];
-            var cleandate = "";
+            var cleandate = "";page_sitevisit_edit
             if(uncleandate.indexOf("T") != -1){
               cleandate = uncleandate.substring(0, uncleandate.indexOf("T"));  
             }else {
@@ -2657,6 +2715,8 @@ var controller = {
               if (place != undefined) {
                 localStorage.ptitle = place['title'];
                 
+                localStorage.placenid = place['nid'];
+                
                 $("#sitevisists_details_location").html(place['title']);
                 localStorage.respplacetitle = place['title'];
                 localStorage.point = place['field_place_lat_long']['und'][0]['geom'];
@@ -3304,7 +3364,6 @@ var controller = {
         updates['taxonomy_vocabulary_1']['und'] = [];
         updates['taxonomy_vocabulary_1']['und'][0] = {};
         updates['taxonomy_vocabulary_1']['und'][0]['tid'] = placetype;
-        console.log("Saving location "+placetype);
         
         //get district information
         updates['taxonomy_vocabulary_6'] = {};
@@ -3974,12 +4033,17 @@ var controller = {
       
       var selectGroup = $(select);
       if (vocabularyname.indexOf("place") != -1) {
+        
         if($.mobile.activePage.attr('id') == "page_site_report_type") {
           //create placetypes codes optgroup
           $('#location_placetypes').empty().append(selectGroup);
           $('#sitevisists_details_subjects').empty().append(selectGroup);
           $.mobile.changePage("#page_add_location", "slide", true, false);          
-        }else {
+        } else if($.mobile.activePage.attr('id') == "page_location_edits") {
+          //create placetypes codes optgroup
+          $('#edit_placetypes').empty().append(selectGroup).trigger('create');
+                  
+        } else {
           $('#placetypes').empty().append(selectGroup).trigger('create');
         }
         

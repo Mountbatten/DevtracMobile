@@ -782,21 +782,44 @@ body {
   <div data-role="panel" id="navpanel_location_edits" data-theme="b"
       data-position="left" class="leftmenu"></div>
     <div data-role="header">
-      <!-- <h3 title="FieldTrip">Edit Locations</h3> -->
+      <h3 title="FieldTrip">Edit Location</h3>
     </div>
     <!-- /header -->
 
-    <div data-role="content" class='content' id='locationcontent'>
+    <div data-role="content" class='content' id='editlocationcontent'>
       <form id="editlocationform">
-        <label for='place_title'>Title</label> <input type='text' value=''
-          id='place_title'> <label for='place_name'>Name</label> <input
-          type='text' value='' id='place_name'> <label
-          for='place_reponsible'>Responsible person</label> <input type='text'
-          value='' id='place_responsible'> <label for='place_email'>Email</label>
-        <input type='text' value='' id='place_email'>
+        <label for='edit_place_title'>Location Name</label> 
+        <input type='text' value=''
+          id='edit_place_title'>
+          
+          <div id="edit_placetypes"></div>
+          
+          <label for="edit_latlon">GPS</label> <input type='text' value='' id='edit_latlon'
+          name='edit_latlon' disabled="" /> <label for="edit_gpslat">GPS Lat</label> <input
+          type='text' value='' id='edit_gpslat' name='gpslat'
+          placeholder="Enter your own Latitude" /> <label for="edit_gpslon">GPS
+          Lon</label> <input type='text' value='' id='edit_gpslon' name='gpslon'
+          placeholder="Enter your own Longitude" /> <small><p
+            class="error" id="edit_coordserror"></p></small> <label for="edit_gpserror">GPS
+          Errors</label> <input type='text' value='' id='edit_gpserror' class="error"
+          name='gpserror' />
+          
+          <label for='edit_place_name'>Contact Name</label> 
+        <input
+          type='text' value='' id='edit_place_name'>
+          
+          <label for='edit_place_phone'>Phone</label>
+        <input type='tel' value='' id='edit_place_phone'>
+          
+          <label for='edit_place_email'>Email</label>
+        <input type='text' value='' id='edit_place_email'>
+        
+        <label for='edit_place_website'>Website</label>
+        <input type='url' value='' id='edit_place_website'>
+        
       </form>
       <input type="button" data-inline="true" data-theme="b"
-        id="save_places_info" class="" onclick="controller.onPlacesave(this);"
+        id="edit_save_places_info" class="" onclick="controller.onPlacesave(this);"
         value="Save" /> <a data-role="button" data-inline="true"
         data-rel="back" data-theme="a" id="cancel_places_info">Cancel</a>
 
