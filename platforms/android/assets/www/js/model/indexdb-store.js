@@ -1125,6 +1125,9 @@ devtrac.indexedDB.editPlace = function(db, pnid, updates) {
       if(key == "gpslon"){
         data['field_place_lat_long']['und'][0]['lon'] = updates['gpslon']; 
       }
+      if(key == "editflag"){
+        data['editflag'] = updates['editflag']; 
+      }
       if(key == "title"){
         data['title'] = updates['title']; 
       }

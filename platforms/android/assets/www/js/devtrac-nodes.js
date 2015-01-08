@@ -497,6 +497,7 @@ var devtracnodes = {
       
       var oldids = oldlocationids;
       if(postStrings.length > 0) {
+        
         devtracnodes.postNode(postStrings[0], oldlocationids, titlearray).then(function(updates, id, location_title) {
           if(updates['nid'] != undefined || updates['nid'] != null) {
             newlocationnames.push(titlearray[0]);
@@ -2346,6 +2347,7 @@ var devtracnodes = {
           }else {
             
             for(var item in data){
+              data[item]['editflag'] = 0;
               devtrac.indexedDB.addPlacesData(db, data[item]).then(function(){
                 
                 controller.loadingMsg("Places Saved",1000);
