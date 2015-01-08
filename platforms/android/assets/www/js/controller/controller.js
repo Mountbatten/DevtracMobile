@@ -245,8 +245,8 @@ var controller = {
           
         }
         
-        $("#location_item_save").button('disable');  
-        $("#location_item_save").button('refresh');  
+        $("#location_item_save").button().button('disable');  
+        $("#location_item_save").button().button('refresh');  
         
         if(controller.checkCordova() != undefined) {
           
@@ -389,7 +389,8 @@ var controller = {
       
       //Load location data for edits
       $("#page_location_edits").bind('pagebeforeshow', function(event, data) {
-        
+        controller.watchid = navigator.geolocation.watchPosition(controller.showPosition, controller.errorhandler);
+        $("#edit_latlon").val(localStorage.latlon);
         var location_type = localStorage.locationtype;
         var location_id;
         
@@ -409,13 +410,9 @@ var controller = {
         
         devtrac.indexedDB.getPlace(db, location_id, function(aPlace) {
           console.log(aPlace['nid']+" we have the loca");
-          var lat = aPlace['field_place_lat_long']['und'][0]['lat'];
-          var lon = aPlace['field_place_lat_long']['und'][0]['lon'];
           
-          $("#edit_place_title").val(aPlace['title']);
+          $("#editplace_title").val(aPlace['title']);
         
-          $("#edit_latlon").val(lat+" "+lon);
-          
           $("#select_placetype").filter(function() {
             //may want to use $.trim in here
             return $(this).val() == aPlace['taxonomy_vocabulary_1']['und'][0]['tid']; 
@@ -424,21 +421,50 @@ var controller = {
           //$("#select_placetype").val().attr("selected", "selected").selectmenu('refresh');
           
           if(aPlace['field_place_responsible_person']['und'] != undefined && aPlace['field_place_responsible_person']['und'][0]['value'] != undefined) {
-            $("#edit_place_name").val(aPlace['field_place_responsible_person']['und'][0]['value']);
+            $("#editplace_name").val(aPlace['field_place_responsible_person']['und'][0]['value']);
+          }else {
+            $("#editplace_name").val("Unavailable");
           }
           
-          if(aPlace['field_place_phone'].length > 0 && aPlace['field_place_phone']['und'][0]['value'] != undefined) {
-            $("#edit_place_phone").val(aPlace['field_place_phone']['und'][0]['phone']);
+          if(localStorage.user == "true") {
+            if(aPlace['field_place_lat_long']['und'][0]['geom'] != undefined) {
+              $("#edit_gpslat").val(aPlace['field_place_lat_long']['und'][0]['lat']);
+              $("#edit_gpslon").val(aPlace['field_place_lat_long']['und'][0]['lon']);
+            }  
+            if(aPlace['field_place_responsible_phone'].length > 0 && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
+              $("#editplace_phone").val(aPlace['field_placeresponsible_phone']['und'][0]['value']);
+            }else if(controller.sizeme(aPlace['field_place_responsible_phone']) > 0 && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
+              $("#editplace_phone").val(aPlace['field_place_responsible_phone']['und'][0]['value']);
+            }
+            if(aPlace['field_place_responsible_email'].length > 0 && aPlace['field_place_responsible_email']['und'][0]['email'] != undefined) {
+              $("#editplace_email").val(aPlace['field_place_responsible_email']['und'][0]['email']);
+            }else if(controller.sizeme(aPlace['field_place_responsible_email']) > 0 && aPlace['field_place_responsible_email']['und'][0]['email'] != undefined) {
+              $("#editplace_email").val(aPlace['field_place_responsible_email']['und'][0]['email']);
+            }
+            if(aPlace['field_place_responsible_website'].length > 0 && aPlace['field_place_responsible_website']['und'][0]['url'] != undefined) {
+              $("#editplace_website").val(aPlace['field_place_responsible_website']['und'][0]['url']);
+            }else if(controller.sizeme(aPlace['field_place_responsible_website']) > 0 && aPlace['field_place_responsible_website']['und'][0]['url'] != undefined) {
+              $("#editplace_website").val(aPlace['field_place_responsible_website']['und'][0]['url']);
+            }
+          }else {
+            if(aPlace['field_place_lat_long']['und'][0]['lat'] != undefined) {
+              $("#edit_gpslat").val(aPlace['field_place_lat_long']['und'][0]['lat']);
+              $("#edit_gpslon").val(aPlace['field_place_lat_long']['und'][0]['lon']);
+            }  
+            if(aPlace['field_place_phone'].length > 0 && aPlace['field_place_phone']['und'][0]['value'] != undefined ||
+                controller.sizeme(aPlace['field_place_phone']) && aPlace['field_place_phone']['und'][0]['value'] != undefined) {
+              $("#editplace_phone").val(aPlace['field_place_phone']['und'][0]['phone']);
+            }
+            
+            if(aPlace['field_place_email'].length > 0 && aPlace['field_place_email']['und'][0]['email'] != undefined || 
+                controller.sizeme(aPlace['field_place_email']) && aPlace['field_place_email']['und'][0]['value'] != undefined) {
+              $("#editplace_email").val(aPlace['field_place_email']['und'][0]['email']);
+            }
+            if(aPlace['field_place_website'].length > 0 && aPlace['field_place_website']['und'][0]['url'] != undefined ||
+                controller.sizeme(aPlace['field_place_website']) && aPlace['field_place_website']['und'][0]['url'] != undefined) {
+              $("#editplace_website").val(aPlace['field_place_website']['und'][0]['url']);
+            }
           }
-          
-          if(aPlace['field_place_email'].length > 0 && aPlace['field_place_email']['und'][0]['email'] != undefined) {
-            $("#edit_place_email").val(aPlace['field_place_email']['und'][0]['email']);
-          }
-          
-          if(aPlace['field_place_website'].length > 0 && aPlace['field_place_website']['und'][0]['url'] != undefined) {
-            $("#edit_place_website").val(aPlace['field_place_website']['und'][0]['url']);
-          }
-          
           
         });
         });
@@ -810,16 +836,16 @@ var controller = {
       //listen for change of lat on save location page
       $( "#gpslat" ).change(function() {
         if($(this).val().length > 0 && $("#gpslon").val().length > 0) {
-          $("#location_item_save").button('enable');  
-          $("#location_item_save").button('refresh');
+          $("#location_item_save").button().button('enable');  
+          $("#location_item_save").button().button('refresh');
         }
       });
       
       //listen for changes of lon on save location page
       $( "#gpslon" ).change(function() {
         if($(this).val().length > 0 && $("#gpslat").val().length > 0) {
-          $("#location_item_save").button('enable');  
-          $("#location_item_save").button('refresh');
+          $("#location_item_save").button().button('enable');  
+          $("#location_item_save").button().button('refresh');
         }
       });
       
@@ -1434,8 +1460,8 @@ var controller = {
       var element = $("#latlon");
       element.val(lat +","+ lon);
       
-      $("#location_item_save").button('enable');  
-      $("#location_item_save").button('refresh');
+      $("#location_item_save").button().button('enable');  
+      $("#location_item_save").button().button('refresh');
     },
     
     // onError Callback receives a PositionError object
@@ -1830,8 +1856,8 @@ var controller = {
       var element = $("#latlon");
       element.val("Lon Lat is "+localStorage.latlon);
       
-      $("#location_item_save").button('enable');  
-      $("#location_item_save").button('refresh');
+      $("#location_item_save").button().button('enable');  
+      $("#location_item_save").button().button('refresh');
     },
     
     //web api geolocation error
@@ -2937,13 +2963,14 @@ var controller = {
     
     onPlacesave: function (saveButtonReference) {
       //save places edits
-      var pnid = '';
-      if(localStorage.user == "true"){
-        pnid = parseInt(localStorage.placeid);
-        
+      var location_type = localStorage.locationtype;
+      var location_id;
+      
+      if(location_type == "user") {
+        location_id = parseInt(localStorage.placenid);
       }else{
-        pnid = localStorage.placeid;
-        
+        location_id = localStorage.placenid;
+
       }
       
       var updates = {};
@@ -2957,9 +2984,9 @@ var controller = {
           
         });
         
-        devtrac.indexedDB.editPlace(db, pnid, updates).then(function () {
-          controller.loadingMsg('Saved ' + updates['title'], 2000);
-          
+        devtrac.indexedDB.editPlace(db, location_id, updates).then(function () {
+          controller.loadingMsg('Saved Place', 1000);
+          controller.resetForm($('#editlocationform'));
           $.mobile.changePage("#page_sitevisits_details", "slide", true, false);
         });
       });
@@ -3330,10 +3357,15 @@ var controller = {
           
         }
         
+        var gpslonlat = localStorage.latlon;
+        var coords = gpslonlat.split(" ");
+        
         updates['field_place_lat_long'] = {};
         updates['field_place_lat_long']['und'] = [];
         updates['field_place_lat_long']['und'][0] = {};
         updates['field_place_lat_long']['und'][0]['geom'] = "POINT ("+localStorage.latlon+")";
+        updates['field_place_lat_long']['und'][0]['lat'] = coords[1];
+        updates['field_place_lat_long']['und'][0]['lon'] = coords[0];
         
         updates['field_place_responsible_person'] = {};
         updates['field_place_responsible_person']['und'] = [];
