@@ -8,7 +8,7 @@ devtrac.indexedDB.open = function(callback) {
   
   var version = 1;
   
-  var request = indexedDB.open("b18", version);
+  var request = indexedDB.open("b19", version);
   
   request.onsuccess = function(e) {
     devtrac.indexedDB.db = e.target.result;
@@ -23,7 +23,7 @@ devtrac.indexedDB.open = function(callback) {
   
   var version = 1;
   
-  var request = indexedDB.open("b18", version);
+  var request = indexedDB.open("b19", version);
   
   // We can only create Object stores in a versionchange transaction.
   request.onupgradeneeded = function(e) {
@@ -103,6 +103,26 @@ devtrac.indexedDB.open = function(callback) {
   
   request.onerror = devtrac.indexedDB.onerror;
 };
+
+/*Delete databases 
+ * 
+ * var databaseName = [ 'b10', 'b11', 'b12', 'b13', 'b14', 'b15', 'b16', 'b17'];
+
+var req;
+
+for(var p = 0; p < databaseName.length; p++){
+  req = window.indexedDB.deleteDatabase(databaseName[p]);
+}
+
+req.onsuccess = function (response) {
+    console.log("Deleted database successfully");
+};
+req.onerror = function (error) {
+    console.log("Couldn't delete database");
+};
+req.onblocked = function (onblock) {
+    console.log("Couldn't delete database due to the operation being blocked");
+};*/
 
 //adding taxonomy data to object store
 devtrac.indexedDB.addTaxonomyData = function(db, storename, pObj) {
@@ -645,8 +665,7 @@ devtrac.indexedDB.getSitevisit = function(db, snid) {
   var d = $.Deferred();
   var trans = db.transaction(["sitevisit"], "readonly");
   var store = trans.objectStore("sitevisit");
-  //var ftritem = "";
-  
+
   var index = store.index("nid");
   index.get(snid).onsuccess = function(event) {
     //callback(event.target.result);
@@ -1091,8 +1110,20 @@ devtrac.indexedDB.editPlace = function(db, pnid, updates) {
       if(key == "email"){
         data['field_place_responsible_email']['und'][0]['email'] = updates['email'];
       }
-      if(key == "responsible"){
-        data['field_place_responsible_person']['und'][0]['value'] = updates['responsible']; 
+      if(key == "phone"){
+        data['field_place_responsible_phone']['und'][0]['phone'] = updates['phone'];
+      }
+      if(key == "website"){
+        data['field_place_responsible_website']['und'][0]['email'] = updates['website'];
+      }
+      if(key == "name"){
+        data['field_place_responsible_person']['und'][0]['value'] = updates['name']; 
+      }
+      if(key == "gpslat"){
+        data['field_place_lat_long']['und'][0]['lat'] = updates['gpslat']; 
+      }
+      if(key == "gpslon"){
+        data['field_place_lat_long']['und'][0]['lon'] = updates['gpslon']; 
       }
       if(key == "title"){
         data['title'] = updates['title']; 
@@ -1102,6 +1133,9 @@ devtrac.indexedDB.editPlace = function(db, pnid, updates) {
       }
       if(key == "fresh_nid"){
         data['fresh_nid'] = updates['fresh_nid']; 
+      }
+      if(key == "placetype"){
+        data['taxonomy_vocabulary_1']['und'][0]['tid'] = updates['placetype']; 
       }
     }
     
