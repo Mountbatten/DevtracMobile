@@ -482,30 +482,14 @@ var controller = {
           location_id = localStorage.placenid;
 
         }
-        
-/*      
 
-        <label for="location_details_person"><b>Contact person:
-        </b></label>
-        <p id="location_details_person" required></p>
-
-        <label for="location_details_phone"><b>Phone: </b></label>
-        <p id="location_details_phone" required></p>
-
-        <label for="location_details_email"><b>Email: </b></label>
-        <p id="sitevisists_details_email" required></p>
-        
-        <label for="location_details_website"><b>Website: </b></label>
-        <p id="sitevisists_details_website" required></p>
-        */
-        
         devtrac.indexedDB.open(function (db) {
         devtrac.indexedDB.getPlace(db, location_id, function(aPlace) {
           $("#location_details_title").html(aPlace['title']);
           
-          if(aPlace['field_place_responsible_person']['und'][0]['value'] != undefined) {
+          if(aPlace['field_place_responsible_person'].length > 0 && aPlace['field_place_responsible_person']['und'][0]['value'] != undefined) {
             $("#location_details_person").html(aPlace['field_place_responsible_person']['und'][0]['value']);
-          }else {
+          }else if(controller.sizeme(aPlace['field_place_responsible_person']) > 0 && aPlace['field_place_responsible_person']['und'][0]['value'] != undefined){
             $("#location_details_person").html(aPlace['field_place_responsible_person']['und'][0]['value']);
           }
           
@@ -606,13 +590,15 @@ var controller = {
         });
       });
       
-      /*//initialise navbar for site visit details
-      $(document).on('pagebeforecreate', '#page_sitevisits_details', function() {
-        $("#sitenav").html('<ul>' +
-            '<li><a href="#page_add_questionnaire"><i class="fa fa-list-alt fa-lg"></i>&nbsp&nbsp Questionnaire</a></li>' +
-            '<li><a href="#mappage" class="panel_map" onclick="var state=false; var mapit = true; mapctlr.initMap(null, null, state, mapit);"><i class="fa fa-map-marker fa-lg"></i>&nbsp&nbsp Map</a></li>' +
-        '</ul>');
-      });*/
+      if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+        //initialise navbar for site visit details
+        $(document).on('pagebeforecreate', '#page_sitevisits_details', function() {
+          $("#sitenav").html('<ul>' +
+              '<li><a href="#page_add_questionnaire"><i class="fa fa-list-alt fa-lg"></i></a></li>' +
+              '<li><a href="#mappage" class="panel_map" onclick="var state=false; var mapit = true; mapctlr.initMap(null, null, state, mapit);"><i class="fa fa-map-marker fa-lg"></i></a></li>' +
+          '</ul>');
+        });
+      }
       
       //empty image arrays on cancel of site visit edits
       $("#cancel_site_visit_edits").bind('click', function() {
@@ -3080,6 +3066,8 @@ var controller = {
         devtrac.indexedDB.editPlace(db, location_id, updates).then(function () {
           controller.loadingMsg('Saved Place', 1000);
           $("#sitevisists_details_location").html($("#editplace_title").val());
+          
+          
           controller.resetForm($('#editlocationform'));
           
           $.mobile.changePage("#page_sitevisits_details", "slide", true, false);

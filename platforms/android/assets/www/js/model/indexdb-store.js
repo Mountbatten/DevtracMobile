@@ -1117,7 +1117,12 @@ devtrac.indexedDB.editPlace = function(db, pnid, updates) {
         data['field_place_responsible_website']['und'][0]['email'] = updates['website'];
       }
       if(key == "name"){
-        data['field_place_responsible_person']['und'][0]['value'] = updates['name']; 
+        if(data['field_place_responsible_person'].length > 0){
+          data['field_place_responsible_person']['und'][0]['value'] = updates['name'];  
+        }else if(controller.sizeme(data['field_place_responsible_person']) > 0 ){
+          data['field_place_responsible_person']['und'][0]['value'] = updates['name'];
+        }
+         
       }
       if(key == "gpslat"){
         data['field_place_lat_long']['und'][0]['lat'] = updates['gpslat']; 
