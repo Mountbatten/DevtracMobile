@@ -245,8 +245,8 @@ var controller = {
           
         }
         
-        $("#location_item_save").button('disable');  
-        $("#location_item_save").button('refresh');  
+        $("#location_item_save").button().button('disable');  
+        $("#location_item_save").button().button('refresh');  
         
         if(controller.checkCordova() != undefined) {
           
@@ -387,7 +387,162 @@ var controller = {
         
       });
       
-    //apply tinymce b4 this page is displayed
+      //Load location data for edits
+      $("#page_location_edits").bind('pagebeforeshow', function(event, data) {
+        controller.watchid = navigator.geolocation.watchPosition(controller.showPosition, controller.errorhandler);
+        $("#edit_latlon").val(localStorage.latlon);
+        var location_type = localStorage.locationtype;
+        var location_id;
+        
+        if(location_type == "user") {
+          location_id = parseInt(localStorage.placenid);
+        }else{
+          location_id = localStorage.placenid;
+
+        }
+        
+        //Load placetypes if it has not been done before
+        if($('#edit_placetypes').children().length == 0) {
+          controller.buildSelect("placetype", []);  
+        }
+        
+        devtrac.indexedDB.open(function (db) {
+        
+        devtrac.indexedDB.getPlace(db, location_id, function(aPlace) {
+          console.log(aPlace['nid']+" we have the loca");
+          
+          $("#editplace_title").val(aPlace['title']);
+        
+          $("#select_placetype").filter(function() {
+            //may want to use $.trim in here
+            return $(this).val() == aPlace['taxonomy_vocabulary_1']['und'][0]['tid']; 
+          }).prop('selected', true).selectmenu('refresh');
+          
+          //$("#select_placetype").val().attr("selected", "selected").selectmenu('refresh');
+          
+          if(aPlace['field_place_responsible_person']['und'] != undefined && aPlace['field_place_responsible_person']['und'][0]['value'] != undefined) {
+            $("#editplace_name").val(aPlace['field_place_responsible_person']['und'][0]['value']);
+          }else {
+            $("#editplace_name").val("Unavailable");
+          }
+          
+          if(localStorage.user == "true") {
+            if(aPlace['field_place_lat_long']['und'][0]['geom'] != undefined) {
+              $("#edit_gpslat").val(aPlace['field_place_lat_long']['und'][0]['lat']);
+              $("#edit_gpslon").val(aPlace['field_place_lat_long']['und'][0]['lon']);
+            }  
+            if(aPlace['field_place_responsible_phone'].length > 0 && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
+              $("#editplace_phone").val(aPlace['field_placeresponsible_phone']['und'][0]['value']);
+            }else if(controller.sizeme(aPlace['field_place_responsible_phone']) > 0 && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
+              $("#editplace_phone").val(aPlace['field_place_responsible_phone']['und'][0]['value']);
+            }
+            if(aPlace['field_place_responsible_email'].length > 0 && aPlace['field_place_responsible_email']['und'][0]['email'] != undefined) {
+              $("#editplace_email").val(aPlace['field_place_responsible_email']['und'][0]['email']);
+            }else if(controller.sizeme(aPlace['field_place_responsible_email']) > 0 && aPlace['field_place_responsible_email']['und'][0]['email'] != undefined) {
+              $("#editplace_email").val(aPlace['field_place_responsible_email']['und'][0]['email']);
+            }
+            if(aPlace['field_place_responsible_website'].length > 0 && aPlace['field_place_responsible_website']['und'][0]['url'] != undefined) {
+              $("#editplace_website").val(aPlace['field_place_responsible_website']['und'][0]['url']);
+            }else if(controller.sizeme(aPlace['field_place_responsible_website']) > 0 && aPlace['field_place_responsible_website']['und'][0]['url'] != undefined) {
+              $("#editplace_website").val(aPlace['field_place_responsible_website']['und'][0]['url']);
+            }
+          }else {
+            if(aPlace['field_place_lat_long']['und'][0]['lat'] != undefined) {
+              $("#edit_gpslat").val(aPlace['field_place_lat_long']['und'][0]['lat']);
+              $("#edit_gpslon").val(aPlace['field_place_lat_long']['und'][0]['lon']);
+            }  
+            if(aPlace['field_place_phone'].length > 0 && aPlace['field_place_phone']['und'][0]['value'] != undefined ||
+                controller.sizeme(aPlace['field_place_phone']) && aPlace['field_place_phone']['und'][0]['value'] != undefined) {
+              $("#editplace_phone").val(aPlace['field_place_phone']['und'][0]['phone']);
+            }
+            
+            if(aPlace['field_place_email'].length > 0 && aPlace['field_place_email']['und'][0]['email'] != undefined || 
+                controller.sizeme(aPlace['field_place_email']) && aPlace['field_place_email']['und'][0]['value'] != undefined) {
+              $("#editplace_email").val(aPlace['field_place_email']['und'][0]['email']);
+            }
+            if(aPlace['field_place_website'].length > 0 && aPlace['field_place_website']['und'][0]['url'] != undefined ||
+                controller.sizeme(aPlace['field_place_website']) && aPlace['field_place_website']['und'][0]['url'] != undefined) {
+              $("#editplace_website").val(aPlace['field_place_website']['und'][0]['url']);
+            }
+          }
+          
+        });
+        });
+        
+      });
+      
+      //Load location data for edits
+      $("#page_location_details").bind('pagebeforeshow', function(event, data) {
+        var location_type = localStorage.locationtype;
+        var location_id;
+        
+        if(location_type == "user") {
+          location_id = parseInt(localStorage.placenid);
+        }else{
+          location_id = localStorage.placenid;
+
+        }
+
+        devtrac.indexedDB.open(function (db) {
+        devtrac.indexedDB.getPlace(db, location_id, function(aPlace) {
+          $("#location_details_title").html(aPlace['title']);
+          
+          if(aPlace['field_place_responsible_person'].length > 0 && aPlace['field_place_responsible_person']['und'][0]['value'] != undefined) {
+            $("#location_details_person").html(aPlace['field_place_responsible_person']['und'][0]['value']);
+          }else if(controller.sizeme(aPlace['field_place_responsible_person']) > 0 && aPlace['field_place_responsible_person']['und'][0]['value'] != undefined){
+            $("#location_details_person").html(aPlace['field_place_responsible_person']['und'][0]['value']);
+          }
+          
+          if(localStorage.user == "true") {
+            
+            if(aPlace['field_place_responsible_phone'].length > 0 && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
+              $("#location_details_phone").html(aPlace['field_placeresponsible_phone']['und'][0]['value']);
+            }else if(controller.sizeme(aPlace['field_place_responsible_phone']) > 0 && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
+              $("#location_details_phone").html(aPlace['field_place_responsible_phone']['und'][0]['value']);
+            }
+            if(aPlace['field_place_responsible_email'].length > 0 && aPlace['field_place_responsible_email']['und'][0]['email'] != undefined) {
+              $("#location_details_email").html(aPlace['field_place_responsible_email']['und'][0]['email']);
+            }else if(controller.sizeme(aPlace['field_place_responsible_email']) > 0 && aPlace['field_place_responsible_email']['und'][0]['email'] != undefined) {
+              $("#location_details_email").html(aPlace['field_place_responsible_email']['und'][0]['email']);
+            }
+            if(aPlace['field_place_responsible_website'].length > 0 && aPlace['field_place_responsible_website']['und'][0]['url'] != undefined) {
+              $("#location_details_website").html(aPlace['field_place_responsible_website']['und'][0]['url']);
+            }else if(controller.sizeme(aPlace['field_place_responsible_website']) > 0 && aPlace['field_place_responsible_website']['und'][0]['url'] != undefined) {
+              $("#location_details_website").html(aPlace['field_place_responsible_website']['und'][0]['url']);
+            }
+          }else {
+            
+            if(aPlace['field_place_phone'].length > 0 && aPlace['field_place_phone']['und'][0]['value'] != undefined ||
+                controller.sizeme(aPlace['field_place_phone']) && aPlace['field_place_phone']['und'][0]['value'] != undefined) {
+              $("#location_details_phone").prev('label').show();
+              $("#location_details_phone").html(aPlace['field_place_phone']['und'][0]['phone']);
+            }else {
+              $("#location_details_phone").prev('label').hide();
+            }
+            
+            if(aPlace['field_place_email'].length > 0 && aPlace['field_place_email']['und'][0]['email'] != undefined || 
+                controller.sizeme(aPlace['field_place_email']) && aPlace['field_place_email']['und'][0]['value'] != undefined) {
+              $("#location_details_email").prev('label').show();
+              $("#location_details_email").html(aPlace['field_place_email']['und'][0]['email']);
+            }else {
+              $("#location_details_email").prev('label').hide();
+            }
+            
+            if(aPlace['field_place_website'].length > 0 && aPlace['field_place_website']['und'][0]['url'] != undefined ||
+                controller.sizeme(aPlace['field_place_website']) && aPlace['field_place_website']['und'][0]['url'] != undefined) {
+              $("#location_details_website").prev('label').show();
+              $("#location_details_website").html(aPlace['field_place_website']['und'][0]['url']);
+            }else {
+              $("#location_details_website").prev('label').hide();
+            }
+          }
+          
+        });
+        });
+        
+      });
+      
+      //apply tinymce b4 this page is displayed
       $("#page_add_actionitem_comment").bind('pagebeforeshow', function(event, data) {
         
         tinymce.init({
@@ -435,13 +590,15 @@ var controller = {
         });
       });
       
-      /*//initialise navbar for site visit details
-      $(document).on('pagebeforecreate', '#page_sitevisits_details', function() {
-        $("#sitenav").html('<ul>' +
-            '<li><a href="#page_add_questionnaire"><i class="fa fa-list-alt fa-lg"></i>&nbsp&nbsp Questionnaire</a></li>' +
-            '<li><a href="#mappage" class="panel_map" onclick="var state=false; var mapit = true; mapctlr.initMap(null, null, state, mapit);"><i class="fa fa-map-marker fa-lg"></i>&nbsp&nbsp Map</a></li>' +
-        '</ul>');
-      });*/
+      if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+        //initialise navbar for site visit details
+        $(document).on('pagebeforecreate', '#page_sitevisits_details', function() {
+          $("#sitenav").html('<ul>' +
+              '<li><a href="#page_add_questionnaire"><i class="fa fa-list-alt fa-lg"></i></a></li>' +
+              '<li><a href="#mappage" class="panel_map" onclick="var state=false; var mapit = true; mapctlr.initMap(null, null, state, mapit);"><i class="fa fa-map-marker fa-lg"></i></a></li>' +
+          '</ul>');
+        });
+      }
       
       //empty image arrays on cancel of site visit edits
       $("#cancel_site_visit_edits").bind('click', function() {
@@ -752,16 +909,16 @@ var controller = {
       //listen for change of lat on save location page
       $( "#gpslat" ).change(function() {
         if($(this).val().length > 0 && $("#gpslon").val().length > 0) {
-          $("#location_item_save").button('enable');  
-          $("#location_item_save").button('refresh');
+          $("#location_item_save").button().button('enable');  
+          $("#location_item_save").button().button('refresh');
         }
       });
       
       //listen for changes of lon on save location page
       $( "#gpslon" ).change(function() {
         if($(this).val().length > 0 && $("#gpslat").val().length > 0) {
-          $("#location_item_save").button('enable');  
-          $("#location_item_save").button('refresh');
+          $("#location_item_save").button().button('enable');  
+          $("#location_item_save").button().button('refresh');
         }
       });
       
@@ -1376,8 +1533,8 @@ var controller = {
       var element = $("#latlon");
       element.val(lat +","+ lon);
       
-      $("#location_item_save").button('enable');  
-      $("#location_item_save").button('refresh');
+      $("#location_item_save").button().button('enable');  
+      $("#location_item_save").button().button('refresh');
     },
     
     // onError Callback receives a PositionError object
@@ -1772,8 +1929,8 @@ var controller = {
       var element = $("#latlon");
       element.val("Lon Lat is "+localStorage.latlon);
       
-      $("#location_item_save").button('enable');  
-      $("#location_item_save").button('refresh');
+      $("#location_item_save").button().button('enable');  
+      $("#location_item_save").button().button('refresh');
     },
     
     //web api geolocation error
@@ -2657,6 +2814,8 @@ var controller = {
               if (place != undefined) {
                 localStorage.ptitle = place['title'];
                 
+                localStorage.placenid = place['nid'];
+                
                 $("#sitevisists_details_location").html(place['title']);
                 localStorage.respplacetitle = place['title'];
                 localStorage.point = place['field_place_lat_long']['und'][0]['geom'];
@@ -2698,7 +2857,13 @@ var controller = {
             }
             if(actionitem[i]['field_actionitem_ftreportitem'] != undefined) {
               var siteid = actionitem[i]['field_actionitem_ftreportitem']['und'][0]['target_id'];
-              var sitevisitid = siteid.substring(siteid.indexOf('(')+1, siteid.length-1);
+              var sitevisitid;
+              if(actionitem[i]['loctype'] == "server_added") {
+                sitevisitid = siteid;
+              }else {
+                sitevisitid = siteid.substring(siteid.indexOf('(')+1, siteid.length-1);
+              }
+              
               
               if (actionitem[i]['field_actionitem_ftreportitem']['und'][0]['target_id'] == snid || sitevisitid == snid) {
                 //if there are actionitems show the filter
@@ -2877,13 +3042,14 @@ var controller = {
     
     onPlacesave: function (saveButtonReference) {
       //save places edits
-      var pnid = '';
-      if(localStorage.user == "true"){
-        pnid = parseInt(localStorage.placeid);
-        
+      var location_type = localStorage.locationtype;
+      var location_id;
+      
+      if(location_type == "user") {
+        location_id = parseInt(localStorage.placenid);
       }else{
-        pnid = localStorage.placeid;
-        
+        location_id = localStorage.placenid;
+
       }
       
       var updates = {};
@@ -2897,8 +3063,12 @@ var controller = {
           
         });
         
-        devtrac.indexedDB.editPlace(db, pnid, updates).then(function () {
-          controller.loadingMsg('Saved ' + updates['title'], 2000);
+        devtrac.indexedDB.editPlace(db, location_id, updates).then(function () {
+          controller.loadingMsg('Saved Place', 1000);
+          $("#sitevisists_details_location").html($("#editplace_title").val());
+          
+          
+          controller.resetForm($('#editlocationform'));
           
           $.mobile.changePage("#page_sitevisits_details", "slide", true, false);
         });
@@ -3135,7 +3305,7 @@ var controller = {
       
       devtrac.indexedDB.open(function (db) {
         devtrac.indexedDB.getActionItem(db, anid).then(function (fObject) {
-          $("#actionitem_resp_location").html(localStorage.respplacetitle);          
+          $("#actionitem_resp_location").html($("#sitevisists_details_location").html());          
           
           var sitedate = fObject['field_actionitem_due_date']['und'][0]['value'];
           
@@ -3270,10 +3440,15 @@ var controller = {
           
         }
         
+        var gpslonlat = localStorage.latlon;
+        var coords = gpslonlat.split(" ");
+        
         updates['field_place_lat_long'] = {};
         updates['field_place_lat_long']['und'] = [];
         updates['field_place_lat_long']['und'][0] = {};
         updates['field_place_lat_long']['und'][0]['geom'] = "POINT ("+localStorage.latlon+")";
+        updates['field_place_lat_long']['und'][0]['lat'] = coords[1];
+        updates['field_place_lat_long']['und'][0]['lon'] = coords[0];
         
         updates['field_place_responsible_person'] = {};
         updates['field_place_responsible_person']['und'] = [];
@@ -3304,7 +3479,6 @@ var controller = {
         updates['taxonomy_vocabulary_1']['und'] = [];
         updates['taxonomy_vocabulary_1']['und'][0] = {};
         updates['taxonomy_vocabulary_1']['und'][0]['tid'] = placetype;
-        console.log("Saving location "+placetype);
         
         //get district information
         updates['taxonomy_vocabulary_6'] = {};
@@ -3974,12 +4148,17 @@ var controller = {
       
       var selectGroup = $(select);
       if (vocabularyname.indexOf("place") != -1) {
+        
         if($.mobile.activePage.attr('id') == "page_site_report_type") {
           //create placetypes codes optgroup
           $('#location_placetypes').empty().append(selectGroup);
           $('#sitevisists_details_subjects').empty().append(selectGroup);
           $.mobile.changePage("#page_add_location", "slide", true, false);          
-        }else {
+        } else if($.mobile.activePage.attr('id') == "page_location_edits") {
+          //create placetypes codes optgroup
+          $('#edit_placetypes').empty().append(selectGroup).trigger('create');
+                  
+        } else {
           $('#placetypes').empty().append(selectGroup).trigger('create');
         }
         

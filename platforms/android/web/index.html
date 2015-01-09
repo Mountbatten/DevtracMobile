@@ -301,7 +301,7 @@ body {
     <div data-role="header" id="header_sitereports">
 <div id="sitenav" data-role="navbar" data-theme="a">
         <ul>
-        <li><a id="addquestionnaire"><i class="fa fa-list-alt fa-lg"></i>&nbsp&nbsp Questionnaire</a></li>
+        <li><a href="#page_add_questionnaire" id="addquestionnaire"><i class="fa fa-list-alt fa-lg"></i>&nbsp&nbsp Questionnaire</a></li>
         <li><a href="#mappage" class="panel_map" onclick="var state=false; var mapit = true; mapctlr.initMap(null, null, state, mapit);"><i class="fa fa-map-marker fa-lg"></i>&nbsp&nbsp Map</a></li>
         <li><a href="#page_location_edits" class=""><i class="fa fa-edit fa-lg"></i>&nbsp&nbsp Location</a></li>
         
@@ -615,9 +615,7 @@ body {
   <div data-role="panel" id="navpanel_actionitemdetails" data-theme="b"
       data-position="left" class="leftmenu"></div>
     <div data-role="header" id="header_actionitemdetails">
-      <!-- <a id="" data-rel="back" data-role="button" data-iconpos="notext"><i
-        class="fa fa-chevron-circle-left fa-lg"></i></a>
-      <h3 title="Action Item">Action Item</h3> -->
+      
     </div>
     <!-- /header -->
 
@@ -635,7 +633,7 @@ body {
               <p id="actionitem_due_date" required></p>
 
               <label for="actionitem_resp_location"><b>Location: </b></label>
-              <p id="actionitem_resp_location" required></p>
+              <a data-role="none" data-rel="dialog" href="#page_location_details"><p id="actionitem_resp_location" required></p></a>
               
               <label for="actionitem_author"><b>Author: </b></label>
               <p id="actionitem_author" required></p>
@@ -782,23 +780,98 @@ body {
   <div data-role="panel" id="navpanel_location_edits" data-theme="b"
       data-position="left" class="leftmenu"></div>
     <div data-role="header">
-      <!-- <h3 title="FieldTrip">Edit Locations</h3> -->
+          <a id="" data-role="button"
+        href="#page_sitevisits_details" data-iconpos="notext"><i
+        class="fa fa-chevron-circle-left fa-lg"></i></a>
+      <h3 title="FieldTrip">Edit Location</h3>
     </div>
     <!-- /header -->
 
-    <div data-role="content" class='content' id='locationcontent'>
+    <div data-role="content" class='content' id='editlocationcontent'>
       <form id="editlocationform">
-        <label for='place_title'>Title</label> <input type='text' value=''
-          id='place_title'> <label for='place_name'>Name</label> <input
-          type='text' value='' id='place_name'> <label
-          for='place_reponsible'>Responsible person</label> <input type='text'
-          value='' id='place_responsible'> <label for='place_email'>Email</label>
-        <input type='text' value='' id='place_email'>
+        <label for='editplace_title'>Location Name</label> 
+        <input type='text' value=''
+          id='editplace_title'>
+          
+          <div id="edit_placetypes"></div>
+          
+          <label for="edit_latlon">Current GPS</label> <input type='text' value='' id='edit_latlon'
+          name='edit_latlon' disabled="" /> 
+          
+          
+            <input type="checkbox" data-theme="a" name="mini-0"
+              id="mini-0" data-mini="true"> <label
+              for="mini-0">Use this Coordinate</label>
+          
+          
+          <label for="edit_gpslat">Saved Lat</label> <input
+          type='text' value='' id='edit_gpslat' name='gpslat'
+          placeholder="Enter your own Latitude" /> <label for="edit_gpslon">Saved
+          Lon</label> <input type='text' value='' id='edit_gpslon' name='gpslon'
+          placeholder="Enter your own Longitude" /> <small><p
+            class="error" id="edit_coordserror"></p></small> <label for="edit_gpserror">GPS
+          Errors</label> <input type='text' value='' id='edit_gpserror' class="error"
+          name='gpserror' />
+          
+          <label for='editplace_name'>Contact Name</label> 
+        <input
+          type='text' value='' id='editplace_name'>
+          
+          <label for='editplace_phone'>Phone</label>
+        <input type='tel' value='' id='editplace_phone'>
+          
+          <label for='editplace_email'>Email</label>
+        <input type='text' value='' id='editplace_email'>
+        
+        <label for='editplace_website'>Website</label>
+        <input type='url' value='' id='editplace_website'>
+        
       </form>
       <input type="button" data-inline="true" data-theme="b"
-        id="save_places_info" class="" onclick="controller.onPlacesave(this);"
+        id="edit_save_places_info" class="" onclick="controller.onPlacesave(this);"
         value="Save" /> <a data-role="button" data-inline="true"
         data-rel="back" data-theme="a" id="cancel_places_info">Cancel</a>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+  
+    <!-- View location details dialog -->
+  <div data-role="page" id="page_location_details">
+    <div data-role="header">
+
+      <h3 id="">Location Details</h3>
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+            <form id="form_location_details" method="" action="">
+        <fieldset class="ui-grid-a">
+          
+            <div class="ui-bar" style="width: 70%">
+              <label for="location_details_title"><b>Title:</b></label>
+              <p id="location_details_title" required></p>
+
+              <label for="location_details_person"><b>Contact person:
+              </b></label>
+              <p id="location_details_person" required></p>
+
+              <label for="location_details_phone"><b>Phone: </b></label>
+              <p id="location_details_phone" required></p>
+
+              <label for="location_details_email"><b>Email: </b></label>
+              <p id="location_details_email" required></p>
+              
+              <label for="location_details_website"><b>Website: </b></label>
+              <p id="location_details_website" required></p>
+              
+            </div>
+
+        </fieldset>
+
+      </form>
 
     </div>
     <!-- /content -->
@@ -824,8 +897,8 @@ body {
           for="location_placetypes">Location Types</label>
         <div id='location_placetypes'></div>
 
-<label for="latlon">GPS</label> <input type='text' value=''
-          id='latlon' name='latlon' />
+<label for="latlon">GPS</label> <input type='text' value='' placeholder="Please wait..."
+          id='latlon' name='latlon' disabled=""/>
           
                     <label for="gpslat">GPS Lat</label> <input type='text' value=''
           id='gpslat' name='gpslat' placeholder="Enter your own Latitude"/>

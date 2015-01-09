@@ -33,8 +33,6 @@
 <!-- Default Theme -->
 <link rel="stylesheet" href="../assets/www/libs/owl-carousel/owl.theme.css"/>
 
-<!-- <link rel="stylesheet" href="../assets/www/css/font-awesome.css"> -->
-
 <link rel="stylesheet"
   href="../assets/www/libs/FontAwesome/css/font-awesome.min.css"/>
 
@@ -90,6 +88,7 @@ body {
   <!--loadfieldtriplist:
       end of templates 
 -->
+
 
   <!-- Page Login  -->
   <div data-role="page" id="page_login">
@@ -271,16 +270,18 @@ body {
       <form class="syncform" id="syncForm" method="" action="">
 
         <ul data-role="listview" id="uploads_listview">
-                    <li data-role="list-divider">Upload Status</li>
-          <li data-icon="false"><a>Site Visits</a>
+                    <li data-icon="false"><a>Site Visits</a>
             <div id="sitevisit_count" class="ui-li-count"></div></li>
           <li data-icon="false"><a>Locations</a>
             <div id="location_count" class="ui-li-count"></div></li>
-          <!-- <li><a data-role="button" data-mini="true" data-icon="arrow-u" onclick="devtracnodes.postComments();">Comments</a><div id="comment_count" class="ui-li-count"></div></li> -->
-          <li data-icon="false"><a >Action Items</a>
+          
+          <li data-icon="false"><a>Action Items</a>
             <div id="actionitem_count" class="ui-li-count"></div></li>
-          <li data-icon="false"><a >Fieldtrip</a>
+          <li data-icon="false"><a>Fieldtrip</a>
             <div id="fieldtrip_count" class="ui-li-count"></div></li>
+
+          <li data-icon="false"><a>Comments</a>
+            <div id="comment_count" class="ui-li-count"></div></li>
 
           <li><a onclick="devtracnodes.syncAll()"><i
               class="fa fa-upload fa-lg"></i>&nbsp&nbsp Sync All</a></li>
@@ -298,19 +299,20 @@ body {
       data-position="left" class="leftmenu"></div>
   
     <div data-role="header" id="header_sitereports">
-
-<!--       <a id="" class="ui-btn-left" href="#page_fieldtrip_details"
-        data-role="button" data-iconpos="notext"><i
-        class="fa fa-chevron-circle-left fa-lg"></i></a>
-
-
-      <h3>Site Report</h3>
--->
+<div id="sitenav" data-role="navbar" data-theme="a">
+        <ul>
+        <li><a href="#page_add_questionnaire" id="addquestionnaire"><i class="fa fa-list-alt fa-lg"></i>&nbsp&nbsp Questionnaire</a></li>
+        <li><a href="#mappage" class="panel_map" onclick="var state=false; var mapit = true; mapctlr.initMap(null, null, state, mapit);"><i class="fa fa-map-marker fa-lg"></i>&nbsp&nbsp Map</a></li>
+        <li><a href="#page_location_edits" class=""><i class="fa fa-edit fa-lg"></i>&nbsp&nbsp Location</a></li>
+        
+        </ul>
+    </div>
     </div>
     <!-- /header -->
 
     <div data-role="content" class='content'>
       <form id="form_sitevisists_details" method="" action="">
+
 
         <fieldset class="ui-grid-a">
           <div class="ui-block-a">
@@ -437,10 +439,12 @@ body {
 
   <!-- Edit site visit details -->
   <div data-role="page" id="page_sitevisit_edits">
+  
   <div data-role="panel" id="navpanel_editsitevisit" data-theme="b"
       data-position="left" class="leftmenu"></div>
-      
-    <div data-role="header" id="header_editsitevisit"></div>
+  
+    <div data-role="header" id="header_editsitevisit">
+    </div>
     <!-- /header -->
 
     <div data-role="content" class='content'>
@@ -453,25 +457,11 @@ body {
             <label for='sitevisit_report'>Report</label>
             <textarea id="sitevisit_report" name="sitevisit_report" required></textarea>
 <br/>
-
-
-        <div class="ui-grid-b ui-responsive">
-          <div class="ui-block-a">
-            <div
+			<div
               class="ui-btn ui-icon-plus ui-btn-icon-left ui-corner-all fileinput-button">
-              <span>Image: </span> <input type="file" name="editImageFile"
+              <span>Image: </span> <input type="file" name="file"
                 id="editImageFile" multiple="multiple">
             </div>
-          </div>
-          <div>
-            <b id="orbold">OR</b>
-          </div>
-          <div class="ui-block-b">
-            <a data-role="button" class="takephotoedit">Take Photo</a>
-
-          </div>
-
-        </div>
             
             <div id="imagesEdits">
             <ul data-role="listview" id="editimagefile_list" data-split-icon="delete" data-split-theme="a" data-inset="true">
@@ -482,8 +472,8 @@ body {
       </form>
       <input type="button" data-inline="true" data-theme="b"
         id="save_site_visit_edits" onclick="controller.onSitevisitedit();"
-        value="Save" /> <a href="#page_sitevisits_details" data-role="button"
-        data-inline="true" data-theme="a" id="cancel_site_visit_edits">Cancel</a>
+        value="Save" /> <a href="#page_sitevisits_details" data-role="button" data-inline="true"
+        data-theme="a" id="cancel_site_visit_edits">Cancel</a>
 
     </div>
     <!-- /content -->
@@ -545,7 +535,10 @@ body {
             multiple="multiple">
         </div>
         <br>
-        <div id="uploadPreview"></div>
+        <div id="uploadPreviews">
+            <ul data-role="listview" id="uploadPreview_list"
+              data-split-icon="delete" data-split-theme="a" data-inset="true"></ul>
+          </div>
         <div id="uploaderror" style="color: red"></div>
         <br> <a data-inline="true" data-role="button" data-theme='b'
           data-mini="true" id='sitevisit_add_save'>Save</a> <a
@@ -622,9 +615,7 @@ body {
   <div data-role="panel" id="navpanel_actionitemdetails" data-theme="b"
       data-position="left" class="leftmenu"></div>
     <div data-role="header" id="header_actionitemdetails">
-      <!-- <a id="" data-rel="back" data-role="button" data-iconpos="notext"><i
-        class="fa fa-chevron-circle-left fa-lg"></i></a>
-      <h3 title="Action Item">Action Item</h3> -->
+      
     </div>
     <!-- /header -->
 
@@ -635,14 +626,14 @@ body {
         <fieldset class="ui-grid-a">
           <div class="ui-block-a">
             <div class="ui-bar" style="width: 70%">
-              <label for="actionitem_details_title"><b>Title: </b></label>
+              <label for="actionitem_details_title"></label>
               <p id="actionitem_details_title" required></p>
 
               <label for="actionitem_due_date"><b>Due Date: </b></label>
               <p id="actionitem_due_date" required></p>
 
               <label for="actionitem_resp_location"><b>Location: </b></label>
-              <p id="actionitem_resp_location" required></p>
+              <a data-role="none" data-rel="dialog" href="#page_location_details"><p id="actionitem_resp_location" required></p></a>
               
               <label for="actionitem_author"><b>Author: </b></label>
               <p id="actionitem_author" required></p>
@@ -659,6 +650,7 @@ body {
 
             </div>
           </div>
+          
           <div class="ui-block-b">
             <a class="" data-role="button" id="edit_actionitem"
               href="#page_actionitem_edits" data-rel="dialog" data-iconpos=""><i
@@ -673,6 +665,7 @@ body {
             Add Comment
           </a>
         </h4>
+        
         <ul data-role="listview" id="list_comments" data-filter="true">
 
         </ul>
@@ -708,16 +701,14 @@ body {
               <textarea rows="8" value='' id='add_actionitem_comment'
                 required></textarea>
                  </li>
-
-<li class="ui-body ui-body-b">
+                
+                <li class="ui-body ui-body-b">
             <fieldset class="ui-grid-a">
                     <div class="ui-block-a"><a  data-role='button' id='actionitem_comment_save'>Save</a><a data-role="button" href="#page_actionitemdetails" data-rel="back" id='cancel_actionitem_comment_save'>Cancel</a></div>
                     
             </fieldset>
-        </li>
-
               </ul>
-             
+              
       </form>
 
     </div>
@@ -789,23 +780,98 @@ body {
   <div data-role="panel" id="navpanel_location_edits" data-theme="b"
       data-position="left" class="leftmenu"></div>
     <div data-role="header">
-      <!-- <h3 title="FieldTrip">Edit Locations</h3> -->
+          <a id="" data-role="button"
+        href="#page_sitevisits_details" data-iconpos="notext"><i
+        class="fa fa-chevron-circle-left fa-lg"></i></a>
+      <h3 title="FieldTrip">Edit Location</h3>
     </div>
     <!-- /header -->
 
-    <div data-role="content" class='content' id='locationcontent'>
+    <div data-role="content" class='content' id='editlocationcontent'>
       <form id="editlocationform">
-        <label for='place_title'>Title</label> <input type='text' value=''
-          id='place_title'> <label for='place_name'>Name</label> <input
-          type='text' value='' id='place_name'> <label
-          for='place_reponsible'>Responsible person</label> <input type='text'
-          value='' id='place_responsible'> <label for='place_email'>Email</label>
-        <input type='text' value='' id='place_email'>
+        <label for='editplace_title'>Location Name</label> 
+        <input type='text' value=''
+          id='editplace_title'>
+          
+          <div id="edit_placetypes"></div>
+          
+          <label for="edit_latlon">Current GPS</label> <input type='text' value='' id='edit_latlon'
+          name='edit_latlon' disabled="" /> 
+          
+          
+            <input type="checkbox" data-theme="a" name="mini-0"
+              id="mini-0" data-mini="true"> <label
+              for="mini-0">Use this Coordinate</label>
+          
+          
+          <label for="edit_gpslat">Saved Lat</label> <input
+          type='text' value='' id='edit_gpslat' name='gpslat'
+          placeholder="Enter your own Latitude" /> <label for="edit_gpslon">Saved
+          Lon</label> <input type='text' value='' id='edit_gpslon' name='gpslon'
+          placeholder="Enter your own Longitude" /> <small><p
+            class="error" id="edit_coordserror"></p></small> <label for="edit_gpserror">GPS
+          Errors</label> <input type='text' value='' id='edit_gpserror' class="error"
+          name='gpserror' />
+          
+          <label for='editplace_name'>Contact Name</label> 
+        <input
+          type='text' value='' id='editplace_name'>
+          
+          <label for='editplace_phone'>Phone</label>
+        <input type='tel' value='' id='editplace_phone'>
+          
+          <label for='editplace_email'>Email</label>
+        <input type='text' value='' id='editplace_email'>
+        
+        <label for='editplace_website'>Website</label>
+        <input type='url' value='' id='editplace_website'>
+        
       </form>
       <input type="button" data-inline="true" data-theme="b"
-        id="save_places_info" class="" onclick="controller.onPlacesave(this);"
+        id="edit_save_places_info" class="" onclick="controller.onPlacesave(this);"
         value="Save" /> <a data-role="button" data-inline="true"
         data-rel="back" data-theme="a" id="cancel_places_info">Cancel</a>
+
+    </div>
+    <!-- /content -->
+
+  </div>
+  <!-- /page -->
+  
+    <!-- View location details dialog -->
+  <div data-role="page" id="page_location_details">
+    <div data-role="header">
+
+      <h3 id="">Location Details</h3>
+    </div>
+    <!-- /header -->
+
+    <div data-role="content" class='content'>
+            <form id="form_location_details" method="" action="">
+        <fieldset class="ui-grid-a">
+          
+            <div class="ui-bar" style="width: 70%">
+              <label for="location_details_title"><b>Title:</b></label>
+              <p id="location_details_title" required></p>
+
+              <label for="location_details_person"><b>Contact person:
+              </b></label>
+              <p id="location_details_person" required></p>
+
+              <label for="location_details_phone"><b>Phone: </b></label>
+              <p id="location_details_phone" required></p>
+
+              <label for="location_details_email"><b>Email: </b></label>
+              <p id="location_details_email" required></p>
+              
+              <label for="location_details_website"><b>Website: </b></label>
+              <p id="location_details_website" required></p>
+              
+            </div>
+
+        </fieldset>
+
+      </form>
 
     </div>
     <!-- /content -->
@@ -831,8 +897,8 @@ body {
           for="location_placetypes">Location Types</label>
         <div id='location_placetypes'></div>
 
-<label for="latlon">GPS</label> <input type='text' value=''
-          id='latlon' name='latlon' />
+<label for="latlon">GPS</label> <input type='text' value='' placeholder="Please wait..."
+          id='latlon' name='latlon' disabled=""/>
           
                     <label for="gpslat">GPS Lat</label> <input type='text' value=''
           id='gpslat' name='gpslat' placeholder="Enter your own Latitude"/>
@@ -845,7 +911,7 @@ body {
           <label for="gpserror">GPS Errors</label> <input type='text' value=''
           id='gpserror' class="error" name='latlon' disabled="disabled"/>
 
-<div data-role="collapsible" data-theme="a">
+        <div data-role="collapsible" data-theme="a">
           <h4>Contact</h4>
           
           <label for="locationcontact">Contact Name</label> <input type='text'
@@ -920,13 +986,11 @@ body {
 
   <!-- Add questionnaire page -->
   <div data-role="page" id="page_add_questionnaire">
-<div data-role="panel" id="navpanel_qtnr" data-theme="b"
-      data-position="left" class="leftmenu"></div>
     <div data-role="header" id='header_qtnr'>
-      <!-- <a id="" href="#page_sitevisits_details" data-iconpos="notext"
-        data-role="button" style="margin-top: 2.5px;"><i
-        class="fa fa-chevron-circle-left fa-lg"></i></a> 
-      <h3 id="qtn_title" title="Questionnaire">Questionnaire</h3>-->
+      <a id="" class="ui-btn-left"
+        href="#page_sitevisits_details" data-iconpos="notext"><i
+        class="fa fa-chevron-circle-left fa-lg"></i></a>
+         <h3>Questionnaire</h3>
     </div>
     <!-- /header -->
 
