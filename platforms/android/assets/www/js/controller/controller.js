@@ -491,12 +491,14 @@ var controller = {
             $("#location_details_person").html(aPlace['field_place_responsible_person']['und'][0]['value']);
           }else if(controller.sizeme(aPlace['field_place_responsible_person']) > 0 && aPlace['field_place_responsible_person']['und'][0]['value'] != undefined){
             $("#location_details_person").html(aPlace['field_place_responsible_person']['und'][0]['value']);
+          }else{
+            $("#location_details_person").html("Unavailable");
           }
           
           if(localStorage.user == "true") {
             
             if(aPlace['field_place_responsible_phone'].length > 0 && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
-              $("#location_details_phone").html(aPlace['field_placeresponsible_phone']['und'][0]['value']);
+              $("#location_details_phone").html(aPlace['field_place_responsible_phone']['und'][0]['value']);
             }else if(controller.sizeme(aPlace['field_place_responsible_phone']) > 0 && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
               $("#location_details_phone").html(aPlace['field_place_responsible_phone']['und'][0]['value']);
             }
