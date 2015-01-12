@@ -6,7 +6,7 @@ devtrac.indexedDB.db = null;
 
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 1;
+  var version = 4;
   
   var request = indexedDB.open("b19", version);
   
@@ -21,7 +21,7 @@ devtrac.indexedDB.open = function(callback) {
 //creating an object store
 devtrac.indexedDB.open = function(callback) {
   
-  var version = 1;
+  var version = 4;
   
   var request = indexedDB.open("b19", version);
   
@@ -1108,13 +1108,20 @@ devtrac.indexedDB.editPlace = function(db, pnid, updates) {
     
     for(var key in updates){
       if(key == "email"){
-        data['field_place_responsible_email']['und'][0]['email'] = updates['email'];
+        if(data['field_place_email']['und']) {
+          data['field_place_email']['und'][0]['email'] = updates['email'];  
+        }        
       }
       if(key == "phone"){
-        data['field_place_responsible_phone']['und'][0]['phone'] = updates['phone'];
+        if(data['field_place_phone']['und']){
+          data['field_place_phone']['und'][0]['value'] = updates['phone'];  
+        }
       }
       if(key == "website"){
-        data['field_place_responsible_website']['und'][0]['email'] = updates['website'];
+        if(data['field_place_website']['und']){
+          data['field_place_website']['und'][0]['url'] = updates['website'];  
+        }
+        
       }
       if(key == "name"){
         if(data['field_place_responsible_person'].length > 0){
