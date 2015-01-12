@@ -241,8 +241,7 @@ var devtracnodes = {
         devtrac.indexedDB.getAllplaces(db, function(locations) {
           
           for(var location in locations) {
-            
-            if(locations[location]['submit'] == 0 && locations[location]['user-added'] == true) {              
+            if((locations[location]['submit'] == 0 && locations[location]['user-added'] == true) || locations[location]['editflag'] == 1) {              
               user_locations.push(locations[location]);
             }
             
@@ -250,7 +249,8 @@ var devtracnodes = {
           
           if(user_locations.length > 0) {
             d.resolve(user_locations, db);  
-          }else{
+          }else 
+          {
             d.reject();
           }
           
@@ -305,7 +305,7 @@ var devtracnodes = {
             fresh_nid = locs[loc]['fresh_nid'];
           }
           
-          if((locs[loc]['submit'] == 0 && locs[loc]['user-added'] == true) || (fresh_nid.length == 0 && locs[loc]['user-added'] == true)) {              
+          if((locs[loc]['submit'] == 0 && locs[loc]['user-added'] == true) || (fresh_nid.length == 0 && locs[loc]['user-added'] == true) || locs[loc]['editflag'] == 1) {              
             count = count + 1;
           }
           
@@ -457,7 +457,7 @@ var devtracnodes = {
       
       var pnid = 0;
       
-      devtracnodes.getLocations().then(function(locs, db){
+      devtracnodes.getLocations().then(function(locs, db) {
         end_location_loop = locs.length;
         for(var mark = 0; mark < end_location_loop; mark++) {
           
@@ -482,7 +482,7 @@ var devtracnodes = {
         }
         
         if(end_location_loop == poststrings.length) {
-          d.resolve(poststrings, posttitle, postids);
+          d.resolve(poststrings, posttitle, postids, locs);
         }
         
         
@@ -493,51 +493,101 @@ var devtracnodes = {
       return d;
     },
     
-    postLocationHelper: function(newlocationids, newlocationnames, oldlocationids, postStrings, titlearray, oldpnids, upNodes, callback){
+    postLocationHelper: function(newlocationids, newlocationnames, oldlocationids, postStrings, titlearray, oldpnids, upNodes, loc_nodes, callback){
       
       var oldids = oldlocationids;
       if(postStrings.length > 0) {
         
-        devtracnodes.postNode(postStrings[0], oldlocationids, titlearray).then(function(updates, id, location_title) {
-          if(updates['nid'] != undefined || updates['nid'] != null) {
-            newlocationnames.push(titlearray[0]);
-            newlocationids.push(updates['nid']);
-            oldids.push(oldpnids[0]);
+        if((loc_nodes[0]['user-added'] == true && loc_nodes[0]['editflag'] == 1) || loc_nodes[0]['user-added'] == true) {
+          devtracnodes.postNode(postStrings[0], oldlocationids, titlearray).then(function(updates, id, location_title) {
+            if(updates['nid'] != undefined || updates['nid'] != null) {
+              newlocationnames.push(titlearray[0]);
+              newlocationids.push(updates['nid']);
+              oldids.push(oldpnids[0]);
+              
+              upNodes['locations'][oldpnids[0]] = updates['nid'];
+            }
             
-            upNodes['locations'][oldpnids[0]] = updates['nid'];
-          }
-          
-          titlearray.splice(0, 1);
-          postStrings.splice(0, 1);
-          
-          updates['fresh_nid'] = updates['nid'];
-          var newlocationid = {};
-          newlocationid['fresh_nid'] = updates['fresh_nid'];
-          
-          devtrac.indexedDB.open(function (db) {
-            /*todo*/
-            devtrac.indexedDB.editPlace(db, oldpnids[0], newlocationid).then(function(pid) {
-              
-              oldpnids.splice(0, 1);
-              devtracnodes.postLocationHelper(newlocationids, newlocationnames, oldids, postStrings, titlearray, oldpnids, upNodes, callback);
-              
+            titlearray.splice(0, 1);
+            postStrings.splice(0, 1);
+            
+            updates['fresh_nid'] = updates['nid'];
+            var newlocationid = {};
+            newlocationid['fresh_nid'] = updates['fresh_nid'];
+            
+            devtrac.indexedDB.open(function (db) {
+              /*todo*/
+              devtrac.indexedDB.editPlace(db, oldpnids[0], newlocationid).then(function(pid) {
+                
+                oldpnids.splice(0, 1);
+                devtracnodes.postLocationHelper(newlocationids, newlocationnames, oldids, postStrings, titlearray, oldpnids, upNodes, loc_nodes, callback);
+                
+                
+              });
               
             });
             
+          }).fail(function(e) {
+            if(e == "Unauthorized: CSRF validation failed" || e == "Unauthorized") {
+              auth.getToken().then(function(token) {
+                localStorage.usertoken = token;
+                devtracnodes.postLocationHelper(newlocationids, newlocationnames, oldids, postStrings, titlearray, oldpnids, upNodes, loc_nodes, callback);
+              });  
+            }else
+            {
+              callback(e, "", "");
+            }
+            
           });
           
-        }).fail(function(e) {
-          if(e == "Unauthorized: CSRF validation failed" || e == "Unauthorized") {
-            auth.getToken().then(function(token) {
-              localStorage.usertoken = token;
-              devtracnodes.postLocationHelper(newlocationids, newlocationnames, oldids, postStrings, titlearray, oldpnids, upNodes, callback);
-            });  
-          }else
-          {
-            callback(e, "", "");
-          }
-          
-        });
+        }else if(!loc_nodes[0]['user-added'] && typeof loc_nodes[0]['user-added'] == 'undefined') {
+          devtracnodes.updateNode(loc_nodes[0]['nid'], postStrings[0]).then(function(updates) {
+            updates['editflag'] = 0;
+            
+            upNodes['locations'][oldpnids[0]] = loc_nodes[0]['nid'];
+            
+            if(updates['nid'] != undefined || updates['nid'] != null) {
+              
+              upNodes['locations'][oldpnids[0]] = updates['nid'];
+            }
+            
+            titlearray.splice(0, 1);
+            postStrings.splice(0, 1);
+            updates['fresh_nid'] = updates['nid'];
+            
+            devtrac.indexedDB.open(function (db) {
+              /*todo*/
+              devtrac.indexedDB.editPlace(db, oldpnids[0], updates).then(function(pid) {
+                loc_nodes.splice(0, 1);
+                oldpnids.splice(0, 1);
+                devtracnodes.postLocationHelper(newlocationids, newlocationnames, oldids, postStrings, titlearray, oldpnids, upNodes, loc_nodes, callback);
+                
+                
+              });
+              
+            });
+            
+          }).fail(function(e) {
+            //Unauthorized : CSRF validation failed
+            if(e == "Unauthorized : CSRF validation failed" || e == "Unauthorized") {
+              auth.getToken().then(function(token) {
+                localStorage.usertoken = token;
+                
+                devtracnodes.postLocationHelper(newlocationids, newlocationnames, oldids, postStrings, titlearray, oldpnids, upNodes, loc_nodes, callback);
+                
+              });  
+            }else
+            {
+              titlearray.splice(0, 1);
+              postStrings.splice(0, 1);
+              
+              loc_nodes.splice(0, 1);
+              oldpnids.splice(0, 1);
+              devtracnodes.postLocationHelper(newlocationids, newlocationnames, oldids, postStrings, titlearray, oldpnids, upNodes, loc_nodes, callback);
+              
+            }
+          }); 
+        }
         
       }else
       {
@@ -1458,7 +1508,7 @@ var devtracnodes = {
           if(parseInt($("#location_count").html()) > 0) {
             
             //upload locations and sitevisits (human interest stories and site visits)
-            devtracnodes.uploadLocations().then(function(postarray, titlearray, pnid) {
+            devtracnodes.uploadLocations().then(function(postarray, titlearray, pnid, location_nodes) {
               
               var newlocationnames = [];
               var newlocation_nids = [];
@@ -1469,7 +1519,7 @@ var devtracnodes = {
                 uploadedNodes['locations'][pnid[x]] = "";
               }
               
-              devtracnodes.postLocationHelper(newlocation_nids, newlocationnames, oldlocation_nids, postarray, titlearray, pnid, uploadedNodes, function(newnames, newids, oldids, upNodes){
+              devtracnodes.postLocationHelper(newlocation_nids, newlocationnames, oldlocation_nids, postarray, titlearray, pnid, uploadedNodes, location_nodes, function(newnames, newids, oldids, upNodes){
                 
                 if(newids == "" && oldids == "") {
                   controller.loadingMsg(newnames, 3000);
@@ -1886,14 +1936,25 @@ var devtracnodes = {
       for(var p in pObj) {
         if(typeof pObj[p] == 'object') {
           switch(p) {
-            case 'field_place_responsible_website': 
-              nodestring = nodestring + 'node['+p+'][und][0][url]='+pObj[p]['und'][0]['url']+'&';
+            case 'field_place_website': 
+              
+              if(pObj[p]['und']) {
+                nodestring = nodestring + 'node['+p+'][und][0][url]='+encodeURIComponent(url)+'&';
+              }
               break;
-            case 'field_place_responsible_email': 
-              nodestring = nodestring + 'node['+p+'][und][0][email]='+pObj[p]['und'][0]['email']+'&';
+            case 'field_place_email': 
+              
+              if(pObj[p]['und']) {
+                nodestring = nodestring + 'node['+p+'][und][0][email]='+encodeURIComponent(email)+'&';
+              }
+              
               break;
-            case 'field_place_responsible_phone': 
-              nodestring = nodestring + 'node['+p+'][und][0][value]='+pObj[p]['und'][0]['value']+'&';
+            case 'field_place_phone': 
+              
+              if(pObj[p]['und']) {
+                nodestring = nodestring + 'node['+p+'][und][0][value]='+encodeURIComponent(phone)+'&'; 
+              }
+              
               break;
             case 'field_place_responsible_person': 
               nodestring = nodestring + 'node['+p+'][und][0][value]='+pObj[p]['und'][0]['value']+'&';
@@ -2350,10 +2411,9 @@ var devtracnodes = {
             
           }else {
             
-            for(var item in data){
+            for(var item in data) {
               data[item]['editflag'] = 0;
               devtrac.indexedDB.addPlacesData(db, data[item]).then(function(){
-                
                 controller.loadingMsg("Places Saved",1000);
                 
               });

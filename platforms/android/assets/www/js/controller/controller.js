@@ -3065,10 +3065,10 @@ var controller = {
           
         });
         
+        updates['editflag'] = 1;
         devtrac.indexedDB.editPlace(db, location_id, updates).then(function () {
           controller.loadingMsg('Saved Place', 1000);
           $("#sitevisists_details_location").html($("#editplace_title").val());
-          
           
           controller.resetForm($('#editlocationform'));
           
@@ -3457,20 +3457,20 @@ var controller = {
         updates['field_place_responsible_person']['und'][0] = {};
         updates['field_place_responsible_person']['und'][0]['value'] = $('#location_contact').val();
         
-        updates['field_place_responsible_phone'] = {};
-        updates['field_place_responsible_phone']['und'] = [];
-        updates['field_place_responsible_phone']['und'][0] = {};
-        updates['field_place_responsible_phone']['und'][0]['value'] = $('#locationphone').val();
+        updates['field_place_phone'] = {};
+        updates['field_place_phone']['und'] = [];
+        updates['field_place_phone']['und'][0] = {};
+        updates['field_place_phone']['und'][0]['value'] = $('#locationphone').val();
         
-        updates['field_place_responsible_email'] = {};
-        updates['field_place_responsible_email']['und'] = [];
-        updates['field_place_responsible_email']['und'][0] = {};
-        updates['field_place_responsible_email']['und'][0]['email'] = $('#locationemail').val();
+        updates['field_place_email'] = {};
+        updates['field_place_email']['und'] = [];
+        updates['field_place_email']['und'][0] = {};
+        updates['field_place_email']['und'][0]['email'] = $('#locationemail').val();
         
-        updates['field_place_responsible_website'] = {};
-        updates['field_place_responsible_website']['und'] = [];
-        updates['field_place_responsible_website']['und'][0] = {};
-        updates['field_place_responsible_website']['und'][0]['url'] = $('#locationwebsite').val();
+        updates['field_place_website'] = {};
+        updates['field_place_website']['und'] = [];
+        updates['field_place_website']['und'][0] = {};
+        updates['field_place_website']['und'][0]['url'] = $('#locationwebsite').val();
         
         updates['field_actionitem_status'] = {};
         updates['field_actionitem_status']['und'] = [];
