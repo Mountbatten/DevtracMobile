@@ -681,6 +681,7 @@ var devtracnodes = {
           "file": {
             "file": parsedImage,
             "filename": images['names'][index],
+            "uid" : localStorage.uid,
             "target_uri":"public://media/images/"+localStorage.uid+"/browser/"+images['names'][index],
           }
       };
