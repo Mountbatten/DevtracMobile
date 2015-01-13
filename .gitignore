@@ -11,6 +11,7 @@ platforms/android/build.gradle
 platforms/android/custom_rules.xml
 platforms/android/settings.gradle
 www/web/npm-debug.log
+node_modules/
 
 platforms/android/res/drawable-land-hdpi/
 platforms/android/res/drawable-land-ldpi/
