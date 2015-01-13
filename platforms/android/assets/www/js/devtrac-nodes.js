@@ -498,7 +498,7 @@ var devtracnodes = {
       var oldids = oldlocationids;
       if(postStrings.length > 0) {
         
-        if((loc_nodes[0]['user-added'] == true && loc_nodes[0]['editflag'] == 1) || loc_nodes[0]['user-added'] == true) {
+        if((loc_nodes[0]['user-added'] && loc_nodes[0]['editflag'] == 1) || loc_nodes[0]['user-added']) {
           devtracnodes.postNode(postStrings[0], oldlocationids, titlearray).then(function(updates, id, location_title) {
             if(updates['nid'] != undefined || updates['nid'] != null) {
               newlocationnames.push(titlearray[0]);
@@ -518,7 +518,7 @@ var devtracnodes = {
             devtrac.indexedDB.open(function (db) {
               /*todo*/
               devtrac.indexedDB.editPlace(db, oldpnids[0], newlocationid).then(function(pid) {
-                
+                loc_nodes.splice(0, 1);
                 oldpnids.splice(0, 1);
                 devtracnodes.postLocationHelper(newlocationids, newlocationnames, oldids, postStrings, titlearray, oldpnids, upNodes, loc_nodes, callback);
                 
@@ -528,7 +528,7 @@ var devtracnodes = {
             });
             
           }).fail(function(e) {
-            if(e == "Unauthorized: CSRF validation failed" || e == "Unauthorized") {
+            if(e.indexOf("CSRF validation") != -1 || e == "Unauthorized") {
               auth.getToken().then(function(token) {
                 localStorage.usertoken = token;
                 devtracnodes.postLocationHelper(newlocationids, newlocationnames, oldids, postStrings, titlearray, oldpnids, upNodes, loc_nodes, callback);
@@ -544,12 +544,7 @@ var devtracnodes = {
           devtracnodes.updateNode(loc_nodes[0]['nid'], postStrings[0]).then(function(updates) {
             updates['editflag'] = 0;
             
-            upNodes['locations'][oldpnids[0]] = loc_nodes[0]['nid'];
-            
-            if(updates['nid'] != undefined || updates['nid'] != null) {
-              
-              upNodes['locations'][oldpnids[0]] = updates['nid'];
-            }
+            upNodes['locations'][oldpnids[0]] = loc_nodes[0]['nid']+"_e";
             
             titlearray.splice(0, 1);
             postStrings.splice(0, 1);
@@ -598,7 +593,7 @@ var devtracnodes = {
     
     //recursive node update for all images
     updateNodeHelper: function (ftrid, y, fd, names, sdate, upId, callback) {
-      var pack = "node[field_ftritem_images][und]["+y+"][fid]="+fd[y]+"&node[field_ftritem_images][und]["+y+"][title]="+names[y]+"&node[field_ftritem_date_visited][und][0][value][date]="+sdate;
+      var pack = "node[field_ftritem_images][und]["+y+"][fid]="+fd[y]+"&node[field_ftritem_images][und]["+y+"][filename]="+names[y]+"&node[field_ftritem_date_visited][und][0][value][date]="+sdate;
       devtracnodes.updateNode(ftrid, pack).then(function(updates, sid, uid) {
         console.log("node updated");
         y = y+1;
@@ -676,16 +671,17 @@ var devtracnodes = {
       
       //if device runs kitkat android 4.4 use plugin to access image files
       if(images['kitkat'][index] == "has") {
-        var parsedImage = images['base64s'][index];
+        
+        var parsedImage = images['base64s'][index].substring(images['base64s'][index].indexOf(",")+1);
       }else{
-        var parsedImage = images['base64s'][index].substring(images['base64s'][index].indexOf(",")+1);  
+        var parsedImage = images['base64s'][index];  
       }
-      
+      console.log("using image "+localStorage.uid);
       var filedata = {
           "file": {
             "file": parsedImage,
             "filename": images['names'][index],
-            "filepath":"public://"+images['names'][index],
+            "target_uri":"public://media/images/"+localStorage.uid+"/browser/"+images['names'][index],
           }
       };
       
@@ -1162,9 +1158,14 @@ var devtracnodes = {
     clearUploadedLocations: function(db, locIds, updates, callback) {
       if(locIds.length > 0) {
         
-        updates['submit'] = 1;
+        
         updates['fresh_nid'] = updates['nid'][0];
-        devtrac.indexedDB.editPlace(db, parseInt(locIds[0]), updates).then(function() {
+        if(updates['fresh_nid'].indexOf("_e") == -1) {
+          locIds[0] = parseInt(locIds[0]);
+          updates['submit'] = 1;
+        }
+        
+        devtrac.indexedDB.editPlace(db, locIds[0], updates).then(function() {
           locIds.splice(0, 1);
           updates['nid'].splice(0, 1);
           controller.countAllNodes();
@@ -1937,21 +1938,24 @@ var devtracnodes = {
         if(typeof pObj[p] == 'object') {
           switch(p) {
             case 'field_place_website': 
-              
+              var url;
               if(pObj[p]['und']) {
+                url = pObj[p]['und'][0]['url'];
                 nodestring = nodestring + 'node['+p+'][und][0][url]='+encodeURIComponent(url)+'&';
               }
               break;
             case 'field_place_email': 
-              
+              var email;
               if(pObj[p]['und']) {
+                email = pObj[p]['und'][0]['email'];
                 nodestring = nodestring + 'node['+p+'][und][0][email]='+encodeURIComponent(email)+'&';
               }
               
               break;
             case 'field_place_phone': 
-              
+              var phone;
               if(pObj[p]['und']) {
+                phone = pObj[p]['und'][0]['phone'];
                 nodestring = nodestring + 'node['+p+'][und][0][value]='+encodeURIComponent(phone)+'&'; 
               }
               

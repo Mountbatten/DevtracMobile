@@ -3067,7 +3067,7 @@ var controller = {
         
         updates['editflag'] = 1;
         devtrac.indexedDB.editPlace(db, location_id, updates).then(function () {
-          controller.loadingMsg('Saved Place', 1000);
+          
           $("#sitevisists_details_location").html($("#editplace_title").val());
           
           controller.resetForm($('#editlocationform'));
