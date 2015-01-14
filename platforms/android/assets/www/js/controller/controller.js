@@ -431,17 +431,17 @@ var controller = {
               $("#edit_gpslat").val(aPlace['field_place_lat_long']['und'][0]['lat']);
               $("#edit_gpslon").val(aPlace['field_place_lat_long']['und'][0]['lon']);
             }  
-            if(aPlace['field_place_responsible_phone'].length > 0 && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
+            if(aPlace['field_place_responsible_phone'] && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
               $("#editplace_phone").val(aPlace['field_placeresponsible_phone']['und'][0]['value']);
             }else if(controller.sizeme(aPlace['field_place_responsible_phone']) > 0 && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
               $("#editplace_phone").val(aPlace['field_place_responsible_phone']['und'][0]['value']);
             }
-            if(aPlace['field_place_responsible_email'].length > 0 && aPlace['field_place_responsible_email']['und'][0]['email'] != undefined) {
+            if(aPlace['field_place_responsible_email'] && aPlace['field_place_responsible_email']['und'][0]['email'] != undefined) {
               $("#editplace_email").val(aPlace['field_place_responsible_email']['und'][0]['email']);
             }else if(controller.sizeme(aPlace['field_place_responsible_email']) > 0 && aPlace['field_place_responsible_email']['und'][0]['email'] != undefined) {
               $("#editplace_email").val(aPlace['field_place_responsible_email']['und'][0]['email']);
             }
-            if(aPlace['field_place_responsible_website'].length > 0 && aPlace['field_place_responsible_website']['und'][0]['url'] != undefined) {
+            if(aPlace['field_place_responsible_website'] && aPlace['field_place_responsible_website']['und'][0]['url'] != undefined) {
               $("#editplace_website").val(aPlace['field_place_responsible_website']['und'][0]['url']);
             }else if(controller.sizeme(aPlace['field_place_responsible_website']) > 0 && aPlace['field_place_responsible_website']['und'][0]['url'] != undefined) {
               $("#editplace_website").val(aPlace['field_place_responsible_website']['und'][0]['url']);

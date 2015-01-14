@@ -305,7 +305,7 @@ var devtracnodes = {
             fresh_nid = locs[loc]['fresh_nid'];
           }
           
-          if((locs[loc]['submit'] == 0 && locs[loc]['user-added'] == true) || (fresh_nid.length == 0 && locs[loc]['user-added'] == true) || locs[loc]['editflag'] == 1) {              
+          if((locs[loc]['submit'] == 0 && fresh_nid.length == 0 && locs[loc]['user-added'] == true) || locs[loc]['editflag'] == 1) {              
             count = count + 1;
           }
           
@@ -498,7 +498,7 @@ var devtracnodes = {
       var oldids = oldlocationids;
       if(postStrings.length > 0) {
         
-        if((loc_nodes[0]['user-added'] && loc_nodes[0]['editflag'] == 1) || loc_nodes[0]['user-added']) {
+        if((loc_nodes[0]['user-added'] && loc_nodes[0]['fresh_nid'] && loc_nodes[0]['fresh_nid'].length <= 0)) {
           devtracnodes.postNode(postStrings[0], oldlocationids, titlearray).then(function(updates, id, location_title) {
             if(updates['nid'] != undefined || updates['nid'] != null) {
               newlocationnames.push(titlearray[0]);
@@ -540,15 +540,21 @@ var devtracnodes = {
             
           });
           
-        }else if(!loc_nodes[0]['user-added'] && typeof loc_nodes[0]['user-added'] == 'undefined') {
-          devtracnodes.updateNode(loc_nodes[0]['nid'], postStrings[0]).then(function(updates) {
+        }else if(loc_nodes[0]['editflag'] == 1) {
+          var nid;
+          if((!loc_nodes[0]['user-added'] && typeof loc_nodes[0]['user-added'] == 'undefined')) {
+            nid = loc_nodes[0]['nid'];
+          }else {
+            nid = loc_nodes[0]['fresh_nid'];
+          }
+          
+          devtracnodes.updateNode(nid, postStrings[0]).then(function(updates) {
             updates['editflag'] = 0;
             
-            upNodes['locations'][oldpnids[0]] = loc_nodes[0]['nid']+"_e";
+            upNodes['locations'][oldpnids[0]] = nid+"_e";
             
             titlearray.splice(0, 1);
             postStrings.splice(0, 1);
-            updates['fresh_nid'] = updates['nid'];
             
             devtrac.indexedDB.open(function (db) {
               /*todo*/
@@ -1931,7 +1937,7 @@ var devtracnodes = {
     },
     
     //return place
-    getLocationString: function(pObj) {
+    getLocationString: function(pObj, purpose) {
       var d = $.Deferred();
       
       var nodestring = '';
@@ -1978,7 +1984,8 @@ var devtracnodes = {
           }
         }
         else{
-          if(p != 'user-added' || p != 'nid') {
+          if(p != 'user-added' && p != 'nid' && p != 'promote' && p != 'sticky' && p != 'vuuid' && p != 'created' && p != 'changed' && p != 'tnid' && p != 'translate' && p != 'uuid' && p != 'revision_timestamp' && p != 'revision_uid' &&  
+          p != 'last_comment_timestamp' && p != 'last_comment_uid' && p != 'comment_count' && p != 'name' && p != 'picture' && p != 'data') {
             nodestring = nodestring + 'node['+p+']='+pObj[p]+"&";  
           }
           
