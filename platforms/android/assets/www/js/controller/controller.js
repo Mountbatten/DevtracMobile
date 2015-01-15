@@ -241,7 +241,7 @@ var controller = {
           var correct_val = $("#select_placetype option:selected").next().val();
           $("#select_placetype option:selected").removeAttr('selected');
           
-          el.val(correct_val).selectmenu('refresh');
+          el.val(correct_val).selectmenu().selectmenu('refresh');
           
         }
         
@@ -313,7 +313,7 @@ var controller = {
         addftritem.append('<option value="'+localStorage.roadside+'">Roadside Observation</option>');
         addftritem.append('<option value="'+localStorage.sitevisit+'">Site Visit</option>');
         
-        addftritem.val("Human Interest Story").selectmenu('refresh');
+        addftritem.val("Human Interest Story").selectmenu().selectmenu('refresh');
       });
       
       //Restyle map page back button before its displayed. 
@@ -416,7 +416,7 @@ var controller = {
           $("#select_placetype").filter(function() {
             //may want to use $.trim in here
             return $(this).val() == aPlace['taxonomy_vocabulary_1']['und'][0]['tid']; 
-          }).prop('selected', true).selectmenu('refresh');
+          }).prop('selected', true).selectmenu().selectmenu('refresh');
           
           //$("#select_placetype").val().attr("selected", "selected").selectmenu('refresh');
           
@@ -630,15 +630,15 @@ var controller = {
         
         if(url.indexOf("test") != -1) {
           // Select the relevant option, de-select any others
-          el.val('test').selectmenu('refresh');
+          el.val('test').selectmenu().selectmenu('refresh');
           
         }else if(url.indexOf("cloud") != -1) {
           // Select the relevant option, de-select any others
-          el.val('cloud').selectmenu('refresh');
+          el.val('cloud').selectmenu().selectmenu('refresh');
           
         }else if(url.indexOf("manual") != -1) {
           // Select the relevant option, de-select any others
-          el.val('manual').selectmenu('refresh');
+          el.val('manual').selectmenu().selectmenu('refresh');
           
         }else if(url.indexOf("dt13") != -1 || url.indexOf("local") != -1 || url.indexOf("10.0.2") != -1 || url.indexOf("192.168") != -1) {
           
@@ -648,11 +648,11 @@ var controller = {
           $(".myurl").val(localStorage.appurl);
           
           // Select the relevant option, de-select any others
-          el.val('custom').selectmenu('refresh');
+          el.val('custom').selectmenu().selectmenu('refresh');
           
         }else if(url.indexOf("emo") != -1) {
           // Select the relevant option, de-select any others
-          el.val('demo').selectmenu('refresh');
+          el.val('demo').selectmenu().selectmenu('refresh');
           
         }
         
@@ -2705,12 +2705,36 @@ var controller = {
       localStorage.sitevisitname = $(anchor).children('.heada1').html();
       
       var form = $("#form_sitevisists_details");
-      
       var actionitemList = $('#list_actionitems');
       actionitemList.empty();
       
       devtrac.indexedDB.open(function (db) {
         var pnid = 0;
+        var imageThumbnails = $("#links");
+        var imageAnchor;
+        var image;
+        
+        devtrac.indexedDB.getImage(db, snid).then(function(imagearray) {
+console.log("its on");     
+
+if(imagearray['names'].length > 0) {
+  imageThumbnails.empty();
+  for(var x = 0; x < imagearray['names'].length; x++) {
+    imageAnchor = $("<a href="+imagearray['base64s'][x]+" title="+imagearray['names'][x]+"></a>")
+    image = $("<img height='38' width='63' src="+imagearray['base64s'][x]+" alt="+imagearray['names'][x]+"/>");
+    imageAnchor.append(image);
+    
+    imageThumbnails.append(imageAnchor);
+  }  
+}else {
+  imageThumbnails.html("No Images");
+}
+
+        }).fail(function() {
+          
+          
+        });
+        
         devtrac.indexedDB.getSitevisit(db, snid).then(function (fObject) {
           localStorage.currentsnid = fObject['nid'];
           
@@ -2915,6 +2939,16 @@ var controller = {
           actionitemList.listview().listview('refresh');
         });
       });
+      
+      /*<a href="../assets/www/images/image.jpg" title="Image">
+      <img src="../assets/www/images/HuracanLarge6.jpg" alt="Image" height="38" width="63">
+  </a>
+  <a href="../assets/www/images/image.jpg" title="Apple">
+      <img src="../assets/www/images/image.jpg" alt="Apple" height="38" width="63">
+  </a>
+  <a href="../assets/www/images/HuracanLarge6.jpg" title="Orange">
+      <img src="../assets/www/images/mp1.jpg" alt="Orange" height="38" width="63">
+  </a>*/
       
     },
     
@@ -4167,7 +4201,6 @@ var controller = {
         
       } 
       else {
-        //console.log("this page is "+$.mobile.activePage.attr('id'));
         
         if($.mobile.activePage.attr('id') == "page_add_actionitems") {
           //create oecd codes optgroup

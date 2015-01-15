@@ -498,7 +498,7 @@ var devtracnodes = {
       var oldids = oldlocationids;
       if(postStrings.length > 0) {
         
-        if((loc_nodes[0]['user-added'] && loc_nodes[0]['fresh_nid'] && loc_nodes[0]['fresh_nid'].length <= 0)) {
+        if((loc_nodes[0]['user-added'] && loc_nodes[0]['fresh_nid'].length <= 0)) {
           devtracnodes.postNode(postStrings[0], oldlocationids, titlearray).then(function(updates, id, location_title) {
             if(updates['nid'] != undefined || updates['nid'] != null) {
               newlocationnames.push(titlearray[0]);
@@ -599,6 +599,7 @@ var devtracnodes = {
     
     //recursive node update for all images
     updateNodeHelper: function (ftrid, y, fd, names, sdate, upId, callback) {
+      //var pack = "node[field_ftritem_images][und]["+y+"][fid]="+fd[y]+"&node[field_ftritem_images][und]["+y+"][filename]="+names[y]+"&node[field_ftritem_date_visited][und][0][value][date]="+sdate;
       var pack = "node[field_ftritem_images][und]["+y+"][fid]="+fd[y]+"&node[field_ftritem_images][und]["+y+"][filename]="+names[y]+"&node[field_ftritem_date_visited][und][0][value][date]="+sdate;
       devtracnodes.updateNode(ftrid, pack).then(function(updates, sid, uid) {
         console.log("node updated");
