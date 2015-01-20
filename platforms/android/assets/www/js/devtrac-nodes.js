@@ -101,21 +101,18 @@ var devtracnodes = {
       var edit_comment = "";
       
       if(comments.length > 0) {
-        if(typeof commentArray['anid'] == "number") {
-          commentId = commentArray['nid'];
+        if(commentArray['fresh_nid']) {
+          commentId = commentArray['fresh_nid'];
           edit_comment = commentArray['anid'];
           
-          //commentArray['anid'] = commentId;
-          commentArray['editcomment'] = edit_comment;
-          
+          commentArray[0] = [];
+          commentArray[0]['editcomment'] = edit_comment;
           
         }else {
-          commentId = commentArray[0]['anid'];
-          edit_comment = commentId;
+          commentId = commentArray[0]['actionnid'];
+          edit_comment = commentArray[0]['anid'];
           
-          //commentArray['anid'] = commentId;
-          commentArray['editcomment'] = edit_comment;
-          
+          commentArray[0]['editcomment'] = edit_comment;
           
         }
         
@@ -153,6 +150,10 @@ var devtracnodes = {
             
             devtrac.indexedDB.editItemComments(db, commentArray).then(function() {
               
+              var counter = parseInt($("#comment_count").html());
+              var counter_update = counter - 1;
+              $("#comment_count").html(counter_update);
+              
               comments.splice(0, 1);
               devtracnodes.postComments(db, commentArray, comments, callback);  
             });
@@ -189,7 +190,7 @@ var devtracnodes = {
               updates['anid'] = actionitems[0]['nid'];
               
               devtrac.indexedDB.open(function (db) {
-                devtrac.indexedDB.getActionItemComments(db, actionitems[0]['nid'], function (comments) {
+                devtrac.indexedDB.getActionItemComments(db, actionitems[0]['nid'], "actionnid", function (comments) {
                   
                   //loop thru comments and remove those that wea upload
                   for(var comment in comments) {
@@ -1978,7 +1979,7 @@ var devtracnodes = {
               nodestring = nodestring + 'node['+p+'][und][0][tid]='+pObj[p]['und'][0]['tid']+'&';
               break;
             case 'taxonomy_vocabulary_1':
-              nodestring = nodestring + 'node['+p+'][und][0][tid]='+pObj[p]['und'][0]['tid']+'&';
+              nodestring = nodestring + 'node['+p+'][und][tid]='+pObj[p]['und'][0]['tid']+'&';
               break;
             default :
               break

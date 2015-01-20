@@ -3366,11 +3366,24 @@ if(imagearray['names'].length > 0) {
             }
           }
           else {
-            var dirtydate = sitedate.date;
-            var dirtydatearray = dirtydate.split("/");
-            var cleanarray = dirtydatearray[2] + "/" + dirtydatearray[1] + "/" + dirtydatearray[0];
             
-            formatedsitedate = cleanarray;    
+            if(sitedate.charAt(4) != "/") {
+              var sitedatestring = JSON.stringify(sitedate);
+              var sitedateonly = sitedatestring.substring(1, sitedatestring.indexOf('T'));
+              var sitedatearray = sitedateonly.split("-");
+              
+              formatedsitedate = sitedatearray[2] + "/" + sitedatearray[1] + "/" + sitedatearray[0];
+              
+            }else
+            {
+              var dirtydate = sitedate;
+              var dirtydatearray = dirtydate.split("/");
+              var cleanarray = dirtydatearray[2] + "/" + dirtydatearray[1] + "/" + dirtydatearray[0];
+              
+              formatedsitedate = cleanarray;    
+            
+            }
+            
             
           }
           
@@ -3398,7 +3411,7 @@ if(imagearray['names'].length > 0) {
           $("#actionitem_followup_task").html(fObject['field_actionitem_followuptask']['und'][0]['value']);
           
           
-          devtrac.indexedDB.getActionItemComments(db, anid, function (comments) {
+          devtrac.indexedDB.getActionItemComments(db, anid, "actionnid", function (comments) {
             //By default hide the comments filter
             $("#list_comments").prev("form.ui-filterable").hide();
             
@@ -3774,7 +3787,7 @@ if(imagearray['names'].length > 0) {
       if (commentvalue.length > 0) {
         var anid = "";
         
-        if(localStorage.actionuser) {
+        if(localStorage.actionuser == "true") {
           anid = parseInt(localStorage.anid);
           comment['actionnid'] = anid;
         }
@@ -3792,7 +3805,7 @@ if(imagearray['names'].length > 0) {
         comment['comment_body']['und'][0]['format'] = 1;   
         comment['language'] = 'und';
         
-        if(!localStorage.actionuser) {
+        if(!localStorage.actionuser == "true") {
           comment['nid'] = localStorage.anid;  
         }else {
           comment['nid'] = "";

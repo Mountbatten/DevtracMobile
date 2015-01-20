@@ -328,7 +328,7 @@ devtrac.indexedDB.addActionItemCommentsData = function(db, aObj) {
 };
 
 //get all actionitem comments in database
-devtrac.indexedDB.getActionItemComments = function(db, cnid, callback) {
+devtrac.indexedDB.getActionItemComments = function(db, cnid, state, callback) {
   var actionitemcomments = [];
   var trans = db.transaction(["actionitemscomments"], "readonly");
   var store = trans.objectStore("actionitemscomments");
@@ -344,17 +344,21 @@ devtrac.indexedDB.getActionItemComments = function(db, cnid, callback) {
       return;
     }
     
-    if(typeof result.value == "object") {
-      for(var comment in result.value) {
-        if(result.value[comment].anid == cnid) {
-          actionitemcomments.push(result.value[comment]);  
-        }    
+    
+    if(result.value[0]) {
+      for(var index in result.value) {
+        if(result.value[index]['anid'] == cnid && index != 'anid') {
+          actionitemcomments.push(result.value[index]);    
+        }
       }
-    }else{
-      if(result.value.anid == cnid) {
-        actionitemcomments.push(result.value);  
+        
+    }else {
+      if(result.value[state] == cnid) {
+        actionitemcomments.push(result.value);    
       }
+      
     }
+    
     
     result["continue"]();
   };
@@ -369,10 +373,16 @@ devtrac.indexedDB.editItemComments = function(db, updates) {
   var d = $.Deferred();
   var trans = db.transaction(["actionitemscomments"], "readwrite");
   var store = trans.objectStore("actionitemscomments");
-  var commentId = updates['editcomment'].toString();
+  var commentId = updates[0]['editcomment'];
+  var state = "";
+  if(updates['fresh_nid']) {
+    state = "actionnid";
+  }else {
+    state = "anid";
+  }
   
-  devtrac.indexedDB.getActionItemComments(db, commentId, function(itemComments) {
-    devtrac.indexedDB.saveActionComments(db, updates, itemComments, function(){
+  devtrac.indexedDB.getActionItemComments(db, commentId, state, function(itemComments) {
+    devtrac.indexedDB.saveActionComments(db, updates, itemComments, state, function(){
       d.resolve();
     });
   });
@@ -382,10 +392,10 @@ devtrac.indexedDB.editItemComments = function(db, updates) {
 
 
 //Get all action item comments
-devtrac.indexedDB.saveActionComments = function(db, updates, editedData, callback) {
-
+devtrac.indexedDB.saveActionComments = function(db, updates, editedData, state, callback) {
+  
   if(editedData.length > 0) {
-    if(updates['title'] == editedData[0].comment_body.und[0].value && updates['editcomment'].toString() == editedData[0].anid) {
+    if(updates['title'] == editedData[0].comment_body.und[0].value && updates[0]['editcomment'] == editedData[0][state]) {
       editedData[0].submit = 1;
       
       var trans2 = db.transaction(["actionitemscomments"], "readwrite");
@@ -397,7 +407,7 @@ devtrac.indexedDB.saveActionComments = function(db, updates, editedData, callbac
         // Do something with the error
         console.log("actionitem comments update failed");
         editedData.splice(0, 1);
-        devtrac.indexedDB.saveActionComments(db, updates, editedData, callback);
+        devtrac.indexedDB.saveActionComments(db, updates, editedData, state, callback);
         
       };
       
@@ -405,17 +415,17 @@ devtrac.indexedDB.saveActionComments = function(db, updates, editedData, callbac
         // Success - the data is updated!
         console.log("actionitem comments update success");
         editedData.splice(0, 1);
-        devtrac.indexedDB.saveActionComments(db, updates, editedData, callback);
+        devtrac.indexedDB.saveActionComments(db, updates, editedData, state, callback);
       };
       
     } else {
       editedData.splice(0, 1);
-      devtrac.indexedDB.saveActionComments(db, updates, editedData, callback);
+      devtrac.indexedDB.saveActionComments(db, updates, editedData, state, callback);
     }
   }else{
     callback();
   }
-   
+  
 };
 
 //Get all action item comments
@@ -665,7 +675,7 @@ devtrac.indexedDB.getSitevisit = function(db, snid) {
   var d = $.Deferred();
   var trans = db.transaction(["sitevisit"], "readonly");
   var store = trans.objectStore("sitevisit");
-
+  
   var index = store.index("nid");
   index.get(snid).onsuccess = function(event) {
     //callback(event.target.result);
@@ -860,35 +870,35 @@ devtrac.indexedDB.getAllActionitems = function(db, callback) {
     callback(actionitems);
     
     
-    };
-    
-     
-    
-    var cursorRequest = store.openCursor(keyRange);
-    
-     
-    
-    cursorRequest.onerror = function(error) {
+  };
+  
+  
+  
+  var cursorRequest = store.openCursor(keyRange);
+  
+  
+  
+  cursorRequest.onerror = function(error) {
     
     console.log(error);
     
-    };
-    
-     
-    
-    cursorRequest.onsuccess = function(evt) {                   
+  };
+  
+  
+  
+  cursorRequest.onsuccess = function(evt) {                   
     
     var cursor = evt.target.result;
     
     if (cursor) {
-    
-    console.log("Getting item "+cursor.value.title);
-    actionitems.push(cursor.value);
-    
-    cursor.continue();
-    
+      
+      console.log("Getting item "+cursor.value.title);
+      actionitems.push(cursor.value);
+      
+      cursor.continue();
+      
     }
-    };
+  };
 };
 
 //get all user saved answers in database
@@ -1129,7 +1139,7 @@ devtrac.indexedDB.editPlace = function(db, pnid, updates) {
         }else if(controller.sizeme(data['field_place_responsible_person']) > 0 ){
           data['field_place_responsible_person']['und'][0]['value'] = updates['name'];
         }
-         
+        
       }
       if(key == "gpslat"){
         data['field_place_lat_long']['und'][0]['lat'] = updates['gpslat']; 
