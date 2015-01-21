@@ -1005,12 +1005,21 @@ var devtracnodes = {
     },
     
     updateSyncData: function(syncData) {
-      var actionitems = syncData['actionitems'];
-      var locations = syncData['locations'];
-      var sitevisits = syncData['sitevisits'];
-      var roadsides = syncData['roadside'];
-      var fieldtrips = syncData['fieldtrip'];
-      var comments = syncData['comments'];
+      var actionitems = "";
+      var locations = "";
+      var sitevisits = "";
+      var roadsides = "";
+      var fieldtrips = "";
+      var comments = "";
+      
+      if(syncData){
+        actionitems = syncData['actionitems'];
+        locations = syncData['locations'];
+        sitevisits = syncData['sitevisits'];
+        roadsides = syncData['roadside'];
+        fieldtrips = syncData['fieldtrip'];
+        comments = syncData['comments'];  
+      }
       
       if(controller.sizeme(locations) > 0) {
         devtracnodes.getNodeUpdates('locations', locations, function(locationData) {
@@ -1602,13 +1611,11 @@ var devtracnodes = {
     postSitevisitHelper: function(sitevisits, names, newnids, ftritemdetails, upNodes, callback) {
       if(sitevisits.length > 0){
         devtracnodes.getSitevisitString(sitevisits[0], names[0], newnids[0]).then(function(jsonstring, p, q, r, mark) {
+          
           devtracnodes.postNode(jsonstring, mark, sitevisits.length, r).then(function(updates, stat, snid) {
-            
-            console.log("Checking images");
             
             devtrac.indexedDB.open(function (db) {
               devtrac.indexedDB.getImage(db, parseInt(sitevisits[0]['nid']), updates['nid']).then(function(image, ftritemid) {
-                console.log("found images");
                 
                 var indx = 0;
                 var imageid = [];
@@ -1642,6 +1649,8 @@ var devtracnodes = {
                           upNodes2['sitevisits'][sitevisits[0]['nid']]['nid'] = ftritemid;
                           ftritemdetails[updates['nid']] =  sitevisits[0]['title'];
                           sitevisits.splice(0, 1);
+                          names.splice(0, 1);
+                          newnids.splice(0, 1);
                           devtracnodes.postSitevisitHelper(sitevisits, names, newnids, ftritemdetails, upNodes2, callback);
                           
                         });
@@ -1668,6 +1677,8 @@ var devtracnodes = {
                   
                   ftritemdetails[updates['nid']] =  sitevisits[0]['title'];
                   sitevisits.splice(0, 1);
+                  names.splice(0, 1);
+                  newnids.splice(0, 1);
                   
                   devtracnodes.postSitevisitHelper(sitevisits, names, newnids, ftritemdetails, upNodes, callback);
                 });
@@ -1979,7 +1990,7 @@ var devtracnodes = {
               nodestring = nodestring + 'node['+p+'][und][0][tid]='+pObj[p]['und'][0]['tid']+'&';
               break;
             case 'taxonomy_vocabulary_1':
-              nodestring = nodestring + 'node['+p+'][und][tid]='+pObj[p]['und'][0]['tid']+'&';
+              nodestring = nodestring + 'node['+p+'][und][0][tid]='+pObj[p]['und'][0]['tid']+'&';
               break;
             default :
               break
