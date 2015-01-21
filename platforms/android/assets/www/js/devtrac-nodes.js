@@ -507,6 +507,7 @@ var devtracnodes = {
               oldids.push(oldpnids[0]);
               
               upNodes['locations'][oldpnids[0]] = updates['nid'];
+              upNodes['locations']["status"] = loc_nodes[0]['user-added'];
             }
             
             titlearray.splice(0, 1);
@@ -553,6 +554,7 @@ var devtracnodes = {
             updates['editflag'] = 0;
             
             upNodes['locations'][oldpnids[0]] = nid+"_e";
+            upNodes['locations']["status"] = loc_nodes[0]['user-added'];
             
             titlearray.splice(0, 1);
             postStrings.splice(0, 1);
@@ -1178,10 +1180,8 @@ var devtracnodes = {
         
         
         updates['fresh_nid'] = updates['nid'][0];
-        if(updates['fresh_nid'].indexOf("_e") != -1) {
-          locIds[0] = parseInt(locIds[0]);
-        }
         updates['submit'] = 1;
+        
         devtrac.indexedDB.editPlace(db, locIds[0], updates).then(function() {
           locIds.splice(0, 1);
           updates['nid'].splice(0, 1);
@@ -1229,11 +1229,16 @@ var devtracnodes = {
         updates['nid'] = [];
         
         for(var location in nodeObject) {
-          if(nodeObject[location] != "") {
-            loc_ids.push(location);
+          if(nodeObject[location] != "" && location != "status") {
+            if(nodeObject["status"] == true) {
+              loc_ids.push(parseInt(location));  
+            }else{
+              loc_ids.push(location);
+            }
+            
             updates['nid'].push(nodeObject[location]);  
           }else {
-            controller.loadingMsg("Locations Sync Error; Please re-upload.", 2000);
+           // controller.loadingMsg("Locations Sync Error; Please re-upload.", 2000);
           }
           
         }
