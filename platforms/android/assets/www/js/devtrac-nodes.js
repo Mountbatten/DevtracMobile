@@ -1178,11 +1178,10 @@ var devtracnodes = {
         
         
         updates['fresh_nid'] = updates['nid'][0];
-        if(updates['fresh_nid'].indexOf("_e") == -1) {
+        if(updates['fresh_nid'].indexOf("_e") != -1) {
           locIds[0] = parseInt(locIds[0]);
-          updates['submit'] = 1;
         }
-        
+        updates['submit'] = 1;
         devtrac.indexedDB.editPlace(db, locIds[0], updates).then(function() {
           locIds.splice(0, 1);
           updates['nid'].splice(0, 1);
