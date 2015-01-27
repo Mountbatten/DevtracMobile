@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://jenkinsge.mountbatten.net/" />
+<title>test_if_site_report_hasbeen_added</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">test_if_site_report_hasbeen_added</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/DevtracMobile/platforms/android/web/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=loginselect</td>
+	<td>label=custom</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=myurl</td>
+	<td>http://jenkinsge.mountbatten.net/devtracorgdev</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Save Url</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=page_login_name</td>
+	<td>devmobile</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=page_login_pass</td>
+	<td>devmobile</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=page_login_submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td>Fieldtrip Details</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Add Site Report</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=submit_sitereporttype</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=location_name</td>
+	<td>Latest Human Interest Story</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//form[@id='form_add_location']/label[3]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=gpslat</td>
+	<td>32.657</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=gpslon</td>
+	<td>0.2345234</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=sitevisitfile</td>
+	<td>/home/aggrey/Downloads/beehat-drupalicon.png</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=location_item_save</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//a[@id='barsbutton_fieldtrip']/i</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>xpath=(//a[contains(text(),'Upload')])[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Sync All</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=barsbutton_sync</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>xpath=(//a[contains(text(),'Logout')])[4]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/devtracorgdev/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Sign in</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=cbox-edit-name</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=cbox-edit-name</td>
+	<td>mobile</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=cbox-edit-pass</td>
+	<td>mobile</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=edit-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=My Current Fieldtrip</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=quicktabs-tab-fieldtrip_content_first-3</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td>Latest Human Interest Story</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>
