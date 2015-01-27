@@ -3851,12 +3851,12 @@ if(imagearray['names'].length > 0) {
             
             list_comment.listview('refresh');
             
-            controller.loadingMsg("Saved", 800);
-            
             $.mobile.changePage("#page_actionitemdetails", "slide", true, false);
             
             $('#actionitem_comment').val("");
             $('#commentcollapse').collapsible('collapse');
+            
+            controller.loadingMsg("Saved", 1500);
             
           }); 
         });
