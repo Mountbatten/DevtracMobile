@@ -3343,6 +3343,10 @@ if(imagearray['names'].length > 0) {
         devtrac.indexedDB.getActionItem(db, anid).then(function (fObject) {
           $("#actionitem_resp_location").html($("#sitevisists_details_location").html());          
           
+          if(localStorage.AIuserUpload) {
+            localStorage.removeItem('AIuserUpload');  
+          }
+          
           if(fObject['fresh_nid'] && fObject['user-added']) {
             localStorage.AIuserUpload = fObject['fresh_nid'];   
           }
