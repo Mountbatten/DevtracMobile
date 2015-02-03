@@ -497,7 +497,7 @@ var controller = {
           
           if(localStorage.user == "true") {
             
-            if(aPlace['field_place_responsible_phone'].length > 0 && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
+            if(aPlace['field_place_responsible_phone'] && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
               $("#location_details_phone").html(aPlace['field_place_responsible_phone']['und'][0]['value']);
             }else if(controller.sizeme(aPlace['field_place_responsible_phone']) > 0 && aPlace['field_place_responsible_phone']['und'][0]['value'] != undefined) {
               $("#location_details_phone").html(aPlace['field_place_responsible_phone']['und'][0]['value']);
@@ -3343,6 +3343,10 @@ if(imagearray['names'].length > 0) {
         devtrac.indexedDB.getActionItem(db, anid).then(function (fObject) {
           $("#actionitem_resp_location").html($("#sitevisists_details_location").html());          
           
+          if(fObject['fresh_nid'] && fObject['user-added']) {
+            localStorage.AIuserUpload = fObject['fresh_nid'];   
+          }
+          
           var sitedate = fObject['field_actionitem_due_date']['und'][0]['value'];
           
           var formatedsitedate = "";
@@ -3409,7 +3413,6 @@ if(imagearray['names'].length > 0) {
           $("#actionitem_author").html(localStorage.realname);
           $("#actionitem_resp_person").html(localStorage.realname);
           $("#actionitem_followup_task").html(fObject['field_actionitem_followuptask']['und'][0]['value']);
-          
           
           devtrac.indexedDB.getActionItemComments(db, anid, "actionnid", function (comments) {
             //By default hide the comments filter
@@ -3787,15 +3790,24 @@ if(imagearray['names'].length > 0) {
       if (commentvalue.length > 0) {
         var anid = "";
         
-        if(localStorage.actionuser == "true") {
-          anid = parseInt(localStorage.anid);
-          comment['actionnid'] = anid;
+        if(localStorage.actionuser == "true" && localStorage.AIuserUpload) {
+          comment['nid'] = localStorage.AIuserUpload;
+          anid = localStorage.AIuserUpload;
+          comment['actionnid'] = localStorage.AIuserUpload;
+          
         }
-        else
+        else if(localStorage.actionuser != "true")
         {
+          comment['nid'] = localStorage.anid;
           anid = localStorage.anid;
           comment['actionnid'] = anid;
+        }else if(localStorage.actionuser == "true")
+        {
+          anid = parseInt(localStorage.anid);
+          comment['actionnid'] = anid;
+          comment['nid'] = "";
         }
+        
         var list_comment = $('#list_comments');
         
         comment['comment_body'] = {};
@@ -3804,12 +3816,6 @@ if(imagearray['names'].length > 0) {
         comment['comment_body']['und'][0]['value'] = commentvalue;
         comment['comment_body']['und'][0]['format'] = 1;   
         comment['language'] = 'und';
-        
-        if(!localStorage.actionuser == "true") {
-          comment['nid'] = localStorage.anid;  
-        }else {
-          comment['nid'] = "";
-        }
         
         comment['submit'] = 0;
         
@@ -3832,7 +3838,6 @@ if(imagearray['names'].length > 0) {
         comment['taxonomy_vocabulary_8']['und'][0]['tid'] = $("#select_oecdobj :selected").val();
         
         comment['language'] = 'und';
-        
         
         devtrac.indexedDB.open(function (db) {
           devtrac.indexedDB.addActionItemCommentsData(db, comment).then(function() {
