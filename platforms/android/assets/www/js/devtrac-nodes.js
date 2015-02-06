@@ -192,10 +192,10 @@ var devtracnodes = {
         if(actionitems[0]['submit'] == 0 && actionitems[0]['user-added'] == true) {
           delete actionitems[0]['submit'];
           localStorage.currentanid = actionitems[0]['nid'];
-          
-          devtracnodes.getActionItemString(actionitems[0], "", function(jsonstring, anid) {
+          var actionitemNode = {};
+          devtracnodes.getActionItemString(actionitems[0], "", actionitemNode, function(jsonstring, anid, actionitemNode) {
             console.log("Action item string is "+jsonstring);
-            devtracnodes.postNode(jsonstring, 0, actionitems.length, anid).then(function(updates, status, anid) {
+            devtracnodes.postNode(jsonstring, 0, actionitems.length, anid, actionitemNode).then(function(updates, status, anid) {
               updates['fresh_nid'] = updates['nid'];
               nodeStatus['actionitems'][actionitems[0]['nid']]['nid'] = updates['fresh_nid'];
               
@@ -2132,16 +2132,23 @@ var devtracnodes = {
     },
     
     //return action item string
-    getActionItemString: function(aObj, nodestring, callback) {
+    getActionItemString: function(aObj, nodestring, actionitemNode, callback) {
       
       if(aObj.hasOwnProperty('field_actionitem_severity')){
+        actionitemNode['field_actionitem_severity'] = {};
+        actionitemNode['field_actionitem_severity']['und'] = [];
+        //actionitemNode['field_actionitem_severity']['und'][0] = {};
+        //actionitemNode['field_actionitem_severity']['und'][0]['value'] = aObj['field_actionitem_severity']['und'][0]['value'];
+        actionitemNode['field_actionitem_severity']['und']['value'] = aObj['field_actionitem_severity']['und'][0]['value'];
+        
         nodestring = nodestring + 'node[field_actionitem_severity][und][value]='+aObj['field_actionitem_severity']['und'][0]['value']+'&';
         delete aObj['field_actionitem_severity'];
         
-        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        devtracnodes.getActionItemString(aObj, nodestring, actionitemNode, callback);
         
       }else if(aObj.hasOwnProperty('field_actionitem_resp_place')) {
         if(aObj['has_location'] == true) {
+          
           var pid = aObj['field_actionitem_resp_place']['und'][0]['target_id'];
           var locationtype = aObj['loctype'];
           if(locationtype.indexOf('user_added') != -1) {
@@ -2150,16 +2157,26 @@ var devtracnodes = {
           
           devtrac.indexedDB.open(function (db) {
             devtrac.indexedDB.getPlace(db, pid, function(place) {
-              
+              var pid = "";
               if(place['fresh_nid'] == undefined){
-                nodestring = nodestring + 'node[field_actionitem_resp_place][und][0][target_id]='+place['title']+"("+place['nid']+")"+'&';  
+                pid = place['nid'];
+                 
               }
               else{
-                nodestring = nodestring + 'node[field_actionitem_resp_place][und][0][target_id]='+place['title']+"("+place['fresh_nid']+")"+'&';
+                pid = place['fresh_nid']+")";
+                
               }
+              
+              actionitemNode['field_actionitem_resp_place'] = {};
+              actionitemNode['field_actionitem_resp_place']['und'] = [];
+              actionitemNode['field_actionitem_resp_place']['und'][0] = {};
+              actionitemNode['field_actionitem_resp_place']['und'][0]['target_id'] = place['title']+"("+pid+")";
+              
+              nodestring = nodestring + 'node[field_actionitem_resp_place][und][0][target_id]='+place['title']+"("+pid+")"+'&';
+              
               delete aObj['field_actionitem_resp_place'];
               
-              devtracnodes.getActionItemString(aObj, nodestring, callback);
+              devtracnodes.getActionItemString(aObj, nodestring, actionitemNode, callback);
             });
             
           }); 
@@ -2178,31 +2195,52 @@ var devtracnodes = {
         
         devtrac.indexedDB.open(function (db) {
           devtrac.indexedDB.getSitevisit(db, sid).then(function(sitevisit) {
+            var nid = "";
             if(sitevisit['fresh_nid'] == undefined){
-              nodestring = nodestring + 'node[field_actionitem_ftreportitem][und][0][target_id]='+sitevisit['title']+"("+sitevisit['nid']+")"+'&';  
+              nid = sitevisit['nid'];
+                
             }
-            else{
-              nodestring = nodestring + 'node[field_actionitem_ftreportitem][und][0][target_id]='+sitevisit['title']+"("+sitevisit['fresh_nid']+")"+'&';
+            else {
+              nid = sitevisit['fresh_nid'];
+              
             }
+            
+            nodestring = nodestring + 'node[field_actionitem_ftreportitem][und][0][target_id]='+sitevisit['title']+"("+nid+")"+'&';
+            
+            actionitemNode['field_actionitem_ftreportitem'] = {};
+            actionitemNode['field_actionitem_ftreportitem']['und'] = [];
+            actionitemNode['field_actionitem_ftreportitem']['und'][0] = {};
+            actionitemNode['field_actionitem_ftreportitem']['und'][0]['target_id'] = sitevisit['title']+"("+nid+")";
+            
             delete aObj['field_actionitem_ftreportitem'];
             
-            devtracnodes.getActionItemString(aObj, nodestring, callback);
+            devtracnodes.getActionItemString(aObj, nodestring, actionitemNode, callback);
           });
           
         });
         
         
       }else if(aObj.hasOwnProperty('field_actionitem_followuptask')) {
+
+        actionitemNode['field_actionitem_followuptask'] = {};
+        actionitemNode['field_actionitem_followuptask']['und'] = [];
+        actionitemNode['field_actionitem_followuptask']['und'][0] = {};
+        actionitemNode['field_actionitem_followuptask']['und'][0]['value'] = aObj['field_actionitem_followuptask']['und'][0]['value'];
+        
         nodestring = nodestring + 'node[field_actionitem_followuptask][und][0][value]='+aObj['field_actionitem_followuptask']['und'][0]['value']+'&';
         delete aObj['field_actionitem_followuptask'];
         
-        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        devtracnodes.getActionItemString(aObj, nodestring, actionitemNode, callback);
         
       }else if(aObj.hasOwnProperty('taxonomy_vocabulary_8')) {
+        actionitemNode['taxonomy_vocabulary_8'] = {};
+        actionitemNode['taxonomy_vocabulary_8']['und'] = {};
+        actionitemNode['taxonomy_vocabulary_8']['und']['tid'] = aObj['taxonomy_vocabulary_8']['und'][0]['tid'];
+        
         nodestring = nodestring + 'node[taxonomy_vocabulary_8][und][tid]='+aObj['taxonomy_vocabulary_8']['und'][0]['tid']+'&';
         delete aObj['taxonomy_vocabulary_8'];
         
-        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        devtracnodes.getActionItemString(aObj, nodestring, actionitemNode, callback);
         
       }else if(aObj.hasOwnProperty('field_actionitem_due_date')) {
         
@@ -2220,45 +2258,67 @@ var devtracnodes = {
           
         }
         
+        actionitemNode['field_actionitem_due_date'] = {};
+        actionitemNode['field_actionitem_due_date']['und'] = [];
+        actionitemNode['field_actionitem_due_date']['und'][0] = {};
+        actionitemNode['field_actionitem_due_date']['und'][0]['value'] = {};
+        actionitemNode['field_actionitem_due_date']['und'][0]['value']['date'] = duedate;
+        
         nodestring = nodestring + 'node[field_actionitem_due_date][und][0][value][date]='+duedate+'&';
         delete aObj['field_actionitem_due_date'];
         
-        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        devtracnodes.getActionItemString(aObj, nodestring, actionitemNode, callback);
         
       }else if(aObj.hasOwnProperty('field_actionitem_status')) {
+        
+        actionitemNode['field_actionitem_status'] = {};
+        actionitemNode['field_actionitem_status']['und'] = [];
+        actionitemNode['field_actionitem_status']['und'][0] = {};
+        actionitemNode['field_actionitem_status']['und'][0]['value'] = {};
         
         nodestring = nodestring + 'node[field_actionitem_status][und][value]='+aObj['field_actionitem_status']['und'][0]['value']+'&';
         delete aObj['field_actionitem_status'];
         
-        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        devtracnodes.getActionItemString(aObj, nodestring, actionitemNode, callback);
         
       }else if(aObj.hasOwnProperty('field_actionitem_responsible')) {
+        
+        actionitemNode['field_actionitem_responsible'] = {};
+        actionitemNode['field_actionitem_responsible']['und'] = [];
+        actionitemNode['field_actionitem_responsible']['und'][0] = {};
+        actionitemNode['field_actionitem_responsible']['und'][0]['target_id'] = aObj['field_actionitem_responsible']['und'][0]['target_id'];
         
         nodestring = nodestring + 'node[field_actionitem_responsible][und][0][target_id]='+aObj['field_actionitem_responsible']['und'][0]['target_id']+'&';
         delete aObj['field_actionitem_responsible'];
         
-        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        devtracnodes.getActionItemString(aObj, nodestring, actionitemNode, callback);
         
       }else if(aObj.hasOwnProperty('type')) {
+        
+        actionitemNode['type'] = aObj['type'];
         
         nodestring = nodestring + 'node[type]='+aObj['type']+"&";
         delete aObj['type'];
         
-        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        devtracnodes.getActionItemString(aObj, nodestring, actionitemNode, callback);
         
       }else if(aObj.hasOwnProperty('title')) {
+        
+        actionitemNode['title'] = aObj['title'];
         
         nodestring = nodestring + 'node[title]='+aObj['title']+"&";
         delete aObj['title'];
         
-        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        devtracnodes.getActionItemString(aObj, nodestring, actionitemNode, callback);
         
       }else if(aObj.hasOwnProperty('uid')) {
+        
+        actionitemNode['uid'] = aObj['uid'];
         
         nodestring = nodestring + 'node[uid]='+aObj['uid']+'&';
         delete aObj['uid'];
         
-        devtracnodes.getActionItemString(aObj, nodestring, callback);
+        devtracnodes.getActionItemString(aObj, nodestring, actionitemNode, callback);
         
       }else if(aObj.hasOwnProperty('field_action_items_tags')) {
         var tags = aObj['field_action_items_tags'];
@@ -2266,19 +2326,22 @@ var devtracnodes = {
         if(tags.length > 0) {
           var clean_tagstring = tags.replace(/,\s*$/, "");
           
+          actionitemNode['field_action_items_tags'] = {};
+          actionitemNode['field_action_items_tags']['und'] = clean_tagstring;
+          
           nodestring = nodestring + 'node[field_action_items_tags][und]='+clean_tagstring;
           delete aObj['field_action_items_tags'];
           
-          devtracnodes.getActionItemString(aObj, nodestring, callback);  
+          devtracnodes.getActionItemString(aObj, nodestring, actionitemNode, callback);  
         }else {
           delete aObj['field_action_items_tags'];
-          devtracnodes.getActionItemString(aObj, nodestring, callback);
+          devtracnodes.getActionItemString(aObj, nodestring, actionitemNode, callback);
         }
         
       }
       else{
         console.log("actionitem callback "+nodestring);
-        callback(nodestring, aObj['nid']);  
+        callback(nodestring, aObj['nid'], actionitemNode);  
       }
       
     },

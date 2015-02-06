@@ -3175,6 +3175,7 @@ if(imagearray['names'].length > 0) {
         updates['field_actionitem_status'] = {};
         updates['field_actionitem_status']['und'] = [];
         updates['field_actionitem_status']['und'][0] = {};
+        
         updates['field_actionitem_responsible'] = {};
         updates['field_actionitem_responsible']['und'] = [];
         updates['field_actionitem_responsible']['und'][0] = {};
