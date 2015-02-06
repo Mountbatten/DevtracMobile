@@ -4,6 +4,11 @@ var devtracnodes = {
       var d = $.Deferred();
       var updates = {};
       console.log("updates for node "+node);
+      
+      if(siteid['type']){
+        node = siteid;
+      }
+      
       $.ajax({
         url: localStorage.appurl+"/api/node/" + encodeURIComponent(nid) + ".json",
         type: 'put',
@@ -33,11 +38,18 @@ var devtracnodes = {
       var d = $.Deferred();
       var updates = [];
       
+      if(pnid['type']){
+        //pnid = JSON.stringify(pnid);
+        node = pnid;
+      }else if(loc_title['type']) {
+        //loc_title = JSON.stringify(loc_title);
+        node = loc_title;
+      }
+      
       $.ajax({
         url: localStorage.appurl+"/api/node.json",
         type: 'post',
         data: node,
-        //data: "node[title]=test70&node[status]=1&node[type]=ftritem&node[uid]=314&node[taxonomy_vocabulary_7][und][tid]=209&node[field_ftritem_date_visited][und][0][value][date]=29/04/2014&node[field_ftritem_public_summary][und][0][value]=Check for sanitation and hygiene at food service points&node[field_ftritem_narrative][und][0][value]=Compile statistics of cleanliness&node[field_ftritem_field_trip][und][0][target_id]=Inspect the Warehouses(14065)&node[field_ftritem_place][und][0][target_id]=Amuru(14066)&node[field_ftritem_images][0][fid]=7895",
         dataType: 'json',
         headers: {
           'X-CSRF-Token': localStorage.usertoken
@@ -455,7 +467,7 @@ var devtracnodes = {
       var posttitle = [];
       var postids = [];
       var end_location_loop = "";
-      
+      var jsonLocation = null;
       var pnid = 0;
       
       devtracnodes.getLocations().then(function(locs, db) {
@@ -473,8 +485,9 @@ var devtracnodes = {
           
           delete locs[mark]['field_actionitem_ftreportitem'];
           
-          devtracnodes.getLocationString(locs[mark]).then(function(jsonstring, pnid, loc_title) {
+          devtracnodes.getLocationString(locs[mark]).then(function(jsonstring, pnid, loc_title, jsonNode) {
             
+            jsonLocation = jsonNode;
             poststrings.push(jsonstring);
             posttitle.push(loc_title);
             postids.push(pnid);
@@ -483,7 +496,7 @@ var devtracnodes = {
         }
         
         if(end_location_loop == poststrings.length) {
-          d.resolve(poststrings, posttitle, postids, locs);
+          d.resolve(poststrings, posttitle, postids, locs, jsonLocation);
         }
         
         
@@ -494,14 +507,18 @@ var devtracnodes = {
       return d;
     },
     
-    postLocationHelper: function(newlocationids, newlocationnames, oldlocationids, postStrings, titlearray, oldpnids, upNodes, loc_nodes, callback){
+    postLocationHelper: function(newlocationids, newlocationnames, oldlocationids, postStrings, titlearray, oldpnids, upNodes, loc_nodes, callback, jsonLocation){
       
       var oldids = oldlocationids;
       if(postStrings.length > 0) {
         
         if((loc_nodes[0]['user-added'] && loc_nodes[0]['fresh_nid'].length <= 0)) {
-          devtracnodes.postNode(postStrings[0], oldlocationids, titlearray).then(function(updates, id, location_title) {
+          devtracnodes.postNode(postStrings[0], oldlocationids, titlearray, jsonLocation).then(function(updates, id, location_title) {
             if(updates['nid'] != undefined || updates['nid'] != null) {
+              var counter = parseInt($("#location_count").html());
+              var counter_update = counter - 1;
+              $("#location_count").html(counter_update);
+              
               newlocationnames.push(titlearray[0]);
               newlocationids.push(updates['nid']);
               oldids.push(oldpnids[0]);
@@ -524,9 +541,7 @@ var devtracnodes = {
                 oldpnids.splice(0, 1);
                 devtracnodes.postLocationHelper(newlocationids, newlocationnames, oldids, postStrings, titlearray, oldpnids, upNodes, loc_nodes, callback);
                 
-                
               });
-              
             });
             
           }).fail(function(e) {
@@ -729,8 +744,8 @@ var devtracnodes = {
         if(sitevisits[0]['user-added'] == true && sitevisits[0]['taxonomy_vocabulary_7']['und'][0]['tid'] == localStorage.roadside) {
           nodeStatus['roadside'][sitevisits[0]['nid']] = {};
           
-          devtracnodes.getSitevisitString(sitevisits[0]).then(function(jsonstring, active_sitereport, date, siteid) {
-            devtracnodes.postNode(jsonstring, active_sitereport, date, siteid).then(function(updates, x, y, z, active_ftritem, datevisited) {
+          devtracnodes.getSitevisitString(sitevisits[0]).then(function(jsonstring, active_sitereport, date, siteid, xy, ftritemJson) {
+            devtracnodes.postNode(jsonstring, active_sitereport, date, siteid, ftritemJson).then(function(updates, x, y, z, active_ftritem, datevisited) {
               
               console.log("Checking for images using id "+parseInt(active_ftritem['nid']));
               
@@ -815,10 +830,10 @@ var devtracnodes = {
           
           //edited site visit
         }else if(sitevisits[0]['user-added'] == undefined && sitevisits[0]['editflag'] == 1) {
-          devtracnodes.getSitevisitString(sitevisits[0]).then(function(jsonstring, active_sitereport, date, siteid) {
+          devtracnodes.getSitevisitString(sitevisits[0]).then(function(jsonstring, active_sitereport, date, siteid, xy, ftritemJson) {
             nodeStatus['sitevisits'][sitevisits[0]['nid']] = {};
             
-            devtracnodes.updateNode(siteid, jsonstring).then(function(updates, ftritemid, sid) {
+            devtracnodes.updateNode(siteid, jsonstring, ftritemJson).then(function(updates, ftritemid, sid) {
               nodeStatus['sitevisits'][sitevisits[0]['nid']]['nid'] = sid;
               nodeStatus['sitevisits'][sitevisits[0]['nid']]['edit'] = true;
               
@@ -1531,7 +1546,7 @@ var devtracnodes = {
           if(parseInt($("#location_count").html()) > 0) {
             
             //upload locations and sitevisits (human interest stories and site visits)
-            devtracnodes.uploadLocations().then(function(postarray, titlearray, pnid, location_nodes) {
+            devtracnodes.uploadLocations().then(function(postarray, titlearray, pnid, location_nodes, jsonLocation) {
               
               var newlocationnames = [];
               var newlocation_nids = [];
@@ -1585,7 +1600,7 @@ var devtracnodes = {
                   });
                 }
                 
-              });
+              }, jsonLocation);
               
             });
             
@@ -1614,9 +1629,9 @@ var devtracnodes = {
     
     postSitevisitHelper: function(sitevisits, names, newnids, ftritemdetails, upNodes, callback) {
       if(sitevisits.length > 0){
-        devtracnodes.getSitevisitString(sitevisits[0], names[0], newnids[0]).then(function(jsonstring, p, q, r, mark) {
+        devtracnodes.getSitevisitString(sitevisits[0], names[0], newnids[0]).then(function(jsonstring, p, q, r, mark, ftritemJson) {
           
-          devtracnodes.postNode(jsonstring, mark, sitevisits.length, r).then(function(updates, stat, snid) {
+          devtracnodes.postNode(jsonstring, mark, sitevisits.length, r, ftritemJson).then(function(updates, stat, snid) {
             
             devtrac.indexedDB.open(function (db) {
               devtrac.indexedDB.getImage(db, parseInt(sitevisits[0]['nid']), updates['nid']).then(function(image, ftritemid) {
@@ -1767,6 +1782,7 @@ var devtracnodes = {
       var d = $.Deferred();      
       var sitevisit_backup = aObj;
       var visited_date = "";
+      var nodeObject = {};
       
       //delete aObj['dbsavetime'];
       delete aObj['submit'];
@@ -1778,15 +1794,38 @@ var devtracnodes = {
         if(typeof aObj[a] == 'object') {
           switch(a) {
             case 'taxonomy_vocabulary_7': 
+              
+              nodeObject['taxonomy_vocabulary_7'] = {};
+              nodeObject['taxonomy_vocabulary_7']['und'] = {};
+              nodeObject['taxonomy_vocabulary_7']['und']['tid'] = aObj[a]['und'][0]['tid'];
+              
               nodestring = nodestring + a+'[und][tid]='+aObj[a]['und'][0]['tid']+'&';
               break;
             case 'field_ftritem_public_summary': 
+              
+              nodeObject['field_ftritem_public_summary'] = {};
+              nodeObject['field_ftritem_public_summary']['und'] = [];
+              nodeObject['field_ftritem_public_summary']['und'][0] = {};
+              nodeObject['field_ftritem_public_summary']['und'][0]['value'] = aObj[a]['und'][0]['value'];
+              
               nodestring = nodestring +a+'[und][0][value]='+aObj[a]['und'][0]['value']+'&';
               break;
             case 'field_ftritem_narrative':
+              
+              nodeObject['field_ftritem_narrative'] = {};
+              nodeObject['field_ftritem_narrative']['und'] = [];
+              nodeObject['field_ftritem_narrative']['und'][0] = {};
+              nodeObject['field_ftritem_narrative']['und'][0]['value'] =  aObj[a]['und'][0]['value'];
+              
               nodestring = nodestring +a+'[und][0][value]='+aObj[a]['und'][0]['value']+'&';
               break;
             case 'field_ftritem_field_trip':
+              
+              nodeObject['field_ftritem_field_trip'] = {};
+              nodeObject['field_ftritem_field_trip']['und'] = [];
+              nodeObject['field_ftritem_field_trip']['und'][0] = {};
+              nodeObject['field_ftritem_field_trip']['und'][0]['target_id'] = localStorage.ftitle+"("+aObj[a]['und'][0]['target_id']+")";
+              
               nodestring = nodestring +a+'[und][0][target_id]='+localStorage.ftitle+"("+aObj[a]['und'][0]['target_id']+")"+'&';
               break;
             case 'field_ftritem_date_visited':
@@ -1803,6 +1842,13 @@ var devtracnodes = {
                 }
                 
                 duedate = dateparts[2]+'/'+dateparts[1]+'/'+dateparts[0];
+
+                nodeObject['field_ftritem_date_visited'] = {};
+                nodeObject['field_ftritem_date_visited']['und'] = [];
+                nodeObject['field_ftritem_date_visited']['und'][0] = {};
+                nodeObject['field_ftritem_date_visited']['und'][0]['value'] = {};
+                nodeObject['field_ftritem_date_visited']['und'][0]['value']['date'] = duedate;
+                
                 console.log("clean date is "+duedate);
                 
               }else{
@@ -1813,6 +1859,11 @@ var devtracnodes = {
                 var sitedatearray = sitedateonly.split("-");
                 
                 duedate =  sitedatearray[2] + "/" + sitedatearray[1] + "/" + sitedatearray[0];
+                
+                nodeObject['field_ftritem_date_visited'] = {};
+                nodeObject['field_ftritem_date_visited']['und'] = [];
+                nodeObject['field_ftritem_date_visited']['und'][0] = {};
+                nodeObject['field_ftritem_date_visited']['und'][0]['value'] = sitedateonly;
                 
                 console.log("unclean date is "+duedate);
               }
@@ -1827,25 +1878,36 @@ var devtracnodes = {
               break;
             case 'field_ftritem_place':
               if(placename != undefined && placename != null){
+                
+                nodeObject['field_ftritem_place'] = {};
+                nodeObject['field_ftritem_place']['und'] = [];
+                nodeObject['field_ftritem_place']['und'][0] = {};
+                nodeObject['field_ftritem_place']['und'][0]['target_id'] = placename+"("+placeid+")";
+                
                 nodestring = nodestring +a+'[und][0][target_id]='+placename+"("+placeid+")"+'&';
               }
               
               break;
               
             case 'field_ftritem_lat_long':
+              
+              nodeObject['field_ftritem_lat_long'] = {};
+              nodeObject['field_ftritem_lat_long']['und'] = [];
+              nodeObject['field_ftritem_lat_long']['und'][0] = {};
+              nodeObject['field_ftritem_lat_long']['und'][0]['geom'] = aObj[a]['und'][0]['geom'];
+              
               nodestring = nodestring +a+'[und][0][geom]='+aObj[a]['und'][0]['geom']+'&';
               break;
-              
-              /*case 'field_ftritem_images':
-            nodestring = nodestring + a+'[und][0][fid]='+imageObj['fid']+'&['+a+'][und][0][title]='+imageObj['title']+'&';
-            break;*/
               
             default :
               break
           }
         }
         else {
-          if(a != 'user-added' && a != 'image' && a != "nid" && a != "ftritem_place") {
+          if(a != 'user-added' && a != 'image' && a != "nid" && a != "ftritem_place" && a != "fresh_nid") {
+            
+            nodeObject[a] = aObj[a];
+            
             nodestring = nodestring +a+'='+aObj[a]+"&";  
           }
         }
@@ -1853,7 +1915,7 @@ var devtracnodes = {
       var nodestringlen = nodestring.length;
       var newnodestring = nodestring.substring(0, nodestringlen - 1);
       
-      d.resolve(newnodestring, sitevisit_backup, visited_date, aObj['nid'], index);
+      d.resolve(newnodestring, sitevisit_backup, visited_date, aObj['nid'], index, nodeObject);
       
       return d;
       
@@ -1956,6 +2018,9 @@ var devtracnodes = {
     //return place
     getLocationString: function(pObj, purpose) {
       var d = $.Deferred();
+      var nodeJsonObject = {};
+      var nodeType = "";
+      nodeJsonObject['type'] = pObj['type'];
       
       var nodestring = '';
       for(var p in pObj) {
@@ -1963,7 +2028,15 @@ var devtracnodes = {
           switch(p) {
             case 'field_place_website': 
               var url;
+              var website = {};
+              
               if(pObj[p]['und']) {
+                
+                nodeJsonObject['field_place_website'] = {};
+                nodeJsonObject['field_place_website']['und'] = [];
+                nodeJsonObject['field_place_website']['und'][0] = {};
+                nodeJsonObject['field_place_website']['und'][0]['url'] = pObj[p]['und'][0]['url'];
+                
                 url = pObj[p]['und'][0]['url'];
                 nodestring = nodestring + 'node['+p+'][und][0][url]='+encodeURIComponent(url)+'&';
               }
@@ -1971,6 +2044,12 @@ var devtracnodes = {
             case 'field_place_email': 
               var email;
               if(pObj[p]['und']) {
+                
+                nodeJsonObject['field_place_email'] = {};
+                nodeJsonObject['field_place_email']['und'] = [];
+                nodeJsonObject['field_place_email']['und'][0] = {};
+                nodeJsonObject['field_place_email']['und'][0]['email'] = pObj[p]['und'][0]['email'];;
+                
                 email = pObj[p]['und'][0]['email'];
                 nodestring = nodestring + 'node['+p+'][und][0][email]='+encodeURIComponent(email)+'&';
               }
@@ -1979,21 +2058,53 @@ var devtracnodes = {
             case 'field_place_phone': 
               var phone;
               if(pObj[p]['und']) {
+                
+                nodeJsonObject['field_place_phone'] = {};
+                nodeJsonObject['field_place_phone']['und'] = [];
+                nodeJsonObject['field_place_phone']['und'][0] = {};
+                nodeJsonObject['field_place_phone']['und'][0]['value'] = pObj[p]['und'][0]['phone'];
+                
                 phone = pObj[p]['und'][0]['phone'];
                 nodestring = nodestring + 'node['+p+'][und][0][value]='+encodeURIComponent(phone)+'&'; 
               }
               
               break;
             case 'field_place_responsible_person': 
+              
+              nodeJsonObject['field_place_responsible_person'] = {};
+              nodeJsonObject['field_place_responsible_person']['und'] = [];
+              nodeJsonObject['field_place_responsible_person']['und'][0] = {};
+              nodeJsonObject['field_place_responsible_person']['und'][0]['value'] = pObj[p]['und'][0]['value'];
+              
               nodestring = nodestring + 'node['+p+'][und][0][value]='+pObj[p]['und'][0]['value']+'&';
               break;
             case 'field_place_lat_long': 
+              
+              nodeJsonObject['field_place_lat_long'] = {};
+              nodeJsonObject['field_place_lat_long']['und'] = [];
+              nodeJsonObject['field_place_lat_long']['und'][0] = {};
+              nodeJsonObject['field_place_lat_long']['und'][0]['geom'] = pObj[p]['und'][0]['geom'];
+              nodeJsonObject['field_place_lat_long']['und'][0]['lat'] = parseInt(pObj[p]['und'][0]['lat']);
+              nodeJsonObject['field_place_lat_long']['und'][0]['lon'] = parseInt(pObj[p]['und'][0]['lon']);
+              
               nodestring = nodestring + 'node['+p+'][und][0][geom]='+pObj[p]['und'][0]['geom']+'&';
               break;
             case 'taxonomy_vocabulary_6':
+              
+              nodeJsonObject['taxonomy_vocabulary_6'] = {};
+              nodeJsonObject['taxonomy_vocabulary_6']['und'] = [];
+              nodeJsonObject['taxonomy_vocabulary_6']['und'][0] = {};
+              nodeJsonObject['taxonomy_vocabulary_6']['und'][0]['tid'] = pObj[p]['und'][0]['tid'];
+              
               nodestring = nodestring + 'node['+p+'][und][0][tid]='+pObj[p]['und'][0]['tid']+'&';
               break;
             case 'taxonomy_vocabulary_1':
+              
+              nodeJsonObject['taxonomy_vocabulary_1'] = {};
+              nodeJsonObject['taxonomy_vocabulary_1']['und'] = [];
+              nodeJsonObject['taxonomy_vocabulary_1']['und'][0] = {};
+              nodeJsonObject['taxonomy_vocabulary_1']['und'][0]['tid'] = pObj[p]['und'][0]['tid'];
+              
               nodestring = nodestring + 'node['+p+'][und][0][tid]='+pObj[p]['und'][0]['tid']+'&';
               break;
             default :
@@ -2001,8 +2112,11 @@ var devtracnodes = {
           }
         }
         else{
-          if(p != 'user-added' && p != 'nid' && p != 'promote' && p != 'sticky' && p != 'vuuid' && p != 'created' && p != 'changed' && p != 'tnid' && p != 'translate' && p != 'uuid' && p != 'revision_timestamp' && p != 'revision_uid' &&  
-          p != 'last_comment_timestamp' && p != 'last_comment_uid' && p != 'comment_count' && p != 'name' && p != 'picture' && p != 'data') {
+          if(p != 'user-added' && p != 'nid' && p != 'type' && p != 'status' && p != 'promote' && p != 'sticky' && p != 'vuuid' && p != 'created' && p != 'changed' && p != 'tnid' && p != 'translate' && p != 'uuid' && p != 'revision_timestamp' && p != 'revision_uid' &&  
+          p != 'last_comment_timestamp' && p != 'last_comment_uid' && p != 'comment_count' && p != 'name' && p != 'fresh_nid' && p != 'picture' && p != 'data') {
+            
+            nodeJsonObject[p] = pObj[p];
+            
             nodestring = nodestring + 'node['+p+']='+pObj[p]+"&";  
           }
           
@@ -2011,7 +2125,7 @@ var devtracnodes = {
       var nodestringlen = nodestring.length;
       var newnodestring = nodestring.substring(0, nodestringlen - 1);
       
-      d.resolve(newnodestring, pObj['nid'], pObj['title']);
+      d.resolve(newnodestring, pObj['nid'], pObj['title'], nodeJsonObject);
       
       return d;
       
