@@ -2137,8 +2137,7 @@ var devtracnodes = {
       if(aObj.hasOwnProperty('field_actionitem_severity')){
         actionitemNode['field_actionitem_severity'] = {};
         actionitemNode['field_actionitem_severity']['und'] = [];
-        //actionitemNode['field_actionitem_severity']['und'][0] = {};
-        //actionitemNode['field_actionitem_severity']['und'][0]['value'] = aObj['field_actionitem_severity']['und'][0]['value'];
+        
         actionitemNode['field_actionitem_severity']['und']['value'] = aObj['field_actionitem_severity']['und'][0]['value'];
         
         nodestring = nodestring + 'node[field_actionitem_severity][und][value]='+aObj['field_actionitem_severity']['und'][0]['value']+'&';
